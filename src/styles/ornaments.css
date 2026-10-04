@@ -1,0 +1,982 @@
+/* =====================================================
+   MEERA DESIGN SYSTEM
+   FOUNDATION — ORNAMENTS
+
+   Decorative density:
+   quiet      → minimal
+   framed     → moderate
+   hero       → expressive
+===================================================== */
+
+
+/* =====================================================
+   GENERIC ORNAMENT COLOR
+===================================================== */
+
+.meera-ornament {
+  color:
+    var(--meera-accent);
+
+  pointer-events: none;
+
+  user-select: none;
+}
+
+
+/* =====================================================
+   STAR
+===================================================== */
+
+.meera-star {
+  display: inline-grid;
+
+  place-items: center;
+
+  color:
+    var(--meera-accent);
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size: 1em;
+
+  font-style: normal;
+
+  line-height: 1;
+
+  transform:
+    rotate(2deg);
+}
+
+.meera-star::before {
+  content: "✦";
+}
+
+
+/* ---------------------------------------------------
+   Tiny star
+--------------------------------------------------- */
+
+.meera-star--sm {
+  font-size: 9px;
+}
+
+
+/* ---------------------------------------------------
+   Medium star
+--------------------------------------------------- */
+
+.meera-star--md {
+  font-size: 14px;
+}
+
+
+/* ---------------------------------------------------
+   Large star
+--------------------------------------------------- */
+
+.meera-star--lg {
+  font-size: 22px;
+}
+
+
+/* =====================================================
+   CRESCENT
+===================================================== */
+
+.meera-moon {
+  display: inline-grid;
+
+  place-items: center;
+
+  color:
+    var(--meera-accent);
+
+  font-family:
+    Georgia,
+    serif;
+
+  line-height: 1;
+}
+
+.meera-moon::before {
+  content: "☾";
+}
+
+
+/* =====================================================
+   DOT
+===================================================== */
+
+.meera-dot {
+  display: inline-block;
+
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+
+  background:
+    currentColor;
+}
+
+
+/* =====================================================
+   DIVIDER
+===================================================== */
+
+.meera-divider {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap:
+    var(--meera-space-3);
+
+  width:
+    min(
+      220px,
+      70%
+    );
+
+  margin-inline: auto;
+
+  color:
+    var(--meera-accent);
+}
+
+.meera-divider::before,
+.meera-divider::after {
+  content: "";
+
+  flex: 1;
+
+  height:
+    var(--meera-stroke-thin);
+
+  background:
+    var(--meera-line);
+
+  border-radius:
+    var(--meera-radius-pill);
+}
+
+.meera-divider__symbol {
+  display: grid;
+  place-items: center;
+
+  width: 18px;
+  height: 18px;
+
+  color:
+    var(--meera-accent);
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size: 12px;
+
+  line-height: 1;
+}
+
+.meera-divider__symbol::before {
+  content: "✦";
+}
+
+
+/* =====================================================
+   DOTTED DIVIDER
+===================================================== */
+
+.meera-divider--dots::before,
+.meera-divider--dots::after {
+  height: 2px;
+
+  background:
+    repeating-linear-gradient(
+      to right,
+      var(--meera-line)
+        0 2px,
+      transparent
+        2px 7px
+    );
+}
+
+
+/* =====================================================
+   PLAQUE
+
+   Inspired by tarot title labels,
+   but simplified for reusable UI.
+===================================================== */
+
+.meera-plaque {
+  position: relative;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 36px;
+
+  padding:
+    7px
+    22px;
+
+  border:
+    var(--meera-stroke)
+    solid
+    var(--meera-line);
+
+  border-radius:
+    12px 16px 11px 15px;
+
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-surface);
+
+  box-shadow:
+    2px 3px 0
+    var(--meera-accent-soft);
+}
+
+
+/* tiny side ornaments */
+
+.meera-plaque::before,
+.meera-plaque::after {
+  content: "✦";
+
+  position: absolute;
+
+  top: 50%;
+
+  color:
+    var(--meera-accent);
+
+  font-size: 8px;
+
+  line-height: 1;
+
+  transform:
+    translateY(-50%);
+}
+
+.meera-plaque::before {
+  left: 8px;
+}
+
+.meera-plaque::after {
+  right: 8px;
+}
+
+
+/* =====================================================
+   QUIET FRAME
+===================================================== */
+
+.meera-frame {
+  position: relative;
+
+  border:
+    var(--meera-stroke)
+    solid
+    var(--meera-line);
+
+  border-radius:
+    var(--meera-radius-lg);
+
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-surface);
+}
+
+
+/* =====================================================
+   DOUBLE FRAME
+   Use for hero / important ritual areas only.
+===================================================== */
+
+.meera-frame--double {
+  padding:
+    var(--meera-space-3);
+
+  border:
+    var(--meera-stroke-bold)
+    solid
+    var(--meera-line);
+}
+
+.meera-frame--double::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 8px;
+
+  pointer-events: none;
+
+  border:
+    var(--meera-stroke-hairline)
+    solid
+    var(--meera-line-soft);
+
+  border-radius:
+    calc(
+      var(--meera-radius-lg) -
+      7px
+    );
+}
+
+
+/* =====================================================
+   HAND-DRAWN FRAME
+
+   Slight asymmetry is intentional.
+===================================================== */
+
+.meera-frame--hand {
+  border-radius:
+    24px 20px 27px 21px;
+
+  box-shadow:
+    var(--meera-shadow-offset-small);
+}
+
+.meera-frame--hand::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 6px;
+
+  pointer-events: none;
+
+  border:
+    var(--meera-stroke-hairline)
+    solid
+    var(--meera-line-soft);
+
+  border-radius:
+    19px 23px 18px 24px;
+}
+
+
+/* =====================================================
+   HERO FRAME
+
+   Large page-level framing.
+===================================================== */
+
+.meera-hero-frame {
+  position: absolute;
+
+  inset:
+    clamp(
+      12px,
+      2vw,
+      24px
+    );
+
+  z-index:
+    var(--meera-z-decoration);
+
+  pointer-events: none;
+
+  border:
+    var(--meera-stroke-bold)
+    solid
+    var(--meera-line);
+
+  border-radius:
+    30px 26px 34px 28px;
+}
+
+.meera-hero-frame::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 9px;
+
+  border:
+    var(--meera-stroke-hairline)
+    solid
+    var(--meera-line-soft);
+
+  border-radius:
+    24px 29px 22px 30px;
+}
+
+
+/* =====================================================
+   HERO FRAME CORNER
+===================================================== */
+
+.meera-frame-corner {
+  position: absolute;
+
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  color:
+    var(--meera-accent);
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size: 18px;
+
+  line-height: 1;
+
+  background:
+    var(--meera-canvas);
+}
+
+.meera-frame-corner--tl {
+  top: -9px;
+  left: 30px;
+}
+
+.meera-frame-corner--tr {
+  top: -9px;
+  right: 30px;
+}
+
+.meera-frame-corner--bl {
+  bottom: -9px;
+  left: 30px;
+}
+
+.meera-frame-corner--br {
+  right: 30px;
+  bottom: -9px;
+}
+
+
+/* =====================================================
+   ORBIT
+===================================================== */
+
+.meera-orbit {
+  position: absolute;
+
+  pointer-events: none;
+
+  border:
+    var(--meera-stroke-hairline)
+    solid
+    var(--meera-line-soft);
+
+  border-radius: 50%;
+}
+
+.meera-orbit--dotted {
+  border-style: dotted;
+
+  border-color:
+    var(--meera-line-medium);
+}
+
+
+/* =====================================================
+   SUNBURST
+
+   Lightweight CSS ornament.
+===================================================== */
+
+.meera-sunburst {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  aspect-ratio: 1;
+
+  color:
+    var(--meera-accent);
+}
+
+.meera-sunburst::before {
+  content: "✦";
+
+  position: relative;
+
+  z-index: 2;
+
+  font-size: 17px;
+}
+
+.meera-sunburst::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 3px;
+
+  border:
+    1px dashed
+    currentColor;
+
+  border-radius: 50%;
+
+  opacity: 0.7;
+}
+
+
+/* =====================================================
+   ORNAMENT CLUSTER
+
+   Example:
+   star · moon · star
+===================================================== */
+
+.meera-symbol-cluster {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap:
+    var(--meera-space-3);
+
+  color:
+    var(--meera-accent);
+}
+
+.meera-symbol-cluster > *:nth-child(1),
+.meera-symbol-cluster > *:nth-child(3) {
+  font-size: 9px;
+}
+
+.meera-symbol-cluster > *:nth-child(2) {
+  font-size: 22px;
+}
+
+
+/* =====================================================
+   DOODLE
+===================================================== */
+
+.meera-doodle {
+  position: absolute;
+
+  color:
+    var(--meera-accent);
+
+  font-family:
+    Georgia,
+    serif;
+
+  line-height: 1;
+
+  pointer-events: none;
+
+  user-select: none;
+
+  animation:
+    meera-doodle-float
+    6s
+    ease-in-out
+    infinite;
+}
+
+
+/* =====================================================
+   FLOATING DECORATIVE DOTS
+===================================================== */
+
+.meera-dot-field {
+  position: absolute;
+
+  pointer-events: none;
+
+  color:
+    var(--meera-line-medium);
+}
+
+.meera-dot-field::before {
+  content:
+    "·  ·     ·   ·      ·    ·";
+
+  display: block;
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size: 20px;
+
+  letter-spacing:
+    0.12em;
+}
+
+
+/* =====================================================
+   BUTTON — PRIMARY
+
+   Included here because its character
+   is heavily tied to Meera ornament language.
+===================================================== */
+
+.meera-button {
+  position: relative;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap:
+    var(--meera-space-3);
+
+  min-height: 46px;
+
+  padding:
+    8px
+    18px;
+
+  border:
+    var(--meera-stroke-bold)
+    solid
+    var(--meera-line);
+
+  border-radius:
+    var(--meera-radius-pill);
+
+  color:
+    var(--meera-text-inverse);
+
+  background:
+    var(--meera-text);
+
+  box-shadow:
+    var(--meera-shadow-offset);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing:
+    0.09em;
+
+  text-transform:
+    uppercase;
+
+  cursor: pointer;
+
+  transform:
+    rotate(-0.3deg);
+
+  transition:
+    transform
+      var(--meera-duration-fast)
+      var(--meera-ease),
+    box-shadow
+      var(--meera-duration-fast)
+      ease,
+    background
+      var(--meera-duration-fast)
+      ease;
+}
+
+.meera-button:hover:not(:disabled) {
+  transform:
+    translateY(-2px)
+    rotate(0.2deg);
+
+  box-shadow:
+    4px 6px 0
+    var(--meera-accent);
+}
+
+.meera-button:active:not(:disabled) {
+  transform:
+    translateY(1px);
+
+  box-shadow:
+    1px 2px 0
+    var(--meera-accent);
+}
+
+.meera-button:disabled {
+  cursor: default;
+
+  opacity: 0.5;
+}
+
+
+/* =====================================================
+   BUTTON ICON
+===================================================== */
+
+.meera-button__icon {
+  display: grid;
+  place-items: center;
+
+  width: 30px;
+  height: 30px;
+
+  margin:
+    -3px
+    -9px
+    -3px
+    2px;
+
+  border-radius: 50%;
+
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-canvas);
+}
+
+
+/* =====================================================
+   SECONDARY BUTTON
+===================================================== */
+
+.meera-button--secondary {
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-surface);
+
+  box-shadow:
+    2px 3px 0
+    var(--meera-accent-soft);
+}
+
+
+/* =====================================================
+   ICON BUTTON
+===================================================== */
+
+.meera-icon-button {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+
+  border:
+    var(--meera-stroke)
+    solid
+    var(--meera-line);
+
+  border-radius: 50%;
+
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-surface);
+
+  cursor: pointer;
+
+  transition:
+    transform
+      var(--meera-duration-fast)
+      var(--meera-ease);
+}
+
+.meera-icon-button:hover {
+  transform:
+    translateY(-2px)
+    rotate(3deg);
+}
+
+
+/* =====================================================
+   BADGE
+===================================================== */
+
+.meera-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap:
+    6px;
+
+  min-height: 25px;
+
+  padding:
+    3px
+    10px;
+
+  border:
+    var(--meera-stroke-hairline)
+    solid
+    var(--meera-line);
+
+  border-radius:
+    var(--meera-radius-pill);
+
+  color:
+    var(--meera-text-muted);
+
+  background:
+    var(--meera-surface);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size: 8px;
+
+  font-weight: 650;
+
+  letter-spacing:
+    0.1em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* =====================================================
+   MOTION
+===================================================== */
+
+@keyframes meera-doodle-float {
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      rotate(-1deg);
+  }
+
+  50% {
+    transform:
+      translateY(-7px)
+      rotate(1deg);
+  }
+}
+
+
+@keyframes meera-soft-float {
+  0%,
+  100% {
+    transform:
+      translateY(0);
+  }
+
+  50% {
+    transform:
+      translateY(-7px);
+  }
+}
+
+
+@keyframes meera-wobble {
+  0%,
+  100% {
+    transform:
+      rotate(-0.8deg);
+  }
+
+  50% {
+    transform:
+      rotate(0.8deg);
+  }
+}
+
+
+@keyframes meera-star-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+
+    transform:
+      scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform:
+      scale(1.08);
+  }
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 800px) {
+  .meera-hero-frame {
+    inset: 11px;
+
+    border-radius:
+      24px 20px 27px 21px;
+  }
+
+  .meera-frame-corner {
+    width: 29px;
+    height: 29px;
+
+    font-size: 15px;
+  }
+
+  .meera-frame-corner--tl,
+  .meera-frame-corner--bl {
+    left: 20px;
+  }
+
+  .meera-frame-corner--tr,
+  .meera-frame-corner--br {
+    right: 20px;
+  }
+
+  .meera-button {
+    min-height: 44px;
+
+    padding:
+      7px
+      16px;
+
+    font-size: 9px;
+  }
+
+  .meera-divider {
+    width:
+      min(
+        180px,
+        68vw
+      );
+  }
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .meera-doodle {
+    animation: none;
+  }
+}

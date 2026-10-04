@@ -1,0 +1,423 @@
+/* =====================================================
+   MEERA DESIGN SYSTEM
+   FOUNDATION — TYPOGRAPHY
+===================================================== */
+
+
+/* =====================================================
+   FONT TOKENS
+
+   Assumes existing project defines:
+   --display
+   --ui
+===================================================== */
+
+:root {
+  --meera-font-display:
+    var(
+      --display,
+      Georgia,
+      serif
+    );
+
+  --meera-font-ui:
+    var(
+      --ui,
+      Arial,
+      sans-serif
+    );
+
+
+  /* ---------------------------------------------------
+     DISPLAY SCALE
+  --------------------------------------------------- */
+
+  --meera-type-display-xl:
+    clamp(
+      52px,
+      7vw,
+      96px
+    );
+
+  --meera-type-display-lg:
+    clamp(
+      42px,
+      5.5vw,
+      72px
+    );
+
+  --meera-type-display-md:
+    clamp(
+      34px,
+      4vw,
+      54px
+    );
+
+  --meera-type-display-sm:
+    clamp(
+      26px,
+      3vw,
+      38px
+    );
+
+
+  /* ---------------------------------------------------
+     BODY SCALE
+  --------------------------------------------------- */
+
+  --meera-type-body-lg: 16px;
+  --meera-type-body: 14px;
+  --meera-type-body-sm: 12px;
+
+  --meera-type-label: 10px;
+  --meera-type-micro: 9px;
+}
+
+
+/* =====================================================
+   BASE
+===================================================== */
+
+body {
+  font-family:
+    var(--meera-font-ui);
+
+  font-size:
+    var(--meera-type-body);
+
+  line-height: 1.55;
+}
+
+
+/* =====================================================
+   DISPLAY TYPOGRAPHY
+===================================================== */
+
+.meera-display-xl,
+.meera-display-lg,
+.meera-display-md,
+.meera-display-sm {
+  margin: 0;
+
+  color:
+    var(--meera-text);
+
+  font-family:
+    var(--meera-font-display);
+
+  font-weight: 400;
+
+  letter-spacing:
+    -0.045em;
+}
+
+
+/* ---------------------------------------------------
+   XL
+--------------------------------------------------- */
+
+.meera-display-xl {
+  font-size:
+    var(--meera-type-display-xl);
+
+  line-height: 0.92;
+
+  letter-spacing:
+    -0.058em;
+}
+
+
+/* ---------------------------------------------------
+   LARGE
+--------------------------------------------------- */
+
+.meera-display-lg {
+  font-size:
+    var(--meera-type-display-lg);
+
+  line-height: 0.95;
+}
+
+
+/* ---------------------------------------------------
+   MEDIUM
+--------------------------------------------------- */
+
+.meera-display-md {
+  font-size:
+    var(--meera-type-display-md);
+
+  line-height: 0.98;
+}
+
+
+/* ---------------------------------------------------
+   SMALL
+--------------------------------------------------- */
+
+.meera-display-sm {
+  font-size:
+    var(--meera-type-display-sm);
+
+  line-height: 1;
+}
+
+
+/* =====================================================
+   EMPHASIS
+===================================================== */
+
+.meera-emphasis {
+  color:
+    var(--meera-accent);
+
+  font-family:
+    var(--meera-font-display);
+
+  font-style: italic;
+  font-weight: 400;
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+.meera-body-lg {
+  margin: 0;
+
+  color:
+    var(--meera-text-muted);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size:
+    var(--meera-type-body-lg);
+
+  line-height: 1.65;
+}
+
+.meera-body {
+  margin: 0;
+
+  color:
+    var(--meera-text-muted);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size:
+    var(--meera-type-body);
+
+  line-height: 1.65;
+}
+
+.meera-body-sm {
+  margin: 0;
+
+  color:
+    var(--meera-text-muted);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size:
+    var(--meera-type-body-sm);
+
+  line-height: 1.6;
+}
+
+
+/* =====================================================
+   EYEBROW
+===================================================== */
+
+.meera-eyebrow {
+  margin: 0;
+
+  color:
+    var(--meera-text-muted);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size:
+    var(--meera-type-label);
+
+  font-weight: 600;
+
+  line-height: 1.2;
+
+  letter-spacing:
+    0.16em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* =====================================================
+   LABEL
+===================================================== */
+
+.meera-label {
+  margin: 0;
+
+  color:
+    var(--meera-text);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size:
+    var(--meera-type-label);
+
+  font-weight: 650;
+
+  letter-spacing:
+    0.1em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* =====================================================
+   MICROCOPY
+===================================================== */
+
+.meera-micro {
+  margin: 0;
+
+  color:
+    var(--meera-text-subtle);
+
+  font-family:
+    var(--meera-font-display);
+
+  font-size:
+    12px;
+
+  line-height: 1.45;
+
+  font-style: italic;
+}
+
+
+/* =====================================================
+   RITUAL TEXT
+===================================================== */
+
+.meera-ritual {
+  margin: 0;
+
+  color:
+    var(--meera-text-muted);
+
+  font-family:
+    var(--meera-font-display);
+
+  font-size:
+    clamp(
+      15px,
+      1.8vw,
+      20px
+    );
+
+  font-style: italic;
+
+  line-height: 1.45;
+}
+
+
+/* =====================================================
+   MONO / UTILITY-LIKE LABEL
+
+   Inspired by some editorial tarot references,
+   but still uses project UI font by default.
+===================================================== */
+
+.meera-utility {
+  color:
+    var(--meera-text-muted);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing:
+    0.13em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* =====================================================
+   TEXT ALIGNMENTS
+===================================================== */
+
+.meera-text-center {
+  text-align: center;
+}
+
+.meera-text-left {
+  text-align: left;
+}
+
+.meera-text-right {
+  text-align: right;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 800px) {
+  :root {
+    --meera-type-display-xl:
+      clamp(
+        43px,
+        12vw,
+        62px
+      );
+
+    --meera-type-display-lg:
+      clamp(
+        34px,
+        10vw,
+        48px
+      );
+
+    --meera-type-display-md:
+      clamp(
+        29px,
+        8vw,
+        40px
+      );
+
+    --meera-type-display-sm:
+      clamp(
+        23px,
+        6vw,
+        32px
+      );
+
+    --meera-type-body-lg:
+      15px;
+
+    --meera-type-body:
+      13px;
+
+    --meera-type-body-sm:
+      11px;
+
+    --meera-type-label:
+      9px;
+  }
+}

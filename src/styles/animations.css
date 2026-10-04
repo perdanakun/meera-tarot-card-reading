@@ -1,26 +1,9 @@
-/* Intro */
-.intro-scene {
-  min-height: calc(100svh - 86px);
-  position: relative;
-  display: grid;
-  place-items: center;
-  padding: 40px 24px 90px;
-  overflow: hidden;
-}
+/* =====================================================
+   LEGACY SCENES
+   Selection / Reveal / Result remain here temporarily.
+   Intro and TarotCard now own their CSS files.
+===================================================== */
 
-.intro-copy {
-  position: relative;
-  z-index: 3;
-  text-align: center;
-  max-width: 660px;
-  animation: rise 0.9s both;
-  transition:
-    opacity 0.55s,
-    filter 0.55s,
-    transform 0.7s var(--ease);
-}
-
-.intro-copy h1,
 .selection-intro h2,
 .reveal-intro h2,
 .result-heading h2 {
@@ -32,305 +15,16 @@
   margin: 0 0 28px;
 }
 
-.intro-copy h1 em,
 .result-heading h2 em {
   color: var(--wine);
   font-style: italic;
-}
-
-.intro-note {
-  font-size: 13px;
-  line-height: 1.7;
-  color: rgba(36, 26, 34, 0.63);
-  margin: 0 auto 30px;
-}
-
-.intro-foot {
-  position: absolute;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  width: max-content;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
-  color: rgba(36, 26, 34, 0.48);
-}
-
-.intro-foot .line {
-  width: 45px;
-  height: 1px;
-  background: var(--line);
-}
-
-.ambient-orbit {
-  position: absolute;
-  border: 1px solid rgba(110, 53, 72, 0.14);
-  border-radius: 50%;
-  transform: rotate(-16deg);
-}
-
-.orbit-one {
-  width: min(80vw, 680px);
-  aspect-ratio: 1.8;
-}
-
-.orbit-two {
-  width: min(95vw, 960px);
-  aspect-ratio: 2.2;
-  opacity: 0.55;
-  transform: rotate(18deg);
-}
-
-.floating-cards {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  z-index: 1;
-  transition:
-    transform 1.1s var(--ease),
-    opacity 0.8s;
-}
-
-.intro-card {
-  position: absolute;
-  width: clamp(70px, 9vw, 124px);
-  animation: float 10s ease-in-out infinite;
-  filter: saturate(0.75);
-}
-
-.intro-card .tarot-card {
-  box-shadow: 0 16px 35px rgba(36, 26, 34, 0.18);
-}
-
-.intro-card-0 {
-  left: 8%;
-  top: 17%;
-  transform: rotate(-17deg);
-  animation-delay: -2s;
-}
-.intro-card-1 {
-  left: 20%;
-  top: 62%;
-  transform: rotate(11deg) scale(0.75);
-  opacity: 0.55;
-  animation-delay: -6s;
-}
-.intro-card-2 {
-  left: 31%;
-  top: 10%;
-  transform: rotate(7deg) scale(0.68);
-  opacity: 0.46;
-  animation-delay: -4s;
-}
-.intro-card-3 {
-  right: 16%;
-  top: 18%;
-  transform: rotate(15deg) scale(0.77);
-  opacity: 0.6;
-  animation-delay: -7s;
-}
-.intro-card-4 {
-  right: 9%;
-  top: 61%;
-  transform: rotate(-8deg) scale(0.9);
-  opacity: 0.62;
-  animation-delay: -1s;
-}
-.intro-card-5 {
-  left: 4%;
-  top: 45%;
-  transform: rotate(-27deg) scale(0.55);
-  opacity: 0.38;
-  animation-delay: -5s;
-}
-.intro-card-6 {
-  right: 32%;
-  bottom: 6%;
-  transform: rotate(18deg) scale(0.58);
-  opacity: 0.36;
-  animation-delay: -8s;
-}
-
-.entry-vortex {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: radial-gradient(
-    circle at center,
-    rgba(255, 253, 248, 0.86),
-    rgba(201, 151, 157, 0.34) 34%,
-    rgba(110, 53, 72, 0.78)
-  );
-  animation: portal-fade 1.25s both;
-}
-
-.entry-vortex i {
-  position: absolute;
-  width: min(112vw, 1200px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: clamp(35px, 9vw, 130px) solid rgba(255, 253, 248, 0.38);
-  filter: blur(16px);
-  animation: portal-ring 1.25s var(--ease) both;
-}
-
-.entry-vortex i:nth-child(2) {
-  width: min(85vw, 900px);
-  animation-delay: 0.08s;
-}
-.entry-vortex i:nth-child(3) {
-  width: min(58vw, 620px);
-  animation-delay: 0.16s;
-}
-.entry-vortex span {
-  position: relative;
-  z-index: 2;
-  font: italic clamp(22px, 3vw, 34px) var(--display);
-  color: var(--wine);
-  animation: portal-copy 1.25s both;
-}
-
-.is-entering .intro-copy {
-  opacity: 0;
-  filter: blur(8px);
-  transform: scale(1.14);
-}
-
-.is-entering .floating-cards {
-  transform: scale(1.45);
-  opacity: 0;
-}
-
-/* Shared card artwork */
-.tarot-card {
-  display: block;
-  position: relative;
-  aspect-ratio: 2 / 3;
-  width: 100%;
-  border-radius: 11px;
-  overflow: hidden;
-}
-
-.tarot-front,
-.tarot-back {
-  position: absolute;
-  inset: 0;
-  display: block;
-}
-
-.tarot-front {
-  color: var(--paper);
-  border: 1px solid rgba(255, 253, 248, 0.7);
-  padding: 9px;
-}
-
-.tarot-front::after {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border: 1px solid rgba(255, 253, 248, 0.58);
-  pointer-events: none;
-}
-
-.front-number {
-  position: absolute;
-  top: 9px;
-  left: 12px;
-  font: 10px var(--ui);
-}
-
-.art-symbol {
-  position: absolute;
-  left: 50%;
-  top: 44%;
-  transform: translate(-50%, -50%);
-  font: clamp(36px, 5vw, 64px) var(--display);
-  color: var(--card-accent);
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.3);
-}
-
-.art-lines {
-  position: absolute;
-  width: 72%;
-  aspect-ratio: 1;
-  left: 14%;
-  top: 25%;
-  border: 1px solid color-mix(in srgb, var(--card-accent), transparent 30%);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 13px rgba(255, 255, 255, 0.05),
-    0 0 0 28px rgba(255, 255, 255, 0.05);
-}
-
-.front-name {
-  position: absolute;
-  left: 12px;
-  bottom: 21px;
-  font: clamp(9px, 1vw, 13px) var(--display);
-  letter-spacing: 0.03em;
-}
-
-.front-archetype {
-  position: absolute;
-  left: 12px;
-  bottom: 9px;
-  font-size: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  opacity: 0.75;
-}
-
-.tarot-back {
-  background: var(--ink);
-  border: 1px solid #b18042;
-  padding: 6px;
-}
-
-.back-frame {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  border: 1px solid #b18042;
-  position: relative;
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(201, 151, 157, 0.16),
-      transparent 43%
-    ),
-    repeating-radial-gradient(
-      ellipse at center,
-      transparent 0 19px,
-      rgba(177, 128, 66, 0.42) 20px 21px
-    );
-}
-
-.back-symbol {
-  font: clamp(28px, 4vw, 50px) var(--display);
-  color: #e2be75;
-  font-style: italic;
-}
-
-.back-star {
-  position: absolute;
-  bottom: 10px;
-  color: #e2be75;
-  font-size: 11px;
 }
 
 /* Selection */
 .selection-scene,
 .reveal-scene,
 .result-scene {
-  min-height: calc(100svh - 86px);
+  min-height: 100svh;
   padding: 32px clamp(24px, 6vw, 100px) 60px;
   animation: rise 0.8s both;
 }
@@ -477,16 +171,28 @@
 
 .spread-card:hover:not(:disabled),
 .spread-card:focus-visible:not(:disabled) {
-  transform: translate3d(
-      calc(-50% + var(--x-desktop)),
-      calc(var(--y-desktop) - 31px),
+  transform:
+    translate3d(
+      calc(-50% + var(--fan-x)),
+      calc(var(--fan-y) - 22px),
       0
     )
-    rotate(var(--r)) scale(1.05);
-  filter: drop-shadow(0 22px 24px rgba(36, 26, 34, 0.23));
-  z-index: 35 !important;
-}
+    rotate(var(--fan-r));
 
+  filter:
+    drop-shadow(
+      0 10px 14px
+      rgba(36, 26, 34, 0.14)
+    );
+
+  /*
+   * Override rule lama yang punya
+   * z-index: 35 !important.
+   *
+   * Card tetap di physical layer aslinya.
+   */
+  z-index: var(--fan-z) !important;
+}
 .spread-card.is-chosen {
   opacity: 0.13;
   transform: translate3d(
@@ -859,15 +565,7 @@
   margin: 42px 0 20px;
 }
 
-@keyframes float {
-  0%,
-  100% {
-    margin-top: 0;
-  }
-  50% {
-    margin-top: -20px;
-  }
-}
+
 @keyframes card-breathe {
   0%,
   100% {
@@ -926,40 +624,7 @@
     transform: scale(0.7);
   }
 }
-@keyframes portal-ring {
-  from {
-    transform: scale(1.8) rotate(-12deg);
-    opacity: 0;
-  }
-  35% {
-    opacity: 1;
-  }
-  to {
-    transform: scale(0.04) rotate(18deg);
-    opacity: 0;
-  }
-}
-@keyframes portal-copy {
-  0%,
-  100% {
-    opacity: 0;
-    filter: blur(5px);
-  }
-  32%,
-  65% {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-@keyframes portal-fade {
-  0%,
-  70% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
+
 
 @media (max-width: 800px) {
   .meera-header {
@@ -970,41 +635,6 @@
     display: none;
   }
 
-  .intro-scene {
-    min-height: calc(100svh - 70px);
-    padding-bottom: 100px;
-  }
-
-  .floating-cards .intro-card-0 {
-    left: 0;
-    top: 18%;
-  }
-  .floating-cards .intro-card-4 {
-    right: -5%;
-    top: 62%;
-  }
-  .intro-card-1 {
-    left: 8%;
-    top: 70%;
-  }
-  .intro-card-3 {
-    right: 6%;
-    top: 10%;
-  }
-  .intro-card-5 {
-    left: -10%;
-    top: 44%;
-  }
-  .intro-copy h1 {
-    font-size: 50px;
-  }
-  .intro-foot {
-    font-size: 8px;
-    gap: 9px;
-  }
-  .intro-foot .line {
-    width: 20px;
-  }
 
   .selection-scene,
   .reveal-scene,
@@ -1189,9 +819,7 @@
     transition-duration: 0.01ms !important;
   }
 
-  .entry-vortex {
-    display: none;
-  }
+
 }
 
 @media print {
@@ -1216,152 +844,11 @@
    Keep this block after the original scene styles.
 ===================================================== */
 
-/* ---------- Illustrated card artwork ---------- */
-.tarot-card {
-  aspect-ratio: 160 / 254;
-  border-radius: 11px;
-  background: var(--paper);
-  box-shadow:
-    0 2px 1px rgba(143, 120, 86, 0.28),
-    0 8px 18px rgba(36, 26, 34, 0.12),
-    0 24px 42px rgba(36, 26, 34, 0.16);
-}
-
-.tarot-front,
-.tarot-back {
-  padding: 0;
-  border: 0;
-  background: #f5e9d4;
-  color: #34313a;
-}
-
-.tarot-front::after {
-  display: none;
-}
-
-.back-art {
-  width: 100%;
-  height: 100%;
-  display: block;
-  background: #ebdfca;
-}
-
-.back-border {
-  fill: none;
-  stroke: #a38a67;
-  stroke-width: 1;
-}
-
-.back-border.thin {
-  stroke-width: 0.6;
-  opacity: 0.65;
-}
-
-.back-orbit {
-  fill: none;
-  stroke: #b19971;
-  stroke-width: 0.6;
-  opacity: 0.8;
-}
-
-.back-cat {
-  fill: #70624f;
-}
-
-.back-face {
-  fill: none;
-  stroke: #ebdfca;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-}
-
-.back-stars,
-.back-dots {
-  fill: #9b7e4e;
-}
-
-.front-design {
-  container-type: inline-size;
-  margin: 5%;
-  width: 90%;
-  height: 90%;
-  border: 1px solid rgba(168, 148, 116, 0.44);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 5.5% 3% 4%;
-  color: #34313a;
-  background: radial-gradient(ellipse at 50% 45%, rgba(255, 244, 220, 0.72), transparent 80%);
-}
-
-.card-topline {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  font-size: 4.2cqw;
-  letter-spacing: 0.09em;
-  color: #887358;
-  gap: 4px;
-}
-
-.card-topline span:nth-child(2) {
-  font-size: 7cqw;
-}
-
-.cat-art {
-  display: block;
-  width: 92%;
-  height: auto;
-  min-height: 0;
-  flex: 1 1 auto;
-  margin-top: 1%;
-}
-
-.card-name {
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: var(--display);
-  font-size: 8.2cqw;
-  line-height: 1.05;
-  text-align: center;
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-.card-keyword {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 4.5cqw;
-  letter-spacing: 0.05em;
-  color: #8b755c;
-  margin-top: 3%;
-}
-
-.card-bottomline {
-  width: 100%;
-  border-top: 1px solid rgba(171, 150, 116, 0.34);
-  text-align: center;
-  font-size: 3.8cqw;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #887358;
-  margin-top: auto;
-  padding-top: 4%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* ---------- Selection composition ---------- */
 .selection-scene {
   position: relative;
   overflow: hidden;
-  min-height: calc(100svh - 86px);
+  min-height: 100svh;
   padding-bottom: 0;
 }
 
@@ -1662,7 +1149,7 @@
 
 @media (max-width: 800px) {
   .selection-scene {
-    min-height: calc(100svh - 70px);
+    min-height: 100svh;
     padding-bottom: 0;
   }
 
@@ -1767,283 +1254,838 @@
     animation: none !important;
   }
 }
-
 /* =====================================================
-   SELECTION V2 — FAN ONLY / PEEK → PICK → ARRANGE
-   This block intentionally overrides the older tray-based
-   selection rules above. The JSX no longer renders the tray.
+   SELECTION V3
+   PICK SLOTS + PHYSICAL FAN + MOBILE ROULETTE
+
+   Flow:
+   hover = peek inside fan
+   click = move card to one of 3 slots
+   mobile swipe = rotate wheel around center
 ===================================================== */
 
-/* The selection stage is only intro + fan + subtle status. */
+/* =====================================================
+   SCENE
+===================================================== */
+
 .selection-scene {
   position: relative;
   overflow: hidden;
-  min-height: calc(100svh - 86px);
-  padding-bottom: 0;
+  min-height: 100svh;
+  padding: 18px clamp(24px, 6vw, 100px) 0;
 }
 
-/* Keep the fan visually anchored below the screen, while cards
-   are allowed to peek upward without being clipped by this layer. */
+/* =====================================================
+   INTRO
+===================================================== */
+
+.selection-intro {
+  position: relative;
+  z-index: 30;
+  text-align: center;
+
+  transition:
+    opacity 0.45s ease,
+    transform 0.7s var(--ease),
+    filter 0.55s ease;
+}
+
+.selection-intro .eyebrow {
+  margin-bottom: 10px;
+}
+
+.selection-intro h2 {
+  /*
+   * Sengaja lebih kecil dari scene lain
+   * supaya slots + fan muat dalam satu viewport.
+   */
+  font-size: clamp(38px, 4.3vw, 58px);
+  line-height: 0.96;
+  margin-bottom: 10px;
+}
+
+.selection-intro p:not(.eyebrow) {
+  margin-bottom: 0;
+
+  color: rgba(36, 26, 34, 0.6);
+
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* =====================================================
+   THREE PICK SLOTS
+===================================================== */
+
+.selection-picks {
+  --selection-card-width:
+    clamp(112px, 9vw, 136px);
+
+  position: relative;
+  z-index: 25;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  gap: clamp(16px, 2.2vw, 28px);
+
+  margin: 22px auto 0;
+
+  transform: translateY(30px);
+
+  width: max-content;
+  max-width: 100%;
+}
+
+.selection-pick-slot {
+  position: relative;
+
+  width: var(--selection-card-width);
+  aspect-ratio: 971 / 1619;
+
+  border-radius: 11px;
+
+  border:
+    1px dashed
+    rgba(110, 53, 72, 0.24);
+
+  background:
+    rgba(255, 253, 248, 0.18);
+
+  display: grid;
+  place-items: center;
+
+  transition:
+    border-color 0.35s ease,
+    background 0.35s ease,
+    transform 0.45s var(--ease);
+}
+
+.selection-pick-slot.has-card {
+  border-color: transparent;
+  background: transparent;
+}
+
+.selection-pick-placeholder {
+  color: rgba(110, 53, 72, 0.34);
+
+  font-family: var(--display);
+  font-size: 17px;
+  font-style: italic;
+}
+
+.selection-pick-card {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+
+  border: 0;
+  padding: 0;
+  background: none;
+
+  animation:
+    selection-card-arrive
+    0.55s
+    var(--ease)
+    both;
+
+  filter:
+    drop-shadow(
+      0 12px 18px
+      rgba(36, 26, 34, 0.14)
+    );
+
+  transition:
+    transform 0.3s var(--ease),
+    filter 0.3s ease;
+}
+
+.selection-pick-card:hover:not(:disabled) {
+  transform: translateY(-5px);
+
+  filter:
+    drop-shadow(
+      0 16px 22px
+      rgba(36, 26, 34, 0.18)
+    );
+}
+
+/* =====================================================
+   FAN VIEWPORT
+===================================================== */
+
 .card-spread-viewport {
   position: absolute;
+
   z-index: 8;
+
   left: 0;
   right: 0;
-  bottom: -105px;
+
+  /*
+   * Fan masih berasal dari bawah viewport,
+   * tetapi tidak sedalam versi sebelumnya.
+   *
+   * Ini memperbaiki top card yang terpotong.
+   */
+  bottom: -118px;
+
   width: 100%;
-  height: 365px;
+  height: 405px;
+
   margin: 0;
   padding: 0;
+
   overflow: visible;
+
   pointer-events: none;
+
+  touch-action: none;
+
   transition:
     opacity 0.72s ease,
-    transform 1.05s var(--ease),
+    transform 1s var(--ease),
     filter 0.65s ease;
 }
 
 .card-spread {
   position: relative;
+
   width: min(1120px, 100%);
-  height: 365px;
+  height: 405px;
+
   margin: 0 auto;
+
   perspective: 1400px;
+
   pointer-events: none;
-  transition: none;
 }
+
+/* =====================================================
+   FAN CARDS
+===================================================== */
 
 .spread-card {
   position: absolute;
+
   left: 50%;
   top: 0;
+
   width: clamp(112px, 9vw, 136px);
-  padding: 0;
+
   border: 0;
+  padding: 0;
+
   background: none;
+
   pointer-events: auto;
-  transform-origin: 50% 145%;
-  transform: translate3d(calc(-50% + var(--fan-x)), var(--fan-y), 0)
+
+  /*
+   * Physical fan pivot.
+   */
+  transform-origin:
+    50% 145%;
+
+  transform:
+    translate3d(
+      calc(-50% + var(--fan-x)),
+      var(--fan-y),
+      0
+    )
     rotate(var(--fan-r));
+
+  opacity: var(--fan-opacity, 1);
+
   transition:
-    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    transform
+      0.38s
+      cubic-bezier(0.22, 1, 0.36, 1),
     filter 0.3s ease,
-    opacity 0.48s ease;
-  animation: wheel-deal-in 0.72s var(--ease) both;
-  animation-delay: var(--fan-delay);
-  will-change: transform;
+    opacity 0.35s ease;
+
+  animation:
+    wheel-deal-in
+    0.72s
+    var(--ease)
+    both;
+
+  animation-delay:
+    var(--fan-delay);
+
+  will-change:
+    transform,
+    opacity;
+
+  /*
+   * IMPORTANT:
+   * no z-index here.
+   *
+   * JSX owns physical stacking:
+   * zIndex = index + 1
+   */
 }
 
-/* Hover is only a tiny physical response. The card stays inside
-   the overlap rather than being pulled out of the fan. */
+.spread-card > * {
+  pointer-events: none;
+}
+
+/* =====================================================
+   HOVER = PEEK ONLY
+===================================================== */
+
 .spread-card:hover:not(:disabled),
 .spread-card:focus-visible:not(:disabled) {
-  transform: translate3d(
-      calc(-50% + var(--fan-x) + 3px),
-      calc(var(--fan-y) - 8px),
+  /*
+   * Card hanya nongol sedikit.
+   *
+   * Tidak scale besar.
+   * Tidak keluar fan.
+   * Tidak ganti z-index.
+   */
+  transform:
+    translate3d(
+      calc(-50% + var(--fan-x)),
+      calc(var(--fan-y) - 18px),
       0
     )
-    rotate(var(--fan-r)) scale(1.01);
-  filter: drop-shadow(0 8px 12px rgba(36, 26, 34, 0.12));
-  z-index: 80 !important;
+    rotate(var(--fan-r));
+
+  filter:
+    drop-shadow(
+      0 10px 14px
+      rgba(36, 26, 34, 0.14)
+    );
 }
 
-/* A picked card remains in the fan and only peeks farther out.
-   It is intentionally still overlapped by the surrounding deck. */
+/*
+ * PENTING:
+ *
+ * Jangan tambahkan:
+ *
+ * z-index: 80 !important;
+ *
+ * di hover.
+ *
+ * Itu yang sebelumnya menyebabkan
+ * hovered card keluar menjadi top card.
+ */
+
+/* =====================================================
+   SELECTED CARD
+===================================================== */
+
 .spread-card.is-chosen {
-  opacity: 1;
-  transform: translate3d(
-      calc(-50% + var(--fan-x) + 3px),
-      calc(var(--fan-y) - 23px),
+  /*
+   * Card yang sudah masuk slot hilang
+   * dari fan.
+   *
+   * Slot di atas menjadi representation
+   * dari card tersebut.
+   */
+  opacity: 0;
+
+  transform:
+    translate3d(
+      calc(-50% + var(--fan-x)),
+      calc(var(--fan-y) - 95px),
       0
     )
-    rotate(var(--fan-r)) scale(1.008);
-  filter: drop-shadow(0 9px 13px rgba(36, 26, 34, 0.14));
-  pointer-events: auto;
+    rotate(var(--fan-r))
+    scale(0.94);
+
+  pointer-events: none;
+
+  filter:
+    drop-shadow(
+      0 16px 20px
+      rgba(36, 26, 34, 0.15)
+    );
 }
 
-.spread-card.is-chosen:hover:not(:disabled),
-.spread-card.is-chosen:focus-visible:not(:disabled) {
-  transform: translate3d(
-      calc(-50% + var(--fan-x) + 5px),
-      calc(var(--fan-y) - 28px),
-      0
-    )
-    rotate(var(--fan-r)) scale(1.01);
-  filter: drop-shadow(0 11px 15px rgba(36, 26, 34, 0.16));
-}
+/* =====================================================
+   STATUS
+===================================================== */
 
-/* Minimal feedback replaces the old three-card tray/progress UI. */
 .selection-status {
   position: absolute;
+
   left: 50%;
-  bottom: 24px;
-  z-index: 15;
+  bottom: 23px;
+
+  z-index: 30;
+
   transform: translateX(-50%);
+
   width: max-content;
   max-width: calc(100% - 40px);
-  color: rgba(36, 26, 34, 0.5);
+
+  color: rgba(36, 26, 34, 0.48);
+
   font-size: 9px;
-  letter-spacing: 0.13em;
   line-height: 1.4;
+
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   text-align: center;
+
   pointer-events: none;
+
   transition:
     opacity 0.4s ease,
     transform 0.6s var(--ease);
 }
 
-/* Keep the desktop composition visually quiet. */
 .selection-hint {
   display: none;
 }
 
-/* -----------------------------------------------------
-   AFTER THE THIRD PICK
-   The same selected cards become the three-card stage.
------------------------------------------------------ */
+/* =====================================================
+   THIRD PICK / LOCKED
+===================================================== */
 
-.selection-scene.is-locked .selection-intro {
+.selection-scene.is-locked
+.selection-intro {
   opacity: 0;
-  transform: translateY(-18px);
+
+  transform:
+    translateY(-18px);
+
   filter: blur(4px);
-  transition:
-    opacity 0.45s ease,
-    transform 0.75s var(--ease),
-    filter 0.55s ease;
 }
 
-.selection-scene.is-locked .selection-status {
+.selection-scene.is-locked
+.selection-status {
   opacity: 0;
-  transform: translateX(-50%) translateY(10px);
+
+  transform:
+    translateX(-50%)
+    translateY(10px);
 }
 
-/* Override the previous rule that faded the whole viewport.
-   We need this layer to stay alive because the selected cards
-   themselves travel from the wheel into the trio. */
-.selection-scene.is-locked .card-spread-viewport {
-  opacity: 1;
-  transform: none;
-  filter: none;
-  pointer-events: none;
-}
-
-/* Everything that was not selected sinks back into the deck. */
-.selection-scene.is-locked .spread-card:not(.is-chosen) {
+/*
+ * Fan turun dan menghilang.
+ */
+.selection-scene.is-locked
+.card-spread-viewport {
   opacity: 0;
-  transform: translate3d(
-      calc(-50% + var(--fan-x)),
-      calc(var(--fan-y) + 120px),
-      0
-    )
-    rotate(var(--fan-r)) scale(0.94);
-  filter: blur(3px);
+
+  transform:
+    translateY(150px)
+    scale(0.96);
+
+  filter: blur(4px);
+
   pointer-events: none;
-  transition:
-    transform 0.82s var(--ease),
-    opacity 0.46s ease,
-    filter 0.46s ease;
 }
 
-/* The picked cards leave the wheel only after all three exist.
-   --final-x and --final-r are authored by SelectionScene.jsx. */
-.selection-scene.is-locked .spread-card.is-chosen {
-  z-index: calc(100 + var(--selected-index)) !important;
-  opacity: 1;
-  transform: translate3d(
-      calc(-50% + var(--final-x)),
-      -105px,
-      0
-    )
-    rotate(var(--final-r)) scale(1.24);
-  filter: drop-shadow(0 24px 30px rgba(36, 26, 34, 0.2));
-  pointer-events: none;
+/*
+ * Tiga kartu di atas menjadi focus
+ * sebelum RevealScene mengambil alih.
+ */
+.selection-scene.is-locked
+.selection-picks {
+  transform:
+    translateY(34px)
+    scale(1.08);
+
   transition:
-    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.6s ease,
-    opacity 0.5s ease;
+    transform
+    0.9s
+    var(--ease);
 }
 
-/* No floating loop here: selection-complete is a one-way arrange
-   transition. RevealScene owns the slow floating motion afterward. */
+.selection-scene.is-locked
+.selection-pick-slot {
+  border-color: transparent;
+}
+
+/* =====================================================
+   MOTION
+===================================================== */
+
+@keyframes selection-card-arrive {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(70px)
+      scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+/* =====================================================
+   MOBILE — TIGHT HALF-WHEEL
+===================================================== */
 
 @media (max-width: 800px) {
   .selection-scene {
-    min-height: calc(100svh - 70px);
-    padding-bottom: 0;
+    min-height: 100svh;
+
+    padding:
+      10px 14px 0;
+
+    overflow: hidden;
   }
+
+  /* ===================================================
+     INTRO
+  =================================================== */
+
+  .selection-intro .eyebrow {
+    margin-bottom: 7px;
+  }
+
+  .selection-intro h2 {
+    font-size:
+      clamp(30px, 9vw, 40px);
+
+    margin-bottom: 6px;
+  }
+
+  .selection-intro
+  p:not(.eyebrow) {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  /* ===================================================
+     SELECTED SLOTS
+  =================================================== */
+
+  .selection-picks {
+    --selection-card-width:
+      78px;
+
+    gap: 8px;
+
+    margin-top: 13px;
+  }
+
+  .selection-pick-slot {
+    width:
+      var(
+        --selection-card-width
+      );
+  }
+
+  .selection-pick-placeholder {
+    font-size: 13px;
+  }
+
+  /* ===================================================
+     FAN STAGE
+  =================================================== */
 
   .card-spread-viewport {
-    width: calc(100% + 36px);
-    left: -18px;
-    right: auto;
-    bottom: -72px;
-    height: 300px;
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: 0;
-    touch-action: pan-x;
-    pointer-events: auto;
-    scrollbar-width: none;
-  }
+    /*
+     * Stage fixed.
+     *
+     * Tidak horizontal scrolling
+     * DOM native.
+     *
+     * Swipe mengubah rotationOffset.
+     */
+    left: 0;
+    right: 0;
 
-  .card-spread-viewport::-webkit-scrollbar {
-    display: none;
+    bottom: -45px;
+
+    width: 100%;
+    height: 350px;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: visible;
+
+    pointer-events: auto;
+
+    /*
+     * Kita handle horizontal gesture sendiri.
+     */
+    touch-action: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    cursor: default;
   }
 
   .card-spread {
-    width: 1040px;
-    height: 300px;
+    position: relative;
+
+    width: 100%;
+    height: 350px;
+
+    margin: 0 auto;
+
+    pointer-events: none;
   }
+
+  /* ===================================================
+     MOBILE CARDS
+  =================================================== */
 
   .spread-card {
-    width: 96px;
+    /*
+     * Sedikit lebih kecil supaya
+     * fan terasa rapat.
+     */
+    width: 78px;
+
+    top: 4px;
+
+    opacity:
+      var(
+        --fan-opacity,
+        1
+      );
+
+    pointer-events:
+      var(
+        --fan-pointer,
+        auto
+      );
+
+    transform:
+      translate3d(
+        calc(
+          -50% +
+          var(--fan-x)
+        ),
+        var(--fan-y),
+        0
+      )
+      rotate(
+        var(--fan-r)
+      );
+
+    transform-origin:
+      50% 150%;
+
+    animation: none;
+
+    transition:
+      transform
+        0.22s
+        cubic-bezier(
+          0.22,
+          1,
+          0.36,
+          1
+        ),
+      opacity 0.18s ease,
+      filter 0.18s ease;
   }
 
+  /*
+   * MOBILE TIDAK PUNYA HOVER.
+   *
+   * Ini juga mencegah sticky-hover
+   * setelah touch pada Safari/Chrome.
+   */
   .spread-card:hover:not(:disabled),
   .spread-card:focus-visible:not(:disabled) {
-    transform: translate3d(
-        calc(-50% + var(--fan-x) + 2px),
-        calc(var(--fan-y) - 6px),
+    transform:
+      translate3d(
+        calc(
+          -50% +
+          var(--fan-x)
+        ),
+        var(--fan-y),
         0
       )
-      rotate(var(--fan-r)) scale(1.008);
+      rotate(
+        var(--fan-r)
+      );
+
+    filter: none;
+
+    z-index:
+      var(
+        --fan-z
+      ) !important;
   }
+
+  /* ===================================================
+     PRESS / HOLD = PEEK
+  =================================================== */
+
+  .spread-card.is-pressed:not(
+      .is-chosen
+    ) {
+    transform:
+      translate3d(
+        calc(
+          -50% +
+          var(--fan-x)
+        ),
+        calc(
+          var(--fan-y) -
+          22px
+        ),
+        0
+      )
+      rotate(
+        var(--fan-r)
+      );
+
+    filter:
+      drop-shadow(
+        0 9px 12px
+        rgba(
+          36,
+          26,
+          34,
+          0.13
+        )
+      );
+
+    /*
+     * Tetap berada di layer
+     * fisik fan.
+     *
+     * Jadi card sebelahnya masih
+     * bisa overlap.
+     */
+    z-index:
+      var(
+        --fan-z
+      ) !important;
+
+    transition:
+      transform
+        0.14s
+        cubic-bezier(
+          0.22,
+          1,
+          0.36,
+          1
+        ),
+      filter 0.14s ease;
+  }
+
+  /* ===================================================
+     SELECTED
+  =================================================== */
 
   .spread-card.is-chosen {
-    transform: translate3d(
-        calc(-50% + var(--fan-x)),
-        calc(var(--fan-y) - 17px),
+    opacity: 0;
+
+    transform:
+      translate3d(
+        calc(
+          -50% +
+          var(--fan-x)
+        ),
+        calc(
+          var(--fan-y) -
+          72px
+        ),
         0
       )
-      rotate(var(--fan-r)) scale(1.006);
+      rotate(
+        var(--fan-r)
+      )
+      scale(0.94);
+
+    pointer-events: none;
   }
 
-  .spread-card.is-chosen:hover:not(:disabled),
-  .spread-card.is-chosen:focus-visible:not(:disabled) {
-    transform: translate3d(
-        calc(-50% + var(--fan-x) + 1px),
-        calc(var(--fan-y) - 21px),
+  /* ===================================================
+     WHILE DRAGGING
+  =================================================== */
+
+  .card-spread-viewport.is-dragging
+  .spread-card {
+    /*
+     * Saat swipe,
+     * transition dibuat sedikit lebih cepat.
+     */
+    transition:
+      transform
+        0.16s
+        cubic-bezier(
+          0.22,
+          1,
+          0.36,
+          1
+        ),
+      opacity 0.14s ease;
+  }
+
+  /*
+   * Jangan pernah tampilkan
+   * pressed peek ketika user
+   * sudah mulai drag.
+   */
+  .card-spread-viewport.is-dragging
+  .spread-card.is-pressed {
+    transform:
+      translate3d(
+        calc(
+          -50% +
+          var(--fan-x)
+        ),
+        var(--fan-y),
         0
       )
-      rotate(var(--fan-r)) scale(1.008);
+      rotate(
+        var(--fan-r)
+      );
+
+    filter: none;
   }
+
+  /* ===================================================
+     STATUS + HINT
+  =================================================== */
 
   .selection-status {
-    bottom: 18px;
+    bottom: 13px;
+
     font-size: 8px;
   }
 
   .selection-hint {
     display: block;
+
     position: absolute;
+
     left: 0;
     right: 0;
-    bottom: 38px;
-    z-index: 15;
+
+    bottom: 30px;
+
+    z-index: 30;
+
     margin: 0;
-    text-align: center;
+
     pointer-events: none;
+
+    text-align: center;
+
+    color:
+      rgba(
+        36,
+        26,
+        34,
+        0.46
+      );
+
+    font:
+      italic
+      11px
+      var(--display);
   }
 
   .desktop-hint {
@@ -2054,39 +2096,137 @@
     display: inline;
   }
 
-  .selection-scene.is-locked .card-spread-viewport {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    overflow-x: visible;
+  /* ===================================================
+     LOCKED
+  =================================================== */
+
+  .selection-scene.is-locked
+  .selection-picks {
+    transform:
+      translateY(34px)
+      scale(1.06);
   }
 
-  .selection-scene.is-locked .spread-card:not(.is-chosen) {
-    transform: translate3d(
-        calc(-50% + var(--fan-x)),
-        calc(var(--fan-y) + 90px),
-        0
-      )
-      rotate(var(--fan-r)) scale(0.94);
+  .selection-scene.is-locked
+  .card-spread-viewport {
+    opacity: 0;
+
+    transform:
+      translateY(105px)
+      scale(0.97);
+
+    filter: blur(4px);
   }
 
-  .selection-scene.is-locked .spread-card.is-chosen {
-    transform: translate3d(
-        calc(-50% + var(--final-x)),
-        -58px,
-        0
-      )
-      rotate(var(--final-r)) scale(1.08);
-  }
-
-  .selection-scene.is-locked .selection-hint {
+  .selection-scene.is-locked
+  .selection-hint {
     opacity: 0;
   }
 }
 
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+@media (max-width: 370px) {
+  .selection-intro h2 {
+    font-size: 29px;
+  }
+
+  .selection-picks {
+    --selection-card-width:
+      72px;
+
+    gap: 6px;
+  }
+
+  .spread-card {
+    width: 74px;
+  }
+
+  .card-spread-viewport {
+    bottom: -96px;
+  }
+}
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
 @media (prefers-reduced-motion: reduce) {
   .spread-card,
-  .selection-scene.is-locked .spread-card {
+  .selection-pick-card,
+  .selection-picks,
+  .card-spread-viewport {
     animation: none !important;
   }
+}
+
+/* =====================================================
+   TEMPORARY THEME COMPATIBILITY
+   Keeps legacy scenes readable until each gets its own
+   component CSS file.
+===================================================== */
+
+.selection-scene,
+.reveal-scene,
+.result-scene {
+  color:
+    var(--meera-text);
+}
+
+.reveal-scene {
+  background:
+    var(--meera-canvas);
+}
+
+.selection-intro p:not(.eyebrow),
+.reveal-intro p:not(.eyebrow),
+.result-heading > p:last-child,
+.reveal-message p:last-child,
+.reading-block p:last-child,
+.selection-status,
+.selection-hint,
+.reveal-prompt,
+.reveal-count {
+  color:
+    var(--meera-text-muted);
+}
+
+.selection-pick-slot,
+.selection-slot {
+  border-color:
+    var(--meera-line-soft);
+}
+
+.progress-track {
+  background:
+    var(--meera-line-soft);
+}
+
+.progress-track i,
+.tiny-dot {
+  background:
+    var(--meera-accent);
+}
+
+.position-label,
+.reading-index,
+.result-visual > p {
+  color:
+    var(--meera-accent);
+}
+
+.combined {
+  color:
+    var(--meera-text);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--meera-surface) 78%,
+      transparent
+    );
+
+  border-color:
+    var(--meera-line-soft);
 }

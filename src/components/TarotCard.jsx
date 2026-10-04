@@ -8,11 +8,18 @@ export function TarotCardView({
 }) {
   return (
     <span
-      className={`tarot-card ${faceUp ? "face-up" : "face-down"} ${compact ? "compact" : ""}`}
+      className={`tarot-card ${
+        faceUp ? "face-up" : "face-down"
+      } ${
+        compact ? "compact" : ""
+      }`}
     >
       {faceUp ? (
         <span className="tarot-front">
-          <CardFront card={card} position={position} />
+          <CardFront
+            card={card}
+            position={position}
+          />
         </span>
       ) : (
         <span className="tarot-back">

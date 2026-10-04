@@ -1,0 +1,438 @@
+/* =====================================================
+   MEERA DESIGN SYSTEM
+   FOUNDATION — THEME
+
+   Visual language:
+   warm / hand-drawn / celestial / playful / tactile
+
+   Theme behavior:
+   - follows device automatically
+   - can later be manually overridden with:
+       html[data-theme="light"]
+       html[data-theme="dark"]
+===================================================== */
+
+
+/* =====================================================
+   BRAND CONSTANTS
+   These DO NOT change between light/dark.
+===================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------------------------------------------------
+     BRAND COLORS
+  --------------------------------------------------- */
+
+  --meera-card-paper: #fbf6e8;
+  --meera-card-paper-soft: #f5eddb;
+
+  --meera-card-ink: #171613;
+
+  --meera-card-gold: #d7a13a;
+  --meera-card-gold-light: #edcf83;
+  --meera-card-gold-deep: #a87820;
+
+
+  /* ---------------------------------------------------
+     SEMANTIC COLORS — LIGHT DEFAULT
+  --------------------------------------------------- */
+
+  --meera-canvas: #f7f2e7;
+
+  --meera-surface: #fffaf0;
+  --meera-surface-raised: #fffdf7;
+  --meera-surface-soft: #efe7d8;
+  --meera-surface-muted: #e6ded0;
+
+  --meera-text: #171613;
+  --meera-text-muted: #706a61;
+  --meera-text-subtle: #9a9286;
+  --meera-text-inverse: #fbf6e8;
+
+  --meera-line: #171613;
+  --meera-line-medium:
+    rgba(23, 22, 19, 0.5);
+  --meera-line-soft:
+    rgba(23, 22, 19, 0.17);
+
+  --meera-accent: #d7a13a;
+  --meera-accent-hover: #c58e28;
+  --meera-accent-soft: #ecd79d;
+  --meera-accent-faint:
+    rgba(215, 161, 58, 0.12);
+
+  --meera-selection:
+    rgba(215, 161, 58, 0.22);
+
+  --meera-focus:
+    #b87820;
+
+
+  /* ---------------------------------------------------
+     SHADOWS
+  --------------------------------------------------- */
+
+  --meera-shadow-color:
+    rgba(53, 40, 19, 0.13);
+
+  --meera-shadow-soft:
+    0 8px 20px
+    var(--meera-shadow-color);
+
+  --meera-shadow-card:
+    0 14px 30px
+    rgba(53, 40, 19, 0.16);
+
+  --meera-shadow-card-strong:
+    0 24px 48px
+    rgba(53, 40, 19, 0.2);
+
+  /*
+   * Printed / offset shadow.
+   * Important Meera visual signature.
+   */
+  --meera-shadow-offset:
+    3px 4px 0
+    var(--meera-accent);
+
+  --meera-shadow-offset-small:
+    2px 3px 0
+    var(--meera-accent);
+
+
+  /* ---------------------------------------------------
+     STROKES
+  --------------------------------------------------- */
+
+  --meera-stroke-hairline: 1px;
+  --meera-stroke-thin: 1.25px;
+  --meera-stroke: 1.5px;
+  --meera-stroke-bold: 2px;
+  --meera-stroke-heavy: 2.5px;
+
+
+  /* ---------------------------------------------------
+     RADII
+  --------------------------------------------------- */
+
+  --meera-radius-xs: 6px;
+  --meera-radius-sm: 10px;
+  --meera-radius-md: 16px;
+  --meera-radius-lg: 24px;
+  --meera-radius-xl: 32px;
+
+  --meera-radius-pill: 999px;
+
+  /*
+   * Tarot art ratio:
+   * 971 × 1619
+   */
+  --meera-card-ratio: 971 / 1619;
+
+
+  /* ---------------------------------------------------
+     SPACING
+  --------------------------------------------------- */
+
+  --meera-space-1: 4px;
+  --meera-space-2: 8px;
+  --meera-space-3: 12px;
+  --meera-space-4: 16px;
+  --meera-space-5: 20px;
+  --meera-space-6: 24px;
+  --meera-space-7: 32px;
+  --meera-space-8: 40px;
+  --meera-space-9: 48px;
+  --meera-space-10: 64px;
+  --meera-space-11: 80px;
+  --meera-space-12: 96px;
+
+
+  /* ---------------------------------------------------
+     LAYOUT
+  --------------------------------------------------- */
+
+  --meera-content-sm: 520px;
+  --meera-content-md: 760px;
+  --meera-content-lg: 1080px;
+  --meera-content-xl: 1280px;
+
+  --meera-page-gutter:
+    clamp(
+      18px,
+      4vw,
+      64px
+    );
+
+
+  /* ---------------------------------------------------
+     MOTION
+  --------------------------------------------------- */
+
+  --meera-ease:
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    );
+
+  --meera-ease-soft:
+    cubic-bezier(
+      0.33,
+      1,
+      0.68,
+      1
+    );
+
+  --meera-ease-bounce:
+    cubic-bezier(
+      0.34,
+      1.56,
+      0.64,
+      1
+    );
+
+  --meera-duration-fast: 150ms;
+  --meera-duration-medium: 320ms;
+  --meera-duration-slow: 650ms;
+  --meera-duration-scene: 900ms;
+
+
+  /* ---------------------------------------------------
+     Z INDEX
+  --------------------------------------------------- */
+
+  --meera-z-base: 1;
+  --meera-z-decoration: 5;
+  --meera-z-content: 10;
+  --meera-z-card: 20;
+  --meera-z-nav: 50;
+  --meera-z-overlay: 100;
+  --meera-z-modal: 200;
+}
+
+
+/* =====================================================
+   DEVICE DARK MODE
+===================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --meera-canvas: #11110f;
+
+    --meera-surface: #181714;
+    --meera-surface-raised: #1e1d19;
+    --meera-surface-soft: #24221d;
+    --meera-surface-muted: #2d2a24;
+
+    --meera-text: #f8f1e3;
+    --meera-text-muted: #b8afa0;
+    --meera-text-subtle: #847c70;
+    --meera-text-inverse: #171613;
+
+    --meera-line: #dbaa43;
+    --meera-line-medium:
+      rgba(219, 170, 67, 0.52);
+    --meera-line-soft:
+      rgba(219, 170, 67, 0.2);
+
+    --meera-accent: #e1ad42;
+    --meera-accent-hover: #e8ba56;
+    --meera-accent-soft: #715827;
+    --meera-accent-faint:
+      rgba(225, 173, 66, 0.12);
+
+    --meera-selection:
+      rgba(225, 173, 66, 0.2);
+
+    --meera-focus: #efc569;
+
+    --meera-shadow-color:
+      rgba(0, 0, 0, 0.34);
+
+    --meera-shadow-soft:
+      0 10px 24px
+      rgba(0, 0, 0, 0.28);
+
+    --meera-shadow-card:
+      0 18px 36px
+      rgba(0, 0, 0, 0.36);
+
+    --meera-shadow-card-strong:
+      0 30px 60px
+      rgba(0, 0, 0, 0.44);
+  }
+}
+
+
+/* =====================================================
+   MANUAL LIGHT OVERRIDE
+   Future-ready.
+===================================================== */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --meera-canvas: #f7f2e7;
+
+  --meera-surface: #fffaf0;
+  --meera-surface-raised: #fffdf7;
+  --meera-surface-soft: #efe7d8;
+  --meera-surface-muted: #e6ded0;
+
+  --meera-text: #171613;
+  --meera-text-muted: #706a61;
+  --meera-text-subtle: #9a9286;
+  --meera-text-inverse: #fbf6e8;
+
+  --meera-line: #171613;
+  --meera-line-medium:
+    rgba(23, 22, 19, 0.5);
+  --meera-line-soft:
+    rgba(23, 22, 19, 0.17);
+
+  --meera-accent: #d7a13a;
+  --meera-accent-hover: #c58e28;
+  --meera-accent-soft: #ecd79d;
+  --meera-accent-faint:
+    rgba(215, 161, 58, 0.12);
+
+  --meera-selection:
+    rgba(215, 161, 58, 0.22);
+
+  --meera-focus: #b87820;
+
+  --meera-shadow-color:
+    rgba(53, 40, 19, 0.13);
+}
+
+
+/* =====================================================
+   MANUAL DARK OVERRIDE
+===================================================== */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --meera-canvas: #11110f;
+
+  --meera-surface: #181714;
+  --meera-surface-raised: #1e1d19;
+  --meera-surface-soft: #24221d;
+  --meera-surface-muted: #2d2a24;
+
+  --meera-text: #f8f1e3;
+  --meera-text-muted: #b8afa0;
+  --meera-text-subtle: #847c70;
+  --meera-text-inverse: #171613;
+
+  --meera-line: #dbaa43;
+  --meera-line-medium:
+    rgba(219, 170, 67, 0.52);
+  --meera-line-soft:
+    rgba(219, 170, 67, 0.2);
+
+  --meera-accent: #e1ad42;
+  --meera-accent-hover: #e8ba56;
+  --meera-accent-soft: #715827;
+  --meera-accent-faint:
+    rgba(225, 173, 66, 0.12);
+
+  --meera-selection:
+    rgba(225, 173, 66, 0.2);
+
+  --meera-focus: #efc569;
+
+  --meera-shadow-color:
+    rgba(0, 0, 0, 0.34);
+}
+
+
+/* =====================================================
+   GLOBAL DOCUMENT
+===================================================== */
+
+html {
+  color-scheme: light dark;
+
+  background:
+    var(--meera-canvas);
+}
+
+body {
+  margin: 0;
+
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-canvas);
+
+  transition:
+    color
+      var(--meera-duration-medium)
+      ease,
+    background
+      var(--meera-duration-medium)
+      ease;
+}
+
+
+/* =====================================================
+   GLOBAL INTERACTION
+===================================================== */
+
+::selection {
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-selection);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button,
+[role="button"] {
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+:focus-visible {
+  outline:
+    2px solid
+    var(--meera-focus);
+
+  outline-offset:
+    4px;
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  :root {
+    --meera-duration-fast: 1ms;
+    --meera-duration-medium: 1ms;
+    --meera-duration-slow: 1ms;
+    --meera-duration-scene: 1ms;
+  }
+}

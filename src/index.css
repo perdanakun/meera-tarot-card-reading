@@ -1,208 +1,585 @@
 @import "tailwindcss";
+
+/*
+ * Legacy scene CSS first.
+ * New foundation and component CSS can safely override it.
+ */
 @import "./styles/animations.css";
 
+/* Meera design-system foundation */
+@import "./styles/theme.css";
+@import "./styles/typography.css";
+@import "./styles/ornaments.css";
+
+
+/* =====================================================
+   TAILWIND THEME BRIDGE
+===================================================== */
+
 @theme inline {
-  --color-ivory: var(--ivory);
-  --color-ink: var(--ink);
-  --color-wine: var(--wine);
-  --font-display: var(--display);
-  --font-ui: var(--ui);
+  --color-meera-canvas:
+    var(--meera-canvas);
+
+  --color-meera-surface:
+    var(--meera-surface);
+
+  --color-meera-text:
+    var(--meera-text);
+
+  --color-meera-muted:
+    var(--meera-text-muted);
+
+  --color-meera-line:
+    var(--meera-line);
+
+  --color-meera-accent:
+    var(--meera-accent);
+
+  /* Temporary legacy aliases */
+  --color-ivory:
+    var(--ivory);
+
+  --color-paper:
+    var(--paper);
+
+  --color-ink:
+    var(--ink);
+
+  --color-wine:
+    var(--wine);
+
+  --font-display:
+    var(--display);
+
+  --font-ui:
+    var(--ui);
 }
+
+
+/* =====================================================
+   LEGACY TOKEN BRIDGE
+   Selection / Reveal / Result still reference these.
+===================================================== */
 
 :root {
-  --ivory: #f5f0e8;
-  --paper: #fffdf8;
-  --ink: #241a22;
-  --wine: #6e3548;
-  --rose: #c9979d;
-  --sage: #a7b09e;
-  --mist: #b8c6d1;
-  --line: rgba(36, 26, 34, 0.18);
-  --display: Georgia, "Times New Roman", serif;
-  --ui: Arial, Helvetica, sans-serif;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --display:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  --ui:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  --ivory:
+    var(--meera-canvas);
+
+  --paper:
+    var(--meera-surface);
+
+  --ink:
+    var(--meera-text);
+
+  --wine:
+    var(--meera-accent);
+
+  --line:
+    var(--meera-line-soft);
+
+  --rose:
+    #c9979d;
+
+  --sage:
+    #a7b09e;
+
+  --mist:
+    #b8c6d1;
+
+  --ease:
+    var(--meera-ease);
 }
 
-* {
+
+/* =====================================================
+   RESET
+===================================================== */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html,
-body {
+body,
+#root {
+  width: 100%;
+
   margin: 0;
+}
+
+html {
   min-width: 320px;
   min-height: 100%;
-  background: var(--ivory);
-  color: var(--ink);
+
+  background:
+    var(--meera-canvas);
+
+  color:
+    var(--meera-text);
 }
 
 body {
-  font-family: var(--ui);
+  min-width: 320px;
+  min-height: 100svh;
+
+  overflow-x: hidden;
+
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-canvas);
+
+  font-family:
+    var(--meera-font-ui);
+
+  -webkit-font-smoothing:
+    antialiased;
+
+  -moz-osx-font-smoothing:
+    grayscale;
+
+  text-rendering:
+    optimizeLegibility;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 button {
   color: inherit;
+
   cursor: pointer;
-  font: inherit;
-  -webkit-tap-highlight-color: transparent;
+
+  -webkit-tap-highlight-color:
+    transparent;
 }
 
 button:disabled {
   cursor: default;
 }
 
-button:focus-visible {
-  outline: 2px solid var(--wine);
-  outline-offset: 5px;
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline:
+    2px solid
+    var(--meera-focus);
+
+  outline-offset:
+    4px;
 }
 
 h1,
 h2,
 h3,
+h4,
 p {
   margin-top: 0;
 }
 
+img,
+svg {
+  max-width: 100%;
+}
+
+
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
+
 .sr-only {
   position: absolute;
+
   width: 1px;
   height: 1px;
+
   padding: 0;
   margin: -1px;
+
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+
+  clip:
+    rect(
+      0,
+      0,
+      0,
+      0
+    );
+
   white-space: nowrap;
+
   border: 0;
 }
 
+
+/* =====================================================
+   APP SHELL
+===================================================== */
+
 .meera-shell {
-  min-height: 100svh;
-  overflow: hidden;
   position: relative;
-  background: var(--ivory);
+
+  width: 100%;
+  min-height: 100svh;
+
+  margin: 0;
+
+  overflow-x: hidden;
+
   isolation: isolate;
+
+  color:
+    var(--meera-text);
+
+  background:
+    var(--meera-canvas);
+
+  transition:
+    color
+      var(--meera-duration-medium)
+      ease,
+    background
+      var(--meera-duration-medium)
+      ease;
 }
 
 .meera-shell::before {
   content: "";
+
   position: fixed;
+  z-index: 0;
+
   inset: 0;
+
   pointer-events: none;
-  opacity: 0.35;
-  background-image: radial-gradient(
-    rgba(36, 26, 34, 0.08) 0.7px,
-    transparent 0.7px
-  );
-  background-size: 5px 5px;
-  mix-blend-mode: multiply;
-  z-index: -1;
+
+  opacity: 0.2;
+
+  background-image:
+    radial-gradient(
+      var(--meera-line-soft)
+      0.65px,
+      transparent
+      0.65px
+    );
+
+  background-size:
+    6px 6px;
 }
+
+
+/* =====================================================
+   GRAIN
+===================================================== */
 
 .grain {
   position: fixed;
+  z-index: 70;
+
   inset: -50%;
+
   pointer-events: none;
-  opacity: 0.035;
-  z-index: 50;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
-  animation: grain 0.2s steps(2) infinite;
+
+  opacity: 0.022;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg%20viewBox='0%200%20180%20180'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.8'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'%20opacity='.8'/%3E%3C/svg%3E");
+
+  animation:
+    grain
+    0.2s
+    steps(2)
+    infinite;
 }
 
-.meera-header {
-  position: relative;
-  z-index: 40;
-  padding: 28px clamp(24px, 5vw, 72px);
+@keyframes grain {
+  0% {
+    transform:
+      translate(0, 0);
+  }
+
+  25% {
+    transform:
+      translate(2%, -3%);
+  }
+
+  50% {
+    transform:
+      translate(-3%, 2%);
+  }
+
+  75% {
+    transform:
+      translate(3%, 3%);
+  }
+
+  100% {
+    transform:
+      translate(-2%, -2%);
+  }
 }
 
-.brand {
-  background: none;
-  border: 0;
-  padding: 0;
-  font-family: var(--display);
-  font-size: 28px;
-  letter-spacing: -0.08em;
-  font-style: italic;
-}
 
-.brand span {
-  color: var(--wine);
-}
-
-.header-tools {
-}
-
-.ritual-note,
-.scene-count {
-  color: rgba(36, 26, 34, 0.54);
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.scene-count {
-  color: var(--ink);
-}
+/* =====================================================
+   LEGACY UI BRIDGE
+   Remove these after Reveal / Result get dedicated CSS.
+===================================================== */
 
 .eyebrow,
 .reading-label {
+  color:
+    var(--meera-accent);
+
   font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--wine);
+
+  letter-spacing:
+    0.18em;
+
+  text-transform:
+    uppercase;
 }
 
 .eyebrow {
-  margin: 0 0 18px;
+  margin:
+    0 0 18px;
 }
 
 .primary-button {
-  background: var(--ink);
-  color: var(--paper);
-  border: 0;
-  padding: 15px 22px;
-  border-radius: 999px;
-  display: inline-flex;
-  justify-content: center;
-  gap: 22px;
+  display:
+    inline-flex;
+
   align-items: center;
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  justify-content: center;
+
+  gap:
+    var(--meera-space-4);
+
+  min-height: 46px;
+
+  padding:
+    8px 18px;
+
+  border:
+    var(--meera-stroke-bold)
+    solid
+    var(--meera-line);
+
+  border-radius:
+    var(--meera-radius-pill);
+
+  color:
+    var(--meera-text-inverse);
+
+  background:
+    var(--meera-text);
+
+  box-shadow:
+    var(--meera-shadow-offset);
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing:
+    0.09em;
+
+  text-transform:
+    uppercase;
+
+  transform:
+    rotate(-0.3deg);
+
   transition:
-    transform 0.35s var(--ease),
-    background 0.35s;
+    transform
+      var(--meera-duration-fast)
+      var(--meera-ease),
+    box-shadow
+      var(--meera-duration-fast)
+      ease,
+    background
+      var(--meera-duration-fast)
+      ease;
 }
 
 .primary-button:hover:not(:disabled) {
-  transform: translateY(-3px);
-  background: var(--wine);
+  transform:
+    translateY(-2px)
+    rotate(0.2deg);
+
+  box-shadow:
+    4px 6px 0
+    var(--meera-accent);
+}
+
+.primary-button:active:not(:disabled) {
+  transform:
+    translateY(1px);
+
+  box-shadow:
+    1px 2px 0
+    var(--meera-accent);
 }
 
 .primary-button:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .text-button,
 .outline-button {
-  border: 0;
-  background: none;
-  display: inline-flex;
-  justify-content: center;
-  gap: 9px;
+  display:
+    inline-flex;
+
   align-items: center;
-  font-size: 12px;
+  justify-content: center;
+
+  gap:
+    var(--meera-space-2);
+
+  min-height: 42px;
+
+  border: 0;
+
+  color:
+    var(--meera-text);
+
+  background: none;
+
+  font-family:
+    var(--meera-font-ui);
+
+  font-size: 10px;
+  font-weight: 650;
+
+  letter-spacing:
+    0.08em;
+
+  text-transform:
+    uppercase;
+
+  transition:
+    color
+      var(--meera-duration-fast)
+      ease,
+    border-color
+      var(--meera-duration-fast)
+      ease,
+    transform
+      var(--meera-duration-fast)
+      var(--meera-ease);
 }
 
 .outline-button {
-  border: 1px solid var(--line);
-  padding: 13px 18px;
-  border-radius: 99px;
+  padding:
+    10px 16px;
+
+  border:
+    var(--meera-stroke)
+    solid
+    var(--meera-line);
+
+  border-radius:
+    var(--meera-radius-pill);
+
+  background:
+    var(--meera-surface);
 }
 
-.text-button:hover,
-.outline-button:hover {
-  color: var(--wine);
+.text-button:hover:not(:disabled),
+.outline-button:hover:not(:disabled) {
+  color:
+    var(--meera-accent);
+
+  transform:
+    translateY(-1px);
 }
 
-.outline-button:hover {
-  border-color: var(--wine);
+.outline-button:hover:not(:disabled) {
+  border-color:
+    var(--meera-accent);
+}
+
+
+/* =====================================================
+   DARK TEXTURE TUNING
+===================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])
+  .meera-shell::before {
+    opacity: 0.14;
+  }
+
+  :root:not([data-theme="light"])
+  .grain {
+    opacity: 0.016;
+  }
+}
+
+:root[data-theme="dark"]
+.meera-shell::before {
+  opacity: 0.14;
+}
+
+:root[data-theme="dark"]
+.grain {
+  opacity: 0.016;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 800px) {
+  .primary-button {
+    min-height: 44px;
+
+    padding:
+      7px 16px;
+
+    font-size: 9px;
+  }
+
+  .outline-button,
+  .text-button {
+    min-height: 40px;
+
+    font-size: 9px;
+  }
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    animation: none !important;
+  }
 }
