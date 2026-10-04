@@ -1,0 +1,2092 @@
+/* Intro */
+.intro-scene {
+  min-height: calc(100svh - 86px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px 90px;
+  overflow: hidden;
+}
+
+.intro-copy {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  max-width: 660px;
+  animation: rise 0.9s both;
+  transition:
+    opacity 0.55s,
+    filter 0.55s,
+    transform 0.7s var(--ease);
+}
+
+.intro-copy h1,
+.selection-intro h2,
+.reveal-intro h2,
+.result-heading h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  font-size: clamp(47px, 7vw, 92px);
+  line-height: 0.94;
+  margin: 0 0 28px;
+}
+
+.intro-copy h1 em,
+.result-heading h2 em {
+  color: var(--wine);
+  font-style: italic;
+}
+
+.intro-note {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(36, 26, 34, 0.63);
+  margin: 0 auto 30px;
+}
+
+.intro-foot {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  width: max-content;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: rgba(36, 26, 34, 0.48);
+}
+
+.intro-foot .line {
+  width: 45px;
+  height: 1px;
+  background: var(--line);
+}
+
+.ambient-orbit {
+  position: absolute;
+  border: 1px solid rgba(110, 53, 72, 0.14);
+  border-radius: 50%;
+  transform: rotate(-16deg);
+}
+
+.orbit-one {
+  width: min(80vw, 680px);
+  aspect-ratio: 1.8;
+}
+
+.orbit-two {
+  width: min(95vw, 960px);
+  aspect-ratio: 2.2;
+  opacity: 0.55;
+  transform: rotate(18deg);
+}
+
+.floating-cards {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  transition:
+    transform 1.1s var(--ease),
+    opacity 0.8s;
+}
+
+.intro-card {
+  position: absolute;
+  width: clamp(70px, 9vw, 124px);
+  animation: float 10s ease-in-out infinite;
+  filter: saturate(0.75);
+}
+
+.intro-card .tarot-card {
+  box-shadow: 0 16px 35px rgba(36, 26, 34, 0.18);
+}
+
+.intro-card-0 {
+  left: 8%;
+  top: 17%;
+  transform: rotate(-17deg);
+  animation-delay: -2s;
+}
+.intro-card-1 {
+  left: 20%;
+  top: 62%;
+  transform: rotate(11deg) scale(0.75);
+  opacity: 0.55;
+  animation-delay: -6s;
+}
+.intro-card-2 {
+  left: 31%;
+  top: 10%;
+  transform: rotate(7deg) scale(0.68);
+  opacity: 0.46;
+  animation-delay: -4s;
+}
+.intro-card-3 {
+  right: 16%;
+  top: 18%;
+  transform: rotate(15deg) scale(0.77);
+  opacity: 0.6;
+  animation-delay: -7s;
+}
+.intro-card-4 {
+  right: 9%;
+  top: 61%;
+  transform: rotate(-8deg) scale(0.9);
+  opacity: 0.62;
+  animation-delay: -1s;
+}
+.intro-card-5 {
+  left: 4%;
+  top: 45%;
+  transform: rotate(-27deg) scale(0.55);
+  opacity: 0.38;
+  animation-delay: -5s;
+}
+.intro-card-6 {
+  right: 32%;
+  bottom: 6%;
+  transform: rotate(18deg) scale(0.58);
+  opacity: 0.36;
+  animation-delay: -8s;
+}
+
+.entry-vortex {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 253, 248, 0.86),
+    rgba(201, 151, 157, 0.34) 34%,
+    rgba(110, 53, 72, 0.78)
+  );
+  animation: portal-fade 1.25s both;
+}
+
+.entry-vortex i {
+  position: absolute;
+  width: min(112vw, 1200px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: clamp(35px, 9vw, 130px) solid rgba(255, 253, 248, 0.38);
+  filter: blur(16px);
+  animation: portal-ring 1.25s var(--ease) both;
+}
+
+.entry-vortex i:nth-child(2) {
+  width: min(85vw, 900px);
+  animation-delay: 0.08s;
+}
+.entry-vortex i:nth-child(3) {
+  width: min(58vw, 620px);
+  animation-delay: 0.16s;
+}
+.entry-vortex span {
+  position: relative;
+  z-index: 2;
+  font: italic clamp(22px, 3vw, 34px) var(--display);
+  color: var(--wine);
+  animation: portal-copy 1.25s both;
+}
+
+.is-entering .intro-copy {
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(1.14);
+}
+
+.is-entering .floating-cards {
+  transform: scale(1.45);
+  opacity: 0;
+}
+
+/* Shared card artwork */
+.tarot-card {
+  display: block;
+  position: relative;
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.tarot-front,
+.tarot-back {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.tarot-front {
+  color: var(--paper);
+  border: 1px solid rgba(255, 253, 248, 0.7);
+  padding: 9px;
+}
+
+.tarot-front::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(255, 253, 248, 0.58);
+  pointer-events: none;
+}
+
+.front-number {
+  position: absolute;
+  top: 9px;
+  left: 12px;
+  font: 10px var(--ui);
+}
+
+.art-symbol {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  font: clamp(36px, 5vw, 64px) var(--display);
+  color: var(--card-accent);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.3);
+}
+
+.art-lines {
+  position: absolute;
+  width: 72%;
+  aspect-ratio: 1;
+  left: 14%;
+  top: 25%;
+  border: 1px solid color-mix(in srgb, var(--card-accent), transparent 30%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 13px rgba(255, 255, 255, 0.05),
+    0 0 0 28px rgba(255, 255, 255, 0.05);
+}
+
+.front-name {
+  position: absolute;
+  left: 12px;
+  bottom: 21px;
+  font: clamp(9px, 1vw, 13px) var(--display);
+  letter-spacing: 0.03em;
+}
+
+.front-archetype {
+  position: absolute;
+  left: 12px;
+  bottom: 9px;
+  font-size: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.75;
+}
+
+.tarot-back {
+  background: var(--ink);
+  border: 1px solid #b18042;
+  padding: 6px;
+}
+
+.back-frame {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #b18042;
+  position: relative;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(201, 151, 157, 0.16),
+      transparent 43%
+    ),
+    repeating-radial-gradient(
+      ellipse at center,
+      transparent 0 19px,
+      rgba(177, 128, 66, 0.42) 20px 21px
+    );
+}
+
+.back-symbol {
+  font: clamp(28px, 4vw, 50px) var(--display);
+  color: #e2be75;
+  font-style: italic;
+}
+
+.back-star {
+  position: absolute;
+  bottom: 10px;
+  color: #e2be75;
+  font-size: 11px;
+}
+
+/* Selection */
+.selection-scene,
+.reveal-scene,
+.result-scene {
+  min-height: calc(100svh - 86px);
+  padding: 32px clamp(24px, 6vw, 100px) 60px;
+  animation: rise 0.8s both;
+}
+
+.selection-intro,
+.reveal-intro,
+.result-heading {
+  text-align: center;
+  position: relative;
+  z-index: 3;
+}
+
+.selection-intro h2,
+.reveal-intro h2,
+.result-heading h2 {
+  font-size: clamp(43px, 5.5vw, 72px);
+  margin-bottom: 17px;
+}
+
+.selection-intro p:not(.eyebrow),
+.reveal-intro p:not(.eyebrow),
+.result-heading > p:last-child {
+  color: rgba(36, 26, 34, 0.6);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.selection-tray {
+  position: relative;
+  z-index: 30;
+  margin: 22px auto 0;
+}
+
+.selection-slot {
+  width: 60px;
+  height: 90px;
+  border: 1px dashed rgba(110, 53, 72, 0.3);
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  color: rgba(36, 26, 34, 0.35);
+  transition: border-color 0.35s;
+}
+
+.selection-slot.has-card {
+  border-color: transparent;
+}
+
+.selection-slot button {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  border-radius: 7px;
+  transition: transform 0.3s var(--ease);
+}
+
+.selection-slot button:hover:not(:disabled) {
+  transform: translateY(-4px);
+}
+
+.selection-slot small {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 6px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(36, 26, 34, 0.55);
+}
+
+.slot-number {
+  font: italic 16px var(--display);
+}
+
+.progress {
+  margin: 24px auto 0;
+  width: min(260px, 80vw);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(36, 26, 34, 0.58);
+  text-align: center;
+}
+
+.progress-track {
+  height: 2px;
+  background: rgba(36, 26, 34, 0.13);
+  margin-top: 9px;
+}
+
+.progress-track i {
+  display: block;
+  background: var(--wine);
+  height: 100%;
+  transition: width 0.45s ease;
+}
+
+.card-spread-viewport {
+  width: 100%;
+  overflow: visible;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.card-spread-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.card-spread {
+  height: 360px;
+  width: min(1160px, 100%);
+  margin: 18px auto 0;
+  position: relative;
+  perspective: 1200px;
+}
+
+.spread-card {
+  position: absolute;
+  width: clamp(105px, 9.5vw, 142px);
+  pointer-events: auto;
+  left: 50%;
+  top: 18px;
+  transform: translate3d(calc(-50% + var(--x-desktop)), var(--y-desktop), 0)
+    rotate(var(--r));
+  transform-origin: 50% 115%;
+  border: 0;
+  background: none;
+  padding: 0;
+  transition:
+    transform 0.5s var(--ease),
+    filter 0.45s,
+    opacity 0.45s;
+  animation: spread-in 0.72s both;
+  animation-delay: var(--d);
+}
+
+.spread-card > * {
+  pointer-events: none;
+}
+
+.spread-card:hover:not(:disabled),
+.spread-card:focus-visible:not(:disabled) {
+  transform: translate3d(
+      calc(-50% + var(--x-desktop)),
+      calc(var(--y-desktop) - 31px),
+      0
+    )
+    rotate(var(--r)) scale(1.05);
+  filter: drop-shadow(0 22px 24px rgba(36, 26, 34, 0.23));
+  z-index: 35 !important;
+}
+
+.spread-card.is-chosen {
+  opacity: 0.13;
+  transform: translate3d(
+      calc(-50% + var(--x-desktop)),
+      calc(var(--y-desktop) + 22px),
+      0
+    )
+    rotate(var(--r)) scale(0.94);
+}
+
+.selection-scene.is-locked .card-spread {
+  opacity: 0.28;
+  transform: translateY(30px) scale(0.96);
+}
+
+.card-spread {
+  transition:
+    opacity 0.7s,
+    transform 0.8s var(--ease);
+}
+
+.selection-hint {
+  text-align: center;
+  color: rgba(36, 26, 34, 0.48);
+  font: italic 14px var(--display);
+  margin: -3px 0 0;
+}
+
+.mobile-hint {
+  display: none;
+}
+
+/* Reveal */
+.reveal-scene {
+  background: linear-gradient(180deg, var(--ivory), #efe4df);
+  position: relative;
+  overflow: hidden;
+}
+
+.chosen-row {
+  --card-gap: clamp(18px, 6vw, 78px);
+  gap: var(--card-gap);
+  margin: 54px auto 0;
+  position: relative;
+  z-index: 2;
+}
+
+.chosen-slot {
+  width: clamp(130px, 15vw, 205px);
+  text-align: center;
+  transition:
+    transform 0.95s var(--ease),
+    opacity 0.6s;
+}
+
+.chosen-card {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  perspective: 900px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  animation: card-breathe 4.8s ease-in-out infinite;
+  animation-delay: var(--float-delay);
+  transition: transform 0.3s var(--ease);
+}
+
+.chosen-card:hover:not(:disabled) {
+  transform: translateY(-6px);
+}
+
+.chosen-card.is-revealed {
+  animation: none;
+}
+
+.chosen-card.is-flipping {
+  transform: translateY(-9px) scale(0.98);
+}
+
+.card-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.chosen-card.is-revealed .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-face .tarot-card {
+  height: 100%;
+}
+
+.card-back {
+  border-radius: 11px;
+  background: var(--ink);
+  border: 1px solid #b18042;
+  display: grid;
+  place-items: center;
+  background-image: repeating-radial-gradient(
+    ellipse at center,
+    transparent 0 20px,
+    rgba(177, 128, 66, 0.36) 21px 22px
+  );
+  box-shadow: 0 18px 25px rgba(36, 26, 34, 0.18);
+}
+
+.card-back::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid #b18042;
+}
+
+.meera-mark {
+  color: #e2be75;
+  font: 64px var(--display);
+  font-style: italic;
+}
+
+.card-back small {
+  position: absolute;
+  bottom: 13px;
+  color: #e2be75;
+  font-size: 7px;
+  letter-spacing: 0.2em;
+}
+
+.card-front {
+  transform: rotateY(180deg);
+}
+
+.position-label {
+  display: block;
+  margin-top: 15px;
+  font: italic 15px var(--display);
+  color: var(--wine);
+}
+
+.reveal-orbit {
+  position: absolute;
+  width: min(65vw, 700px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(110, 53, 72, 0.12);
+  border-radius: 50%;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+}
+
+.reveal-message {
+  width: min(560px, calc(100% - 36px));
+  min-height: 112px;
+  margin: 42px auto 0;
+  text-align: center;
+  position: relative;
+  z-index: 3;
+}
+
+.reveal-message > div {
+  animation: rise 0.45s both;
+}
+
+.reveal-message h3 {
+  font: normal 24px var(--display);
+  margin: 0 0 9px;
+}
+
+.reveal-message p:last-child {
+  margin: 0;
+  color: rgba(36, 26, 34, 0.63);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.reveal-prompt,
+.reveal-count {
+  color: rgba(36, 26, 34, 0.52);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.tiny-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rose);
+  animation: pulse 2s infinite;
+}
+
+.reveal-footer {
+  margin-top: 6px;
+  min-height: 50px;
+  position: relative;
+  z-index: 3;
+}
+
+.reveal-footer .primary-button {
+  animation: rise 0.55s both;
+}
+
+.is-gathering .reveal-intro,
+.is-gathering .reveal-message,
+.is-gathering .reveal-footer,
+.is-gathering .position-label {
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+
+.is-gathering .chosen-slot {
+  transform: translateX(var(--gather-x)) rotate(var(--gather-r)) scale(1.06);
+}
+
+.is-gathering .chosen-slot:nth-child(1) {
+  z-index: 1;
+}
+.is-gathering .chosen-slot:nth-child(2) {
+  z-index: 2;
+}
+.is-gathering .chosen-slot:nth-child(3) {
+  z-index: 3;
+}
+
+/* Result */
+.result-scene {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-top: 42px;
+}
+
+.result-heading h2 {
+  font-size: clamp(42px, 5.5vw, 70px);
+  margin-bottom: 20px;
+}
+
+.result-heading h2:focus {
+  outline: none;
+}
+
+.result-layout {
+  grid-template-columns: minmax(300px, 0.8fr) minmax(480px, 1.2fr);
+  gap: clamp(60px, 9vw, 130px);
+  align-items: start;
+  margin-top: 72px;
+}
+
+.result-visual {
+  position: sticky;
+  top: 50px;
+  text-align: center;
+}
+
+.result-stack {
+  height: 420px;
+  position: relative;
+  width: min(330px, 100%);
+  margin: 0 auto;
+}
+
+.result-card {
+  position: absolute;
+  width: clamp(185px, 19vw, 245px);
+  left: 50%;
+  top: 12px;
+  border: 0;
+  padding: 0;
+  background: none;
+  transform-origin: 50% 90%;
+  filter: drop-shadow(0 22px 22px rgba(36, 26, 34, 0.2));
+  transition: transform 0.42s var(--ease);
+  animation: stack-in 0.8s both;
+}
+
+.result-card-0 {
+  transform: translateX(-57%) rotate(-10deg);
+  z-index: 1;
+}
+.result-card-1 {
+  transform: translateX(-47%) rotate(5deg);
+  z-index: 2;
+  animation-delay: 0.1s;
+}
+.result-card-2 {
+  transform: translateX(-50%) rotate(-1deg) translateY(13px);
+  z-index: 3;
+  animation-delay: 0.2s;
+}
+.result-card:hover {
+  transform: translateX(-50%) rotate(0) translateY(-8px);
+  z-index: 5;
+}
+
+.result-visual > p {
+  font: italic 14px var(--display);
+  color: var(--wine);
+  margin: 6px 0 14px;
+}
+
+.view-cards {
+  margin: 0 auto;
+}
+
+.reading {
+  max-width: 680px;
+}
+
+.reading > .eyebrow {
+  margin-bottom: 8px;
+}
+
+.reading-block {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 22px;
+  padding: 26px 0;
+  border-top: 1px solid var(--line);
+}
+
+.reading-index {
+  color: var(--rose);
+  font: italic 20px var(--display);
+}
+
+.reading-label {
+  margin: 0 0 10px;
+}
+
+.reading-block h3 {
+  font: normal 26px var(--display);
+  margin: 0 0 10px;
+}
+
+.reading-block p:last-child {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(36, 26, 34, 0.66);
+  margin: 0;
+}
+
+.combined {
+  margin: 35px 0 0;
+  padding: 30px;
+  background: rgba(255, 253, 248, 0.55);
+  border: 1px solid rgba(110, 53, 72, 0.12);
+}
+
+.combined-copy {
+  font: italic 22px/1.5 var(--display);
+  margin: 0;
+}
+
+.result-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 28px;
+  margin: 42px 0 20px;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    margin-top: 0;
+  }
+  50% {
+    margin-top: -20px;
+  }
+}
+@keyframes card-breathe {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.6deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.6deg);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes spread-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, 120px, 0) rotate(0);
+  }
+}
+@keyframes stack-in {
+  from {
+    opacity: 0;
+    margin-top: 45px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
+}
+@keyframes grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(2%, -3%);
+  }
+  50% {
+    transform: translate(-3%, 2%);
+  }
+  75% {
+    transform: translate(3%, 3%);
+  }
+  100% {
+    transform: translate(-2%, -2%);
+  }
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+    transform: scale(0.7);
+  }
+}
+@keyframes portal-ring {
+  from {
+    transform: scale(1.8) rotate(-12deg);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.04) rotate(18deg);
+    opacity: 0;
+  }
+}
+@keyframes portal-copy {
+  0%,
+  100% {
+    opacity: 0;
+    filter: blur(5px);
+  }
+  32%,
+  65% {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+@keyframes portal-fade {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .meera-header {
+    padding: 22px 20px;
+  }
+
+  .ritual-note {
+    display: none;
+  }
+
+  .intro-scene {
+    min-height: calc(100svh - 70px);
+    padding-bottom: 100px;
+  }
+
+  .floating-cards .intro-card-0 {
+    left: 0;
+    top: 18%;
+  }
+  .floating-cards .intro-card-4 {
+    right: -5%;
+    top: 62%;
+  }
+  .intro-card-1 {
+    left: 8%;
+    top: 70%;
+  }
+  .intro-card-3 {
+    right: 6%;
+    top: 10%;
+  }
+  .intro-card-5 {
+    left: -10%;
+    top: 44%;
+  }
+  .intro-copy h1 {
+    font-size: 50px;
+  }
+  .intro-foot {
+    font-size: 8px;
+    gap: 9px;
+  }
+  .intro-foot .line {
+    width: 20px;
+  }
+
+  .selection-scene,
+  .reveal-scene,
+  .result-scene {
+    padding: 28px 18px 44px;
+  }
+
+  .selection-intro h2,
+  .reveal-intro h2,
+  .result-heading h2 {
+    font-size: 45px;
+  }
+
+  .selection-tray {
+    margin-top: 20px;
+  }
+
+  .selection-slot {
+    width: 54px;
+    height: 81px;
+  }
+
+  .card-spread-viewport {
+    width: calc(100% + 36px);
+    margin-left: -18px;
+    overflow-x: auto;
+    padding: 0 0 12px;
+    touch-action: pan-x;
+  }
+
+  .card-spread {
+    width: 820px;
+    height: 270px;
+    margin-top: 18px;
+  }
+
+  .spread-card {
+    width: 96px;
+    top: 12px;
+    transform: translate3d(calc(-50% + var(--x-mobile)), var(--y-mobile), 0)
+      rotate(var(--r));
+  }
+
+  .spread-card:hover:not(:disabled),
+  .spread-card:focus-visible:not(:disabled) {
+    transform: translate3d(
+        calc(-50% + var(--x-mobile)),
+        calc(var(--y-mobile) - 18px),
+        0
+      )
+      rotate(var(--r)) scale(1.04);
+  }
+
+  .spread-card.is-chosen {
+    transform: translate3d(
+        calc(-50% + var(--x-mobile)),
+        calc(var(--y-mobile) + 16px),
+        0
+      )
+      rotate(var(--r)) scale(0.94);
+  }
+
+  .selection-hint {
+    margin-top: 5px;
+  }
+
+  .desktop-hint {
+    display: none;
+  }
+
+  .mobile-hint {
+    display: inline;
+  }
+
+  .chosen-row {
+    --card-gap: 9px;
+    margin-top: 44px;
+  }
+
+  .chosen-slot {
+    width: calc((100vw - 54px) / 3);
+  }
+
+  .meera-mark {
+    font-size: 40px;
+  }
+
+  .position-label {
+    font-size: 11px;
+  }
+
+  .reveal-message {
+    min-height: 134px;
+    margin-top: 32px;
+  }
+
+  .reveal-message h3 {
+    font-size: 22px;
+  }
+
+  .reveal-message p:last-child {
+    font-size: 12px;
+  }
+
+  .result-layout {
+    display: block;
+    margin-top: 52px;
+  }
+
+  .result-visual {
+    position: relative;
+    top: auto;
+  }
+
+  .result-stack {
+    height: 340px;
+  }
+
+  .result-card {
+    width: 185px;
+  }
+
+  .reading {
+    margin: 72px auto 0;
+  }
+
+  .reading-block {
+    grid-template-columns: 29px 1fr;
+    gap: 12px;
+  }
+
+  .reading-block h3 {
+    font-size: 22px;
+  }
+
+  .reading-block p:last-child {
+    font-size: 13px;
+  }
+
+  .combined {
+    padding: 22px;
+  }
+
+  .combined-copy {
+    font-size: 19px;
+  }
+
+  .result-actions {
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+}
+
+@media (max-width: 370px) {
+  .selection-intro h2,
+  .reveal-intro h2,
+  .result-heading h2 {
+    font-size: 40px;
+  }
+
+  .chosen-row {
+    --card-gap: 6px;
+  }
+
+  .position-label {
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .entry-vortex {
+    display: none;
+  }
+}
+
+@media print {
+  .meera-header,
+  .result-actions,
+  .grain,
+  .view-cards {
+    display: none;
+  }
+
+  .meera-shell {
+    background: white;
+  }
+
+  .result-scene {
+    padding-top: 0;
+  }
+}
+
+/* =====================================================
+   MEERA REFINEMENT — ILLUSTRATED CARDS + BOTTOM WHEEL
+   Keep this block after the original scene styles.
+===================================================== */
+
+/* ---------- Illustrated card artwork ---------- */
+.tarot-card {
+  aspect-ratio: 160 / 254;
+  border-radius: 11px;
+  background: var(--paper);
+  box-shadow:
+    0 2px 1px rgba(143, 120, 86, 0.28),
+    0 8px 18px rgba(36, 26, 34, 0.12),
+    0 24px 42px rgba(36, 26, 34, 0.16);
+}
+
+.tarot-front,
+.tarot-back {
+  padding: 0;
+  border: 0;
+  background: #f5e9d4;
+  color: #34313a;
+}
+
+.tarot-front::after {
+  display: none;
+}
+
+.back-art {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #ebdfca;
+}
+
+.back-border {
+  fill: none;
+  stroke: #a38a67;
+  stroke-width: 1;
+}
+
+.back-border.thin {
+  stroke-width: 0.6;
+  opacity: 0.65;
+}
+
+.back-orbit {
+  fill: none;
+  stroke: #b19971;
+  stroke-width: 0.6;
+  opacity: 0.8;
+}
+
+.back-cat {
+  fill: #70624f;
+}
+
+.back-face {
+  fill: none;
+  stroke: #ebdfca;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.back-stars,
+.back-dots {
+  fill: #9b7e4e;
+}
+
+.front-design {
+  container-type: inline-size;
+  margin: 5%;
+  width: 90%;
+  height: 90%;
+  border: 1px solid rgba(168, 148, 116, 0.44);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 5.5% 3% 4%;
+  color: #34313a;
+  background: radial-gradient(ellipse at 50% 45%, rgba(255, 244, 220, 0.72), transparent 80%);
+}
+
+.card-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 4.2cqw;
+  letter-spacing: 0.09em;
+  color: #887358;
+  gap: 4px;
+}
+
+.card-topline span:nth-child(2) {
+  font-size: 7cqw;
+}
+
+.cat-art {
+  display: block;
+  width: 92%;
+  height: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+  margin-top: 1%;
+}
+
+.card-name {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--display);
+  font-size: 8.2cqw;
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.card-keyword {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 4.5cqw;
+  letter-spacing: 0.05em;
+  color: #8b755c;
+  margin-top: 3%;
+}
+
+.card-bottomline {
+  width: 100%;
+  border-top: 1px solid rgba(171, 150, 116, 0.34);
+  text-align: center;
+  font-size: 3.8cqw;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #887358;
+  margin-top: auto;
+  padding-top: 4%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Selection composition ---------- */
+.selection-scene {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100svh - 86px);
+  padding-bottom: 0;
+}
+
+.selection-intro,
+.selection-tray,
+.progress,
+.selection-hint {
+  transition:
+    opacity 0.55s ease,
+    transform 0.9s var(--ease),
+    filter 0.7s ease;
+}
+
+.selection-tray {
+  gap: clamp(18px, 2.6vw, 34px) !important;
+  margin-top: 26px;
+  transform-origin: center top;
+}
+
+.selection-slot {
+  width: 88px;
+  height: 140px;
+  border-radius: 10px;
+  border-color: rgba(110, 53, 72, 0.24);
+  transition:
+    border-color 0.35s,
+    opacity 0.5s,
+    transform 0.9s var(--ease);
+}
+
+.selection-slot button {
+  height: 100%;
+  overflow: visible;
+}
+
+.selection-slot.has-card button {
+  transform: translateY(-4px) scale(1.035);
+  filter: drop-shadow(0 18px 24px rgba(36, 26, 34, 0.18));
+  animation: selected-land 0.6s var(--ease) both;
+}
+
+.selection-slot small {
+  top: calc(100% + 8px);
+}
+
+.progress {
+  margin-top: 27px;
+}
+
+/* The deck is physically anchored below the viewport: only its upper half is visible. */
+.card-spread-viewport {
+  position: absolute;
+  z-index: 8;
+  left: 0;
+  right: 0;
+  bottom: -105px;
+  height: 365px;
+  width: 100%;
+  overflow: visible;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.75s ease,
+    transform 1.05s var(--ease),
+    filter 0.75s ease;
+}
+
+.card-spread {
+  position: relative;
+  width: min(1120px, 100%);
+  height: 365px;
+  margin: 0 auto;
+  perspective: 1400px;
+  transition: none;
+  pointer-events: none;
+}
+
+.spread-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: clamp(112px, 9vw, 136px);
+  border: 0;
+  background: none;
+  padding: 0;
+  pointer-events: auto;
+  transform-origin: 50% 145%;
+  transform: translate3d(calc(-50% + var(--fan-x)), var(--fan-y), 0)
+    rotate(var(--fan-r));
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.3s ease,
+    opacity 0.45s ease;
+  animation: wheel-deal-in 0.72s var(--ease) both;
+  animation-delay: var(--fan-delay);
+  will-change: transform;
+}
+
+.spread-card:hover:not(:disabled),
+.spread-card:focus-visible:not(:disabled) {
+  transform: translate3d(
+      calc(-50% + var(--fan-x) + 3px),
+      calc(var(--fan-y) - 8px),
+      0
+    )
+    rotate(var(--fan-r)) scale(1.01);
+  filter: drop-shadow(0 7px 10px rgba(36, 26, 34, 0.1));
+}
+
+.spread-card.is-chosen {
+  opacity: 0;
+  transform: translate3d(
+      calc(-50% + var(--fan-x)),
+      calc(var(--fan-y) - 115px),
+      0
+    )
+    rotate(calc(var(--fan-r) * 0.25)) scale(0.92);
+  pointer-events: none;
+}
+
+.selection-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 30px;
+  z-index: 12;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* After the third pick, the wheel leaves and the three chosen cards become the stage. */
+.selection-scene.is-locked .selection-intro {
+  opacity: 0;
+  transform: translateY(-22px);
+  filter: blur(5px);
+}
+
+.selection-scene.is-locked .progress,
+.selection-scene.is-locked .selection-hint {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.selection-scene.is-locked .card-spread-viewport {
+  opacity: 0;
+  transform: translateY(145px) scale(0.96);
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.selection-scene.is-locked .selection-tray {
+  transform: translateY(58px) scale(1.75);
+}
+
+.selection-scene.is-locked .selection-slot {
+  border-color: transparent;
+}
+
+.selection-scene.is-locked .selection-slot small {
+  opacity: 0;
+}
+
+.selection-scene.is-locked .selection-slot.has-card:nth-child(1) button {
+  animation: selected-float-left 3.8s ease-in-out infinite;
+}
+
+.selection-scene.is-locked .selection-slot.has-card:nth-child(2) button {
+  animation: selected-float-center 4.1s -0.7s ease-in-out infinite;
+}
+
+.selection-scene.is-locked .selection-slot.has-card:nth-child(3) button {
+  animation: selected-float-right 3.9s -1.25s ease-in-out infinite;
+}
+
+/* ---------- Reveal continuity ---------- */
+.reveal-scene {
+  background: linear-gradient(180deg, var(--ivory), #efe4df);
+}
+
+.chosen-row {
+  margin-top: 50px;
+}
+
+.chosen-slot {
+  width: clamp(132px, 13vw, 180px);
+  animation: trio-arrive 0.82s var(--ease) both;
+}
+
+.chosen-slot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.chosen-slot:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.chosen-slot:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.chosen-card {
+  transform: rotate(var(--entrance-r));
+  animation: refined-card-breathe 4.8s ease-in-out infinite;
+  animation-delay: var(--float-delay);
+}
+
+.chosen-card:hover:not(:disabled) {
+  transform: translateY(-9px) rotate(0deg) scale(1.02);
+}
+
+.chosen-card.is-revealed {
+  animation: none;
+  transform: rotate(0deg);
+}
+
+.chosen-card.is-flipping {
+  animation: none;
+  transform: translateY(-10px) rotate(0deg) scale(0.985);
+}
+
+.card-face.card-back,
+.card-face.card-front {
+  background: transparent;
+  background-image: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.card-face.card-back {
+  display: block;
+}
+
+.card-face.card-back::before {
+  display: none;
+}
+
+.card-face .tarot-card {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Motion ---------- */
+@keyframes selected-land {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wheel-deal-in {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(-50% + var(--fan-x)), calc(var(--fan-y) + 90px), 0)
+      rotate(var(--fan-r)) scale(0.92);
+  }
+}
+
+@keyframes selected-float-left {
+  0%, 100% { transform: translateY(0) rotate(-2.4deg); }
+  50% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+@keyframes selected-float-center {
+  0%, 100% { transform: translateY(-3px) rotate(0.5deg); }
+  50% { transform: translateY(-13px) rotate(-0.5deg); }
+}
+
+@keyframes selected-float-right {
+  0%, 100% { transform: translateY(1px) rotate(2.4deg); }
+  50% { transform: translateY(-9px) rotate(1deg); }
+}
+
+@keyframes trio-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(38px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes refined-card-breathe {
+  0%, 100% {
+    transform: translateY(0) rotate(var(--entrance-r));
+  }
+  50% {
+    transform: translateY(-9px) rotate(0deg);
+  }
+}
+
+@media (max-width: 800px) {
+  .selection-scene {
+    min-height: calc(100svh - 70px);
+    padding-bottom: 0;
+  }
+
+  .selection-tray {
+    gap: 12px !important;
+    margin-top: 20px;
+  }
+
+  .selection-slot {
+    width: 66px;
+    height: 105px;
+  }
+
+  .progress {
+    margin-top: 24px;
+  }
+
+  .card-spread-viewport {
+    width: calc(100% + 36px);
+    left: -18px;
+    right: auto;
+    bottom: -72px;
+    height: 300px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+    touch-action: pan-x;
+    pointer-events: auto;
+    scrollbar-width: none;
+  }
+
+  .card-spread-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .card-spread {
+    width: 1040px;
+    height: 300px;
+  }
+
+  .spread-card {
+    width: 96px;
+  }
+
+  .spread-card:hover:not(:disabled),
+  .spread-card:focus-visible:not(:disabled) {
+    transform: translate3d(
+        calc(-50% + var(--fan-x) + 2px),
+        calc(var(--fan-y) - 6px),
+        0
+      )
+      rotate(var(--fan-r)) scale(1.008);
+  }
+
+  .spread-card.is-chosen {
+    transform: translate3d(
+        calc(-50% + var(--fan-x)),
+        calc(var(--fan-y) - 78px),
+        0
+      )
+      rotate(calc(var(--fan-r) * 0.3)) scale(0.9);
+  }
+
+  .selection-hint {
+    bottom: 18px;
+  }
+
+  .selection-scene.is-locked .selection-tray {
+    transform: translateY(62px) scale(1.52);
+  }
+
+  .chosen-slot {
+    width: calc((100vw - 54px) / 3);
+  }
+
+  .selection-scene.is-locked .card-spread-viewport {
+    transform: translateY(110px) scale(0.97);
+  }
+
+  .chosen-row {
+    margin-top: 45px;
+  }
+}
+
+@media (max-width: 370px) {
+  .selection-slot {
+    width: 61px;
+    height: 97px;
+  }
+
+  .selection-scene.is-locked .selection-tray {
+    transform: translateY(58px) scale(1.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selection-scene.is-locked .selection-tray,
+  .selection-scene.is-locked .selection-slot.has-card button,
+  .chosen-slot,
+  .chosen-card,
+  .spread-card {
+    animation: none !important;
+  }
+}
+
+/* =====================================================
+   SELECTION V2 — FAN ONLY / PEEK → PICK → ARRANGE
+   This block intentionally overrides the older tray-based
+   selection rules above. The JSX no longer renders the tray.
+===================================================== */
+
+/* The selection stage is only intro + fan + subtle status. */
+.selection-scene {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100svh - 86px);
+  padding-bottom: 0;
+}
+
+/* Keep the fan visually anchored below the screen, while cards
+   are allowed to peek upward without being clipped by this layer. */
+.card-spread-viewport {
+  position: absolute;
+  z-index: 8;
+  left: 0;
+  right: 0;
+  bottom: -105px;
+  width: 100%;
+  height: 365px;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  pointer-events: none;
+  transition:
+    opacity 0.72s ease,
+    transform 1.05s var(--ease),
+    filter 0.65s ease;
+}
+
+.card-spread {
+  position: relative;
+  width: min(1120px, 100%);
+  height: 365px;
+  margin: 0 auto;
+  perspective: 1400px;
+  pointer-events: none;
+  transition: none;
+}
+
+.spread-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: clamp(112px, 9vw, 136px);
+  padding: 0;
+  border: 0;
+  background: none;
+  pointer-events: auto;
+  transform-origin: 50% 145%;
+  transform: translate3d(calc(-50% + var(--fan-x)), var(--fan-y), 0)
+    rotate(var(--fan-r));
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.3s ease,
+    opacity 0.48s ease;
+  animation: wheel-deal-in 0.72s var(--ease) both;
+  animation-delay: var(--fan-delay);
+  will-change: transform;
+}
+
+/* Hover is only a tiny physical response. The card stays inside
+   the overlap rather than being pulled out of the fan. */
+.spread-card:hover:not(:disabled),
+.spread-card:focus-visible:not(:disabled) {
+  transform: translate3d(
+      calc(-50% + var(--fan-x) + 3px),
+      calc(var(--fan-y) - 8px),
+      0
+    )
+    rotate(var(--fan-r)) scale(1.01);
+  filter: drop-shadow(0 8px 12px rgba(36, 26, 34, 0.12));
+  z-index: 80 !important;
+}
+
+/* A picked card remains in the fan and only peeks farther out.
+   It is intentionally still overlapped by the surrounding deck. */
+.spread-card.is-chosen {
+  opacity: 1;
+  transform: translate3d(
+      calc(-50% + var(--fan-x) + 3px),
+      calc(var(--fan-y) - 23px),
+      0
+    )
+    rotate(var(--fan-r)) scale(1.008);
+  filter: drop-shadow(0 9px 13px rgba(36, 26, 34, 0.14));
+  pointer-events: auto;
+}
+
+.spread-card.is-chosen:hover:not(:disabled),
+.spread-card.is-chosen:focus-visible:not(:disabled) {
+  transform: translate3d(
+      calc(-50% + var(--fan-x) + 5px),
+      calc(var(--fan-y) - 28px),
+      0
+    )
+    rotate(var(--fan-r)) scale(1.01);
+  filter: drop-shadow(0 11px 15px rgba(36, 26, 34, 0.16));
+}
+
+/* Minimal feedback replaces the old three-card tray/progress UI. */
+.selection-status {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 15;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 40px);
+  color: rgba(36, 26, 34, 0.5);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  text-align: center;
+  pointer-events: none;
+  transition:
+    opacity 0.4s ease,
+    transform 0.6s var(--ease);
+}
+
+/* Keep the desktop composition visually quiet. */
+.selection-hint {
+  display: none;
+}
+
+/* -----------------------------------------------------
+   AFTER THE THIRD PICK
+   The same selected cards become the three-card stage.
+----------------------------------------------------- */
+
+.selection-scene.is-locked .selection-intro {
+  opacity: 0;
+  transform: translateY(-18px);
+  filter: blur(4px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.75s var(--ease),
+    filter 0.55s ease;
+}
+
+.selection-scene.is-locked .selection-status {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+}
+
+/* Override the previous rule that faded the whole viewport.
+   We need this layer to stay alive because the selected cards
+   themselves travel from the wheel into the trio. */
+.selection-scene.is-locked .card-spread-viewport {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  pointer-events: none;
+}
+
+/* Everything that was not selected sinks back into the deck. */
+.selection-scene.is-locked .spread-card:not(.is-chosen) {
+  opacity: 0;
+  transform: translate3d(
+      calc(-50% + var(--fan-x)),
+      calc(var(--fan-y) + 120px),
+      0
+    )
+    rotate(var(--fan-r)) scale(0.94);
+  filter: blur(3px);
+  pointer-events: none;
+  transition:
+    transform 0.82s var(--ease),
+    opacity 0.46s ease,
+    filter 0.46s ease;
+}
+
+/* The picked cards leave the wheel only after all three exist.
+   --final-x and --final-r are authored by SelectionScene.jsx. */
+.selection-scene.is-locked .spread-card.is-chosen {
+  z-index: calc(100 + var(--selected-index)) !important;
+  opacity: 1;
+  transform: translate3d(
+      calc(-50% + var(--final-x)),
+      -105px,
+      0
+    )
+    rotate(var(--final-r)) scale(1.24);
+  filter: drop-shadow(0 24px 30px rgba(36, 26, 34, 0.2));
+  pointer-events: none;
+  transition:
+    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s ease,
+    opacity 0.5s ease;
+}
+
+/* No floating loop here: selection-complete is a one-way arrange
+   transition. RevealScene owns the slow floating motion afterward. */
+
+@media (max-width: 800px) {
+  .selection-scene {
+    min-height: calc(100svh - 70px);
+    padding-bottom: 0;
+  }
+
+  .card-spread-viewport {
+    width: calc(100% + 36px);
+    left: -18px;
+    right: auto;
+    bottom: -72px;
+    height: 300px;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 0;
+    touch-action: pan-x;
+    pointer-events: auto;
+    scrollbar-width: none;
+  }
+
+  .card-spread-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .card-spread {
+    width: 1040px;
+    height: 300px;
+  }
+
+  .spread-card {
+    width: 96px;
+  }
+
+  .spread-card:hover:not(:disabled),
+  .spread-card:focus-visible:not(:disabled) {
+    transform: translate3d(
+        calc(-50% + var(--fan-x) + 2px),
+        calc(var(--fan-y) - 6px),
+        0
+      )
+      rotate(var(--fan-r)) scale(1.008);
+  }
+
+  .spread-card.is-chosen {
+    transform: translate3d(
+        calc(-50% + var(--fan-x)),
+        calc(var(--fan-y) - 17px),
+        0
+      )
+      rotate(var(--fan-r)) scale(1.006);
+  }
+
+  .spread-card.is-chosen:hover:not(:disabled),
+  .spread-card.is-chosen:focus-visible:not(:disabled) {
+    transform: translate3d(
+        calc(-50% + var(--fan-x) + 1px),
+        calc(var(--fan-y) - 21px),
+        0
+      )
+      rotate(var(--fan-r)) scale(1.008);
+  }
+
+  .selection-status {
+    bottom: 18px;
+    font-size: 8px;
+  }
+
+  .selection-hint {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 38px;
+    z-index: 15;
+    margin: 0;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .desktop-hint {
+    display: none;
+  }
+
+  .mobile-hint {
+    display: inline;
+  }
+
+  .selection-scene.is-locked .card-spread-viewport {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    overflow-x: visible;
+  }
+
+  .selection-scene.is-locked .spread-card:not(.is-chosen) {
+    transform: translate3d(
+        calc(-50% + var(--fan-x)),
+        calc(var(--fan-y) + 90px),
+        0
+      )
+      rotate(var(--fan-r)) scale(0.94);
+  }
+
+  .selection-scene.is-locked .spread-card.is-chosen {
+    transform: translate3d(
+        calc(-50% + var(--final-x)),
+        -58px,
+        0
+      )
+      rotate(var(--final-r)) scale(1.08);
+  }
+
+  .selection-scene.is-locked .selection-hint {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spread-card,
+  .selection-scene.is-locked .spread-card {
+    animation: none !important;
+  }
+}

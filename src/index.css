@@ -1,0 +1,208 @@
+@import "tailwindcss";
+@import "./styles/animations.css";
+
+@theme inline {
+  --color-ivory: var(--ivory);
+  --color-ink: var(--ink);
+  --color-wine: var(--wine);
+  --font-display: var(--display);
+  --font-ui: var(--ui);
+}
+
+:root {
+  --ivory: #f5f0e8;
+  --paper: #fffdf8;
+  --ink: #241a22;
+  --wine: #6e3548;
+  --rose: #c9979d;
+  --sage: #a7b09e;
+  --mist: #b8c6d1;
+  --line: rgba(36, 26, 34, 0.18);
+  --display: Georgia, "Times New Roman", serif;
+  --ui: Arial, Helvetica, sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--ivory);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--ui);
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 5px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.meera-shell {
+  min-height: 100svh;
+  overflow: hidden;
+  position: relative;
+  background: var(--ivory);
+  isolation: isolate;
+}
+
+.meera-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: radial-gradient(
+    rgba(36, 26, 34, 0.08) 0.7px,
+    transparent 0.7px
+  );
+  background-size: 5px 5px;
+  mix-blend-mode: multiply;
+  z-index: -1;
+}
+
+.grain {
+  position: fixed;
+  inset: -50%;
+  pointer-events: none;
+  opacity: 0.035;
+  z-index: 50;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+  animation: grain 0.2s steps(2) infinite;
+}
+
+.meera-header {
+  position: relative;
+  z-index: 40;
+  padding: 28px clamp(24px, 5vw, 72px);
+}
+
+.brand {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--display);
+  font-size: 28px;
+  letter-spacing: -0.08em;
+  font-style: italic;
+}
+
+.brand span {
+  color: var(--wine);
+}
+
+.header-tools {
+}
+
+.ritual-note,
+.scene-count {
+  color: rgba(36, 26, 34, 0.54);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.scene-count {
+  color: var(--ink);
+}
+
+.eyebrow,
+.reading-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--wine);
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+}
+
+.primary-button {
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  padding: 15px 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  justify-content: center;
+  gap: 22px;
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  transition:
+    transform 0.35s var(--ease),
+    background 0.35s;
+}
+
+.primary-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  background: var(--wine);
+}
+
+.primary-button:disabled {
+  opacity: 0.55;
+}
+
+.text-button,
+.outline-button {
+  border: 0;
+  background: none;
+  display: inline-flex;
+  justify-content: center;
+  gap: 9px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.outline-button {
+  border: 1px solid var(--line);
+  padding: 13px 18px;
+  border-radius: 99px;
+}
+
+.text-button:hover,
+.outline-button:hover {
+  color: var(--wine);
+}
+
+.outline-button:hover {
+  border-color: var(--wine);
+}
