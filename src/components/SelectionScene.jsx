@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { TarotCardView } from "./TarotCard";
+import "./SelectionScene.css";
 
 const MOBILE_BREAKPOINT = 800;
 
@@ -61,7 +62,7 @@ function fanPosition(
       "--fan-x": `${Math.sin(radians) * radius}px`,
 
       "--fan-y": `${
-        radius * (1 - Math.cos(radians))
+        radius * (1 - Math.cos(radians)) * 0.60
       }px`,
 
       "--fan-r": `${angle * 0.72}deg`,
@@ -78,7 +79,7 @@ function fanPosition(
      DESKTOP
   ----------------------------------------------------- */
 
-  const maxAngle = 42;
+  const maxAngle = 62;
 
   const angle =
     total <= 1
@@ -87,13 +88,13 @@ function fanPosition(
         index * ((maxAngle * 2) / (total - 1));
 
   const radians = (angle * Math.PI) / 180;
-  const radius = 690;
+  const radius = typeof window === "undefined" ? 690 : Math.min(870, Math.max(340, window.innerWidth * 0.49));
 
   return {
     "--fan-x": `${Math.sin(radians) * radius}px`,
 
     "--fan-y": `${
-      radius * (1 - Math.cos(radians))
+      radius * (1 - Math.cos(radians)) * 0.60
     }px`,
 
     "--fan-r": `${angle * 0.9}deg`,
@@ -550,53 +551,33 @@ function clampOffset(value) {
         </p>
 
         <h2 id="selection-title">
-          Choose three cards.
+          Choose one card.
         </h2>
       </div>
 
       {/* ===================================
-          SELECTED SLOTS
+          SINGLE SELECTED CARD
       =================================== */}
 
       <div
         className="selection-picks"
-        aria-label={`${selected.length} of 3 cards selected`}
+        aria-label={`${selected.length} of 1 card selected`}
       >
-        {[0, 1, 2].map((slotIndex) => {
-          const card = selected[slotIndex];
-
-          return (
-            <div
-              key={slotIndex}
-              className={`selection-pick-slot ${
-                card ? "has-card" : ""
-              }`}
+        <div className={`selection-pick-slot ${selected[0] ? "has-card" : ""}`}>
+          {selected[0] ? (
+            <button
+              type="button"
+              className="selection-pick-card"
+              onClick={() => !locked && onRemove(selected[0])}
+              disabled={locked}
+              aria-label={`${selected[0].name} selected. Return card to deck.`}
             >
-              {card ? (
-                <button
-                  type="button"
-                  className="selection-pick-card"
-                  onClick={() => {
-                    if (!locked) {
-                      onRemove(card);
-                    }
-                  }}
-                  disabled={locked}
-                  aria-label={`${card.name} selected. Click to return it to the deck.`}
-                >
-                  <TarotCardView card={card} />
-                </button>
-              ) : (
-                <span
-                  className="selection-pick-placeholder"
-                  aria-hidden="true"
-                >
-                  {slotIndex + 1}
-                </span>
-              )}
-            </div>
-          );
-        })}
+              <TarotCardView card={selected[0]} />
+            </button>
+          ) : (
+            <span className="selection-pick-placeholder" aria-hidden="true">?</span>
+          )}
+        </div>
       </div>
 
       {/* ===================================
@@ -663,7 +644,7 @@ function clampOffset(value) {
                    */
                   "--fan-z": index + 1,
 
-                  zIndex: index + 1,
+                  zIndex: isMobile ? index + 1 : cards.length - Math.abs(index - (cards.length - 1) / 2),
                 }}
                 onClick={() =>
                   handleDesktopClick(
@@ -721,7 +702,7 @@ function clampOffset(value) {
       >
         {locked
           ? "Your cards are finding their place"
-          : `${selected.length} / 3 selected`}
+          : `${selected.length} / 1 selected`}
       </div>
 
       <p className="selection-hint">

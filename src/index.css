@@ -1,109 +1,98 @@
-@import "tailwindcss";
+/* =========================================================
+   PURRANORMAL — GLOBAL DESIGN SYSTEM
+   Single source of truth for colors, type, spacing and UI.
+   Scene-specific layout and animation stay in scene CSS files.
+   ========================================================= */
 
-/*
- * Legacy scene CSS first.
- * New foundation and component CSS can safely override it.
- */
-@import "./styles/animations.css";
-
-/* Meera design-system foundation */
-@import "./styles/theme.css";
-@import "./styles/typography.css";
-@import "./styles/ornaments.css";
-
-
-/* =====================================================
-   TAILWIND THEME BRIDGE
-===================================================== */
-
-@theme inline {
-  --color-meera-canvas:
-    var(--meera-canvas);
-
-  --color-meera-surface:
-    var(--meera-surface);
-
-  --color-meera-text:
-    var(--meera-text);
-
-  --color-meera-muted:
-    var(--meera-text-muted);
-
-  --color-meera-line:
-    var(--meera-line);
-
-  --color-meera-accent:
-    var(--meera-accent);
-
-  /* Temporary legacy aliases */
-  --color-ivory:
-    var(--ivory);
-
-  --color-paper:
-    var(--paper);
-
-  --color-ink:
-    var(--ink);
-
-  --color-wine:
-    var(--wine);
-
-  --font-display:
-    var(--display);
-
-  --font-ui:
-    var(--ui);
+/* FONTS — paths are relative to this index.css file.
+   Keep these font files in a sibling ./fonts/ folder,
+   or update the paths to match your project. */
+@font-face {
+  font-family: "Michelangelus";
+  src: url("./fonts/Michelangelus-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
 }
-
-
-/* =====================================================
-   LEGACY TOKEN BRIDGE
-   Selection / Reveal / Result still reference these.
-===================================================== */
+@font-face {
+  font-family: "Michelangelus";
+  src: url("./fonts/Michelangelus-Italic.ttf") format("truetype");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Michelangelus";
+  src: url("./fonts/Michelangelus-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Michelangelus";
+  src: url("./fonts/Michelangelus-BoldItalic.ttf") format("truetype");
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+}
 
 :root {
-  --display:
-    Georgia,
-    "Times New Roman",
-    serif;
+  /* COLOR — black & white, matching IntroScene's solid mode */
+  --meera-bg: #ffffff;
+  --meera-surface: #ffffff;
+  --meera-ink: #000000;
+  --meera-muted: #666666;
+  --meera-border: #d9d9d9;
+  --meera-primary: #000000;
+  --meera-primary-hover: #262626;
+  --meera-on-primary: #ffffff;
 
-  --ui:
-    Arial,
-    Helvetica,
-    sans-serif;
+  /* FONT — same roles as IntroScene */
+  --meera-font-brand: Helvetica, Arial, sans-serif;
+  --meera-font-body: "Courier New", Courier, monospace;
+  --meera-font-title: monospace, Courier, sans-serif;
+  --meera-font-display: "Michelangelus", Georgia, serif; /* opt-in only */
 
-  --ivory:
-    var(--meera-canvas);
+  /* TYPE SCALE */
+  --meera-text-brand: 24px;
+  --meera-text-title: clamp(22px, 3.5vw, 32px);
+  --meera-text-body: 14px;
+  --meera-text-button: 14px;
+  --meera-line-height-title: 1.4;
+  --meera-tracking-tight: -0.035em;
 
-  --paper:
-    var(--meera-surface);
+  /* SPACING */
+  --meera-space-1: 4px;
+  --meera-space-2: 8px;
+  --meera-space-3: 12px;
+  --meera-space-4: 16px;
+  --meera-space-6: 24px;
+  --meera-space-8: 32px;
+  --meera-space-12: 48px;
+  --meera-space-16: 64px;
+  --meera-page-padding-x: 24px;
+  --meera-page-padding-top: 28px;
+  --meera-page-padding-bottom: 16px;
+  --meera-content-max: 1100px;
 
-  --ink:
-    var(--meera-text);
+  /* SHAPES */
+  --meera-radius-sm: 8px;
+  --meera-radius-md: 16px;
+  --meera-radius-pill: 999px;
 
-  --wine:
-    var(--meera-accent);
+  /* MOTION */
+  --meera-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --meera-duration-fast: 180ms;
+  --meera-duration-normal: 300ms;
 
-  --line:
-    var(--meera-line-soft);
-
-  --rose:
-    #c9979d;
-
-  --sage:
-    #a7b09e;
-
-  --mist:
-    #b8c6d1;
-
-  --ease:
-    var(--meera-ease);
+  /* OPTIONAL ARTWORK COLORS (not general UI) */
+  --meera-sky: #9bd1de;
+  --meera-meadow: #94a369;
+  --meera-sand: #b8b17a;
+  --meera-ochre: #cd9253;
+  --meera-rose: #d3908e;
+  --meera-olive: #75774a;
 }
-
-
-/* =====================================================
-   RESET
-===================================================== */
 
 *,
 *::before,
@@ -111,52 +100,17 @@
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
-  width: 100%;
-
-  margin: 0;
-}
-
 html {
   min-width: 320px;
-  min-height: 100%;
-
-  background:
-    var(--meera-canvas);
-
-  color:
-    var(--meera-text);
 }
 
 body {
-  min-width: 320px;
+  margin: 0;
   min-height: 100svh;
-
-  overflow-x: hidden;
-
-  color:
-    var(--meera-text);
-
-  background:
-    var(--meera-canvas);
-
-  font-family:
-    var(--meera-font-ui);
-
-  -webkit-font-smoothing:
-    antialiased;
-
-  -moz-osx-font-smoothing:
-    grayscale;
-
-  text-rendering:
-    optimizeLegibility;
-}
-
-#root {
-  min-height: 100svh;
+  background: var(--meera-bg);
+  color: var(--meera-ink);
+  font-family: var(--meera-font-body);
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -166,420 +120,89 @@ select {
   font: inherit;
 }
 
-button {
-  color: inherit;
-
-  cursor: pointer;
-
-  -webkit-tap-highlight-color:
-    transparent;
+/* Opt-in type classes: do not override scene-specific h1/h2 styles. */
+.meera-brand {
+  font-family: var(--meera-font-brand);
+  font-size: var(--meera-text-brand);
+  font-weight: 800;
+  letter-spacing: var(--meera-tracking-tight);
 }
 
-button:disabled {
-  cursor: default;
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline:
-    2px solid
-    var(--meera-focus);
-
-  outline-offset:
-    4px;
-}
-
-h1,
-h2,
-h3,
-h4,
-p {
-  margin-top: 0;
-}
-
-img,
-svg {
-  max-width: 100%;
-}
-
-
-/* =====================================================
-   ACCESSIBILITY
-===================================================== */
-
-.sr-only {
-  position: absolute;
-
-  width: 1px;
-  height: 1px;
-
-  padding: 0;
-  margin: -1px;
-
-  overflow: hidden;
-
-  clip:
-    rect(
-      0,
-      0,
-      0,
-      0
-    );
-
-  white-space: nowrap;
-
-  border: 0;
-}
-
-
-/* =====================================================
-   APP SHELL
-===================================================== */
-
-.meera-shell {
-  position: relative;
-
-  width: 100%;
-  min-height: 100svh;
-
+.meera-title {
   margin: 0;
-
-  overflow-x: hidden;
-
-  isolation: isolate;
-
-  color:
-    var(--meera-text);
-
-  background:
-    var(--meera-canvas);
-
-  transition:
-    color
-      var(--meera-duration-medium)
-      ease,
-    background
-      var(--meera-duration-medium)
-      ease;
+  font-family: var(--meera-font-title);
+  font-size: var(--meera-text-title);
+  font-weight: 400;
+  line-height: var(--meera-line-height-title);
+  letter-spacing: var(--meera-tracking-tight);
 }
 
-.meera-shell::before {
-  content: "";
-
-  position: fixed;
-  z-index: 0;
-
-  inset: 0;
-
-  pointer-events: none;
-
-  opacity: 0.2;
-
-  background-image:
-    radial-gradient(
-      var(--meera-line-soft)
-      0.65px,
-      transparent
-      0.65px
-    );
-
-  background-size:
-    6px 6px;
+.meera-display {
+  font-family: var(--meera-font-display);
+  font-weight: 400;
 }
 
-
-/* =====================================================
-   GRAIN
-===================================================== */
-
-.grain {
-  position: fixed;
-  z-index: 70;
-
-  inset: -50%;
-
-  pointer-events: none;
-
-  opacity: 0.022;
-
-  background-image:
-    url("data:image/svg+xml,%3Csvg%20viewBox='0%200%20180%20180'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.8'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'%20opacity='.8'/%3E%3C/svg%3E");
-
-  animation:
-    grain
-    0.2s
-    steps(2)
-    infinite;
-}
-
-@keyframes grain {
-  0% {
-    transform:
-      translate(0, 0);
-  }
-
-  25% {
-    transform:
-      translate(2%, -3%);
-  }
-
-  50% {
-    transform:
-      translate(-3%, 2%);
-  }
-
-  75% {
-    transform:
-      translate(3%, 3%);
-  }
-
-  100% {
-    transform:
-      translate(-2%, -2%);
-  }
-}
-
-
-/* =====================================================
-   LEGACY UI BRIDGE
-   Remove these after Reveal / Result get dedicated CSS.
-===================================================== */
-
-.eyebrow,
-.reading-label {
-  color:
-    var(--meera-accent);
-
-  font-size: 10px;
-
-  letter-spacing:
-    0.18em;
-
-  text-transform:
-    uppercase;
-}
-
-.eyebrow {
-  margin:
-    0 0 18px;
-}
-
-.primary-button {
-  display:
-    inline-flex;
-
+/* Simple reusable button. MorphButton keeps its own specialized CSS. */
+.meera-button {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  gap:
-    var(--meera-space-4);
-
-  min-height: 46px;
-
-  padding:
-    8px 18px;
-
-  border:
-    var(--meera-stroke-bold)
-    solid
-    var(--meera-line);
-
-  border-radius:
-    var(--meera-radius-pill);
-
-  color:
-    var(--meera-text-inverse);
-
-  background:
-    var(--meera-text);
-
-  box-shadow:
-    var(--meera-shadow-offset);
-
-  font-family:
-    var(--meera-font-ui);
-
-  font-size: 10px;
-  font-weight: 700;
-
-  letter-spacing:
-    0.09em;
-
-  text-transform:
-    uppercase;
-
-  transform:
-    rotate(-0.3deg);
-
-  transition:
-    transform
-      var(--meera-duration-fast)
-      var(--meera-ease),
-    box-shadow
-      var(--meera-duration-fast)
-      ease,
-    background
-      var(--meera-duration-fast)
-      ease;
+  gap: var(--meera-space-3);
+  min-height: 52px;
+  padding: 12px 24px;
+  border: 1px solid var(--meera-primary);
+  border-radius: var(--meera-radius-pill);
+  background: var(--meera-primary);
+  color: var(--meera-on-primary);
+  font-family: var(--meera-font-body);
+  font-size: var(--meera-text-button);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--meera-duration-fast) ease,
+              transform var(--meera-duration-fast) ease;
 }
 
-.primary-button:hover:not(:disabled) {
-  transform:
-    translateY(-2px)
-    rotate(0.2deg);
-
-  box-shadow:
-    4px 6px 0
-    var(--meera-accent);
+.meera-button:hover:not(:disabled) {
+  background: var(--meera-primary-hover);
+  transform: translateY(-2px);
 }
 
-.primary-button:active:not(:disabled) {
-  transform:
-    translateY(1px);
-
-  box-shadow:
-    1px 2px 0
-    var(--meera-accent);
+.meera-button:focus-visible {
+  outline: 2px solid var(--meera-ink);
+  outline-offset: 4px;
 }
 
-.primary-button:disabled {
-  opacity: 0.5;
+.meera-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
-.text-button,
-.outline-button {
-  display:
-    inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap:
-    var(--meera-space-2);
-
-  min-height: 42px;
-
-  border: 0;
-
-  color:
-    var(--meera-text);
-
-  background: none;
-
-  font-family:
-    var(--meera-font-ui);
-
-  font-size: 10px;
-  font-weight: 650;
-
-  letter-spacing:
-    0.08em;
-
-  text-transform:
-    uppercase;
-
-  transition:
-    color
-      var(--meera-duration-fast)
-      ease,
-    border-color
-      var(--meera-duration-fast)
-      ease,
-    transform
-      var(--meera-duration-fast)
-      var(--meera-ease);
-}
-
-.outline-button {
-  padding:
-    10px 16px;
-
-  border:
-    var(--meera-stroke)
-    solid
-    var(--meera-line);
-
-  border-radius:
-    var(--meera-radius-pill);
-
-  background:
-    var(--meera-surface);
-}
-
-.text-button:hover:not(:disabled),
-.outline-button:hover:not(:disabled) {
-  color:
-    var(--meera-accent);
-
-  transform:
-    translateY(-1px);
-}
-
-.outline-button:hover:not(:disabled) {
-  border-color:
-    var(--meera-accent);
-}
-
-
-/* =====================================================
-   DARK TEXTURE TUNING
-===================================================== */
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"])
-  .meera-shell::before {
-    opacity: 0.14;
-  }
-
-  :root:not([data-theme="light"])
-  .grain {
-    opacity: 0.016;
+@media (max-width: 768px) {
+  :root {
+    --meera-text-brand: 22px;
+    --meera-text-title: clamp(20px, 5vw, 30px);
+    --meera-text-button: 12px;
+    --meera-page-padding-x: 20px;
+    --meera-page-padding-top: 20px;
+    --meera-page-padding-bottom: 12px;
   }
 }
 
-:root[data-theme="dark"]
-.meera-shell::before {
-  opacity: 0.14;
-}
-
-:root[data-theme="dark"]
-.grain {
-  opacity: 0.016;
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media (max-width: 800px) {
-  .primary-button {
-    min-height: 44px;
-
-    padding:
-      7px 16px;
-
-    font-size: 9px;
-  }
-
-  .outline-button,
-  .text-button {
-    min-height: 40px;
-
-    font-size: 9px;
+@media (max-height: 650px) {
+  :root {
+    --meera-text-title: clamp(18px, 3vw, 28px);
+    --meera-page-padding-top: 12px;
+    --meera-page-padding-bottom: 8px;
   }
 }
-
-
-/* =====================================================
-   REDUCED MOTION
-===================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  .grain {
-    animation: none !important;
+  .meera-button {
+    transition: none;
   }
 }
+
+/* APP SHELL */
+#root { min-height: 100svh; }
+.meera-shell { position: relative; isolation: isolate; width: 100%; min-height: 100svh; background: var(--meera-bg); color: var(--meera-ink); }
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }

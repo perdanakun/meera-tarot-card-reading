@@ -1,0 +1,171 @@
+/* PURRANORMAL / SELECTION: one-card ritual.
+   Shared color, typography and spacing live in src/index.css. */
+.selection-scene {
+  --selection-card-ratio: 2 / 3;
+  --selection-slot-width: clamp(114px, 9vw, 156px);
+  --selection-fan-width: clamp(166px, 13.8vw, 245px);
+  --selection-fan-bottom: -38px;
+  --selection-peek: 28px;
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100svh;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--meera-page-padding-top, 28px) var(--meera-page-padding-x, 24px) var(--meera-page-padding-bottom, 16px);
+  background: var(--meera-bg, #fff);
+  color: var(--meera-ink, #000);
+  font-family: var(--meera-font-body, monospace);
+}
+.selection-intro {
+  position: relative;
+  z-index: 6;
+  flex-shrink: 0;
+  text-align: center;
+}
+.selection-intro .eyebrow {
+  margin: 0 0 var(--meera-space-3, 12px);
+  color: var(--meera-muted, #666);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.selection-intro h2 {
+  margin: 0;
+  font-family: var(--meera-font-title, monospace);
+  font-size: var(--meera-text-title, clamp(22px, 3.5vw, 32px));
+  font-weight: 400;
+  line-height: var(--meera-line-height-title, 1.4);
+  letter-spacing: var(--meera-tracking-tight, -.035em);
+}
+/* Selected card sits above the fan, larger than previous slot. */
+.selection-picks {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: clamp(18px, 3vh, 30px);
+}
+.selection-pick-slot {
+  display: grid;
+  place-items: center;
+  width: var(--selection-slot-width);
+  aspect-ratio: var(--selection-card-ratio);
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px dashed var(--meera-border, #d9d9d9);
+  border-radius: 10px;
+  background: var(--meera-surface, #fff);
+}
+.selection-pick-slot.has-card { border-style: solid; border-color: var(--meera-ink, #000); }
+.selection-pick-placeholder { color: var(--meera-muted, #666); font-size: 23px; }
+.selection-pick-card {
+  display: block;
+  width: 100%; height: 100%;
+  padding: 0; border: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+}
+.selection-pick-card .tarot-card { width: 100%; height: 100%; }
+.selection-pick-card:focus-visible,
+.spread-card:focus-visible { outline: 2px solid var(--meera-ink, #000); outline-offset: 4px; }
+
+/* Fan is anchored low; edges droop DOWN in the fanPosition() math. */
+.card-spread-viewport {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.card-spread {
+  position: absolute;
+  left: 50%;
+  bottom: var(--selection-fan-bottom);
+  width: 0;
+  height: 0;
+}
+.spread-card {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
+  width: var(--selection-fan-width);
+  height: auto;
+  max-width: none;
+  aspect-ratio: var(--selection-card-ratio);
+  padding: 0; border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  opacity: var(--fan-opacity, 1);
+  pointer-events: var(--fan-pointer, auto);
+  transform: translate(calc(-50% + var(--fan-x)), var(--fan-y)) rotate(var(--fan-r));
+  transform-origin: 50% 100%;
+  transition: transform 350ms var(--meera-ease, ease), opacity 250ms ease, filter 250ms ease;
+  filter: drop-shadow(0 7px 9px rgb(0 0 0 / 13%));
+}
+.spread-card > .tarot-card { display: block; width: 100%; height: 100%; }
+.spread-card:hover:not(:disabled), .spread-card.is-pressed {
+  transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - var(--selection-peek))) rotate(var(--fan-r)) scale(1.045);
+  filter: drop-shadow(0 12px 15px rgb(0 0 0 / 22%));
+}
+.spread-card.is-chosen { opacity: .20; pointer-events: none; }
+.spread-card:disabled { cursor: default; }
+.selection-status {
+  position: relative;
+  z-index: 6;
+  flex-shrink: 0;
+  margin-top: var(--meera-space-2, 8px);
+  text-align: center;
+  font-size: var(--meera-text-body, 14px);
+}
+.selection-hint {
+  position: relative;
+  z-index: 6;
+  flex-shrink: 0;
+  margin: var(--meera-space-2, 8px) 0 0;
+  color: var(--meera-muted, #666);
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.mobile-hint { display: none; }
+@media (max-width: 800px) {
+  .selection-scene {
+    --selection-slot-width: clamp(110px, 34vw, 152px);
+    --selection-fan-width: clamp(112px, 34vw, 150px);
+    --selection-fan-bottom: -12px;
+    --selection-peek: 20px;
+    padding: 20px 12px 14px;
+  }
+  .selection-intro h2 { font-size: clamp(20px, 5vw, 30px); }
+  .selection-picks { margin-top: 18px; }
+  .spread-card { touch-action: none; }
+  .desktop-hint { display: none; }
+  .mobile-hint { display: inline; }
+}
+@media (max-height: 650px) {
+  .selection-scene {
+    --selection-slot-width: clamp(75px, 17svh, 115px);
+    --selection-fan-width: clamp(110px, 28svh, 180px);
+    padding-top: 12px;
+    padding-bottom: 9px;
+  }
+  .selection-picks { margin-top: 8px; }
+  .selection-hint { margin-top: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .selection-scene *, .selection-scene *::before, .selection-scene *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

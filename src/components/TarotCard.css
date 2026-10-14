@@ -1,80 +1,40 @@
-/* =====================================================
-   MEERA — TAROT CARD
-   Single source of truth for the card shell / images.
-===================================================== */
-
+/* PURRANORMAL — TAROT CARD
+   Parent (.spread-card, .selection-pick-card, reveal card) owns size.
+   This component owns clipping, radius and artwork fill. */
 .tarot-card {
+  --tarot-radius: 10px;
+  display: block;
   position: relative;
-
-  display: block;
-
-  width: 100%;
-
-  aspect-ratio:
-    var(
-      --meera-card-ratio,
-      971 / 1619
-    );
-
-  overflow: hidden;
-
-  border-radius: 4.5%;
-
-  background:
-    var(
-      --meera-card-paper,
-      #fbf6e8
-    );
-}
-
-.tarot-front,
-.tarot-back {
-  position: absolute;
-
-  inset: 0;
-
-  display: block;
-
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
-
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
+  border-radius: var(--tarot-radius);
+  background: var(--meera-surface, #fff);
+  isolation: isolate;
+}
 
+.tarot-card.compact { --tarot-radius: 8px; }
+
+.tarot-card .tarot-front,
+.tarot-card .tarot-back {
+  display: block;
+  width: 100%;
+  height: 100%;
   border-radius: inherit;
-
-  background:
-    var(
-      --meera-card-paper,
-      #fbf6e8
-    );
-}
-
-.artwork-card-back,
-.artwork-card-front {
-  position: absolute;
-
-  inset: 0;
-
-  display: block;
-
-  width: 100%;
-  height: 100%;
-
   overflow: hidden;
 }
 
-.artwork-card-back-image,
-.artwork-card-front-template {
+/* SVG artwork must be clipped to the same rounded silhouette. */
+.tarot-card .tarot-front > svg,
+.tarot-card .tarot-back > svg,
+.tarot-card .tarot-front > img,
+.tarot-card .tarot-back > img {
   display: block;
-
   width: 100%;
   height: 100%;
-
-  object-fit: contain;
-
-  pointer-events: none;
-
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-user-drag: none;
+  object-fit: cover;
+  border-radius: inherit;
 }

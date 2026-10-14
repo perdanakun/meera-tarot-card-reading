@@ -1,350 +1,257 @@
-import { ArrowRight } from "lucide-react";
-import { TarotCardView } from "./TarotCard";
+
+import { useEffect, useState } from "react";
 import "./IntroScene.css";
+import MorphButton from "./ui/MorphButton/MorphButton";
 
-function CatEyeSigil() {
-  return (
-    <svg
-      className="intro-sigil"
-      viewBox="0 0 92 48"
-      aria-hidden="true"
-    >
-      <path
-        d="M7 24C18 10 31 5 46 5s28 5 39 19C74 38 61 43 46 43S18 38 7 24Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+import catFrame1 from "../assets/background/cat_hero-01.svg";
+import catFrame2 from "../assets/background/cat_hero-02.svg";
+import catFrame3 from "../assets/background/cat_hero-03.svg";
+import catFrame4 from "../assets/background/cat_hero-04-04.svg";
 
-      <path
-        d="M41 14c3-4 7-4 10 0"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+/* =========================================
+   BACKGROUND CONFIG
+   "solid" = design-system background
+   "image" = Image from assets/background
+========================================= */
 
-      <ellipse
-        cx="46"
-        cy="24"
-        rx="8"
-        ry="11"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
+const BACKGROUND_MODE = "solid";
 
-      <path
-        d="M46 17v14"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+/* =========================================
+   CONTENT
+========================================= */
 
-      <path
-        d="M24 8l4-6 4 6M60 8l4-6 4 6"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const PREFIX =
+  "im lucifur son of the darkness and i will tell your ";
 
-function PawDoodle() {
-  return (
-    <svg
-      viewBox="0 0 54 54"
-      aria-hidden="true"
-    >
-      <ellipse
-        cx="27"
-        cy="33"
-        rx="11"
-        ry="9"
-      />
+const ORIGINAL = "fortune";
+const REPLACEMENT = "purrtune!";
+const MESSAGE = `${PREFIX}${REPLACEMENT}`;
+const BRAND = "Purranormal";
 
-      <ellipse
-        cx="15"
-        cy="21"
-        rx="4"
-        ry="6"
-      />
-
-      <ellipse
-        cx="25"
-        cy="15"
-        rx="4"
-        ry="6"
-      />
-
-      <ellipse
-        cx="36"
-        cy="18"
-        rx="4"
-        ry="6"
-      />
-
-      <ellipse
-        cx="42"
-        cy="28"
-        rx="4"
-        ry="6"
-      />
-    </svg>
-  );
-}
-
-function FishDoodle() {
-  return (
-    <svg
-      viewBox="0 0 70 36"
-      aria-hidden="true"
-    >
-      <path
-        d="M8 18c10-11 24-11 34 0-10 11-24 11-34 0Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      <path
-        d="M42 18 58 7v22L42 18Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      <circle
-        cx="19"
-        cy="16"
-        r="1.6"
-        fill="currentColor"
-      />
-
-      <path
-        d="M28 10v16M34 9v18"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
+const CAT_FRAMES = [
+  catFrame1,
+  catFrame2,
+  catFrame3,
+  catFrame4,
+];
 
 export default function IntroScene({
-  deck,
-  entering,
+  entering = false,
   onBegin,
 }) {
-  const floating =
-    deck.slice(0, 6);
+  const [stage, setStage] = useState("typing");
+  const [typedCount, setTypedCount] = useState(0);
+  const [catFrame, setCatFrame] = useState(0);
+
+  /* =========================================
+     TYPEWRITER
+  ========================================= */
+
+  useEffect(() => {
+    const full = PREFIX + ORIGINAL;
+    let count = 0;
+
+    const interval = window.setInterval(() => {
+      count += 1;
+      setTypedCount(count);
+
+      if (count >= full.length) {
+        window.clearInterval(interval);
+        setStage("pause");
+      }
+    }, 65);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  /* =========================================
+     PAUSE BEFORE CORRECTION
+  ========================================= */
+
+  useEffect(() => {
+    if (stage !== "pause") return;
+
+    const timer = window.setTimeout(() => {
+      setStage("strike");
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [stage]);
+
+  /* =========================================
+     STRIKE THROUGH "FORTUNE"
+  ========================================= */
+
+  useEffect(() => {
+    if (stage !== "strike") return;
+
+    const timer = window.setTimeout(() => {
+      setStage("replace");
+    }, 650);
+
+    return () => window.clearTimeout(timer);
+  }, [stage]);
+
+  /* =========================================
+     REPLACE WITH "PURRTUNE!"
+  ========================================= */
+
+  useEffect(() => {
+    if (stage !== "replace") return;
+
+    const timer = window.setTimeout(() => {
+      setStage("done");
+    }, 800);
+
+    return () => window.clearTimeout(timer);
+  }, [stage]);
+
+  /* =========================================
+     CAT SPRITE ANIMATION
+  ========================================= */
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setCatFrame(
+        (previous) => (previous + 1) % CAT_FRAMES.length
+      );
+    }, 200);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  /* =========================================
+     TEXT VISIBILITY
+  ========================================= */
+
+  const full = PREFIX + ORIGINAL;
+
+  const visiblePrefix = full.slice(
+    0,
+    Math.min(typedCount, PREFIX.length)
+  );
+
+  const visibleOriginal = full.slice(
+    PREFIX.length,
+    typedCount
+  );
+
+  const showReplacement =
+    stage === "replace" || stage === "done";
+
+  /* =========================================
+     RENDER
+  ========================================= */
 
   return (
     <section
-      className={`meera-intro ${
-        entering
-          ? "is-entering"
-          : ""
+      className={`meera-intro${
+        entering ? " is-entering" : ""
       }`}
+      data-background={BACKGROUND_MODE}
       aria-labelledby="intro-title"
     >
+      {/* BRAND — TOP */}
       <div
-        className="meera-hero-frame meera-intro__hero-frame"
-        aria-hidden="true"
+        className="meera-intro__brand"
+        aria-label={BRAND}
       >
-        <span className="meera-frame-corner meera-frame-corner--tl">
-          ✦
-        </span>
-
-        <span className="meera-frame-corner meera-frame-corner--tr">
-          ☾
-        </span>
-
-        <span className="meera-frame-corner meera-frame-corner--bl">
-          ☽
-        </span>
-
-        <span className="meera-frame-corner meera-frame-corner--br">
-          ✦
-        </span>
+        {Array.from(BRAND).map((letter, index) => (
+          <span
+            key={index}
+            className={
+              letter === " "
+                ? "meera-intro__brand-space"
+                : "meera-intro__brand-letter"
+            }
+            style={{ "--letter-index": index }}
+            aria-hidden="true"
+          >
+            {letter === " " ? "\u00a0" : letter}
+          </span>
+        ))}
       </div>
 
-      <div
-        className="meera-intro__orbit"
-        aria-hidden="true"
-      >
-        <span />
-        <span />
-        <span />
-      </div>
+      {/* MAIN CONTENT */}
+      <main className="meera-intro__content">
 
-      <div
-        className="meera-intro__ornaments"
-        aria-hidden="true"
-      >
-        <span className="intro-ornament intro-ornament--star-a">
-          ✦
-        </span>
-
-        <span className="intro-ornament intro-ornament--star-b">
-          ✧
-        </span>
-
-        <span className="intro-ornament intro-ornament--moon-a">
-          ☾
-        </span>
-
-        <span className="intro-ornament intro-ornament--moon-b">
-          ☽
-        </span>
-
-        <span className="intro-ornament intro-ornament--dots-a">
-          · · ·
-        </span>
-
-        <span className="intro-ornament intro-ornament--dots-b">
-          · · ·
-        </span>
-
-        <span className="intro-ornament intro-ornament--paw">
-          <PawDoodle />
-        </span>
-
-        <span className="intro-ornament intro-ornament--fish">
-          <FishDoodle />
-        </span>
-      </div>
-
-      <div
-        className="meera-intro__cards"
-        aria-hidden="true"
-      >
-        {floating.map(
-          (card, index) => (
-            <div
-              key={card.id}
-              className={`meera-intro__card meera-intro__card--${index}`}
-            >
-              <div className="meera-intro__flip-card">
-                <div className="meera-intro__flip-inner">
-                  <div className="meera-intro__flip-face meera-intro__flip-face--back">
-                    <TarotCardView
-                      card={card}
-                      compact
-                    />
-                  </div>
-
-                  <div className="meera-intro__flip-face meera-intro__flip-face--front">
-                    <TarotCardView
-                      card={card}
-                      faceUp
-                      compact
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ),
-        )}
-      </div>
-
-      <div className="meera-intro__content">
-        <div className="meera-intro__sigil-wrap">
-          <span className="meera-star meera-star--sm" />
-
-          <CatEyeSigil />
-
-          <span className="meera-star meera-star--sm" />
-        </div>
-
-        <p className="meera-eyebrow">
-          A reflective card ritual
-        </p>
-
-        <h1
-          id="intro-title"
-          className="meera-display-xl meera-intro__title"
-        >
-          A little space
-          <br />
-
-          <em className="meera-emphasis">
-            to listen to yourself.
-          </em>
-        </h1>
-
+        {/* CAT — FIXED VISUAL ANCHOR */}
         <div
-          className="meera-divider meera-intro__divider"
+          className="meera-intro__cat"
           aria-hidden="true"
         >
-          <i className="meera-divider__symbol" />
+          <img
+            src={CAT_FRAMES[catFrame]}
+            alt=""
+            draggable={false}
+          />
         </div>
 
-        <div className="meera-intro__actions">
-          <p className="meera-body meera-intro__description">
-            Not a prediction. A pause.
-            <br />
-            A place to notice what is
-            already there.
-          </p>
+        {/* TITLE — GROWS DOWNWARD */}
+        <div className="meera-intro__title-area">
+          <h1
+            id="intro-title"
+            className="meera-intro__title"
+            aria-label={MESSAGE}
+          >
+            <span aria-hidden="true">
+              {visiblePrefix}
+            </span>
 
-          <button
-            type="button"
-            className="meera-button meera-intro__cta"
+            {visibleOriginal && (
+              <span
+                className={`meera-intro__correction${
+                  stage === "strike" ||
+                  showReplacement
+                    ? " is-struck"
+                    : ""
+                }`}
+                aria-hidden="true"
+              >
+                {visibleOriginal}
+              </span>
+            )}
+
+            {showReplacement && (
+              <span
+                className="meera-intro__replacement"
+                aria-hidden="true"
+              >
+                {REPLACEMENT}
+              </span>
+            )}
+
+            {!showReplacement && (
+              <span
+                className="meera-intro__cursor"
+                aria-hidden="true"
+              />
+            )}
+          </h1>
+        </div>
+
+        {/* MORPH BUTTON — BOTTOM */}
+        <div className="meera-intro__action">
+          <MorphButton
+            variant="solid"
+            color="#000000"
+            textColor="#ffffff"
+            duration={0.55}
             onClick={onBegin}
             disabled={entering}
+            aria-label="Let's Paw!"
           >
-            <span>Begin</span>
-
-            <span className="meera-button__icon">
-              <ArrowRight
-                size={15}
-                strokeWidth={2}
-              />
-            </span>
-          </button>
-
-          <p className="meera-micro meera-intro__microcopy">
-            Pick three cards · trust the first pull
-          </p>
+            Let's Paw!
+          </MorphButton>
         </div>
-      </div>
+      </main>
 
-      <div
-        className="meera-intro__footer-mark"
-        aria-hidden="true"
-      >
-        <span>✦</span>
-        <i />
-        <span>☾</span>
-        <i />
-        <span>✦</span>
-      </div>
-
+      {/* TRANSITION */}
       {entering && (
         <div
           className="meera-intro__transition"
-          aria-label="Entering the card space"
-        >
-          <span className="intro-transition-ring intro-transition-ring--1" />
-          <span className="intro-transition-ring intro-transition-ring--2" />
-          <span className="intro-transition-ring intro-transition-ring--3" />
-
-          <div className="meera-intro__transition-copy">
-            <span>✦</span>
-            <p>Take a breath.</p>
-            <span>☾</span>
-          </div>
-        </div>
+          aria-hidden="true"
+        />
       )}
     </section>
   );

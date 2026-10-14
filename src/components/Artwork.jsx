@@ -1,3 +1,5 @@
+import "./Artwork.css";
+
 import cardBack from "../assets/tarot/card-back.png";
 import cardFrontTemplate from "../assets/tarot/card-front-template.png";
 
@@ -12,7 +14,7 @@ export function CardBack() {
         className="artwork-card-back-image"
         src={cardBack}
         alt=""
-        draggable="false"
+        draggable={false}
       />
     </span>
   );
@@ -29,7 +31,7 @@ export function CardFront() {
         className="artwork-card-front-template"
         src={cardFrontTemplate}
         alt=""
-        draggable="false"
+        draggable={false}
       />
 
       {/*

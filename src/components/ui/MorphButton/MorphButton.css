@@ -1,0 +1,56 @@
+
+.meow-morph-button {
+  --morph-color: #000000;
+  --morph-text: #ffffff;
+
+  display: inline-grid;
+  place-items: center;
+
+  width: 148px;
+  height: 148px;
+
+  padding: 0;
+  border: 0;
+  background: transparent;
+
+  cursor: pointer;
+  flex-shrink: 0;
+
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.meow-morph-button__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.meow-morph-button__label {
+  fill: var(--morph-text);
+  font: 600 13px Helvetica, Arial, sans-serif;
+
+  pointer-events: none;
+  user-select: none;
+
+  transform-origin: 64px 64px;
+}
+
+.meow-morph-button:focus-visible {
+  outline: 2px solid var(--morph-color);
+  outline-offset: 4px;
+  border-radius: 14px;
+}
+
+.meow-morph-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .meow-morph-button {
+    width: 136px;
+    height: 136px;
+  }
+}
