@@ -18,8 +18,8 @@
   min-height: 0;
   overflow: hidden;
   padding: var(--meera-page-padding-top, 28px) var(--meera-page-padding-x, 24px) var(--meera-page-padding-bottom, 16px);
-  background: var(--meera-bg, #fff);
-  color: var(--meera-ink, #000);
+  background: var(--meera-ink, #000);
+  color: var(--meera-bg, #fff);
   font-family: var(--meera-font-body, monospace);
 }
 .selection-intro {

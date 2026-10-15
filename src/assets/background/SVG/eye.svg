@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33.88 33.88">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: #fccd4b;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <circle class="cls-2" cx="16.94" cy="16.94" r="16.94"/>
+      <ellipse cx="16.86" cy="14.77" rx="8.6" ry="10.03"/>
+      <circle class="cls-1" cx="23.81" cy="8.72" r="2.59"/>
+    </g>
+  </g>
+</svg>

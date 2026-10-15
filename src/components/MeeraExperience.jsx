@@ -10,7 +10,6 @@ import {
 import { tarotCards } from "../data/cards";
 
 import IntroScene from "./IntroScene";
-import SpiralTransition from "./SpiralTransition";
 import SelectionScene from "./SelectionScene";
 import RevealScene from "./RevealScene";
 import ResultScene from "./ResultScene";
@@ -98,16 +97,22 @@ export default function MeeraExperience() {
     }
   }, [scene]);
 
-  /* INTRO → SPIRAL → SELECTION */
+  /* INTRO → PAW EYE PORTAL → SELECTION */
 
   function begin() {
     if (scene !== "intro") return;
-    setScene("spiral");
+    setScene("intro-entering");
   }
 
-  const handleSpiralComplete = useCallback(() => {
+  const handlePortalReached = useCallback(() => {
     setScene((current) =>
-      current === "spiral" ? "selection" : current
+      current === "intro-entering" ? "intro-arriving" : current
+    );
+  }, []);
+
+  const handlePortalComplete = useCallback(() => {
+    setScene((current) =>
+      current === "intro-arriving" ? "selection" : current
     );
   }, []);
 
@@ -216,11 +221,10 @@ export default function MeeraExperience() {
   /* SCENE RESOLUTION */
 
   const visibleScene =
-    scene === "selection-complete"
-      ? "selection"
-      : scene === "gathering"
-        ? "reveal"
-        : scene;
+    scene === "intro-entering" ? "intro" :
+    scene === "intro-arriving" ? "selection" :
+    scene === "selection-complete" ? "selection" :
+    scene === "gathering" ? "reveal" : scene;
 
   const activeCard = selected.find(
     (card) => card.id === activeId
@@ -231,7 +235,7 @@ export default function MeeraExperience() {
   ).length;
 
   const status =
-    scene === "spiral"
+    scene === "intro-entering" || scene === "intro-arriving"
       ? "Entering the card experience."
       : scene === "selection"
         ? `${selected.length} of 1 card selected.`
@@ -248,18 +252,14 @@ export default function MeeraExperience() {
     >
 
 
-      {visibleScene === "intro" && (
+      {(scene === "intro" || scene === "intro-entering" || scene === "intro-arriving") && (
         <IntroScene
           deck={deck}
-          entering={false}
+          entering={scene === "intro-entering" || scene === "intro-arriving"}
+          arriving={scene === "intro-arriving"}
           onBegin={begin}
-        />
-      )}
-
-      {visibleScene === "spiral" && (
-        <SpiralTransition
-          reducedMotion={reducedMotion}
-          onComplete={handleSpiralComplete}
+          onPortalReached={handlePortalReached}
+          onTransitionComplete={handlePortalComplete}
         />
       )}
 
@@ -267,7 +267,7 @@ export default function MeeraExperience() {
         <SelectionScene
           cards={deck}
           selected={selected}
-          locked={scene === "selection-complete"}
+          locked={scene === "selection-complete" || scene === "intro-arriving"}
           onChoose={choose}
           onRemove={removeChoice}
         />

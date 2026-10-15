@@ -358,51 +358,37 @@
   font-weight: 600;
 }
 
-/* =========================================
-   ENTER TRANSITION
-========================================= */
-
-.meera-intro.is-entering
-.meera-intro__content {
+/* Continuous paw-to-eye portal. Above both scenes, without layout changes. */
+.meera-intro.is-entering .meera-intro__brand,
+.meera-intro.is-entering .meera-intro__title-area,
+.meera-intro.is-entering .meera-intro__action {
   opacity: 0;
-  transform: scale(0.96);
-  filter: blur(5px);
-}
-
-.meera-intro.is-entering
-.meera-intro__brand {
-  opacity: 0;
-}
-
-.meera-intro.is-entering
-.meera-intro__cat {
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-.meera-intro__transition {
-  position: fixed;
-  z-index: 1000;
-  inset: 0;
-
-  background: var(--meera-bg);
-
-  animation:
-    meera-transition-out
-    1.2s ease both;
-
+  transition: opacity 0.22s ease;
   pointer-events: none;
 }
-
-@keyframes meera-transition-out {
-  0%, 65% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
+.meera-intro.is-entering .meera-intro__cat { opacity: 0; transition: opacity 0.35s ease; }
+.meera-intro.is-arriving {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: transparent;
+  pointer-events: none;
 }
+.meera-intro.is-arriving .meera-intro__content,
+.meera-intro.is-arriving .meera-intro__brand { opacity: 0; }
+.meera-intro__transition {
+  position: fixed;
+  inset: 0;
+  z-index: 1002;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+.meera-portal__paw { position: absolute; top: 0; left: 0; z-index: 2; will-change: transform, opacity; }
+.meera-portal__eye { pointer-events: none; }
+.meera-hypnosis__svg { position: absolute; inset: 0; z-index: 3; display: block; width: 100%; height: 100%; overflow: visible; }
+.meera-hypnosis__ring { opacity: 0; }
+/* No fullscreen black finish element: the pupil/backdrop itself bridges scenes. */
 
 /* =========================================
    MOBILE
@@ -486,4 +472,8 @@
   .meera-intro__replacement {
     animation: none !important;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .meera-intro__transition { background: #000; }
+
 }

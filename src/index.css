@@ -37,20 +37,25 @@
 }
 
 :root {
-  /* COLOR — black & white, matching IntroScene's solid mode */
-  --meera-bg: #ffffff;
-  --meera-surface: #ffffff;
+  /* COLOR — inspired by the black cat on orange artwork */
+  --meera-bg: #ff6500;
+  --meera-surface: #ff761a;
   --meera-ink: #000000;
-  --meera-muted: #666666;
-  --meera-border: #d9d9d9;
+  --meera-muted: #3d1b08;
+  --meera-border: #17110b;
   --meera-primary: #000000;
-  --meera-primary-hover: #262626;
+  --meera-primary-hover: #242424;
   --meera-on-primary: #ffffff;
 
-  /* FONT — same roles as IntroScene */
-  --meera-font-brand: Helvetica, Arial, sans-serif;
+  --meera-accent: #ffdc5e;
+  --meera-orange: #ff6500;
+  --meera-black: #000000;
+  --meera-white: #ffffff;
+
+  /* FONT — typewriter throughout the interface */
+  --meera-font-brand: "Courier New", Courier, monospace;
   --meera-font-body: "Courier New", Courier, monospace;
-  --meera-font-title: monospace, Courier, sans-serif;
+  --meera-font-title: "Courier New", Courier, monospace;
   --meera-font-display: "Michelangelus", Georgia, serif; /* opt-in only */
 
   /* TYPE SCALE */
@@ -124,7 +129,7 @@ select {
 .meera-brand {
   font-family: var(--meera-font-brand);
   font-size: var(--meera-text-brand);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: var(--meera-tracking-tight);
 }
 
@@ -206,3 +211,6 @@ select {
 #root { min-height: 100svh; }
 .meera-shell { position: relative; isolation: isolate; width: 100%; min-height: 100svh; background: var(--meera-bg); color: var(--meera-ink); }
 .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+/* NOTE: Local scene backgrounds with hard-coded white values will need
+   to be switched to var(--meera-bg) to follow this theme.
+   MorphButton should keep black fill and white label. */
