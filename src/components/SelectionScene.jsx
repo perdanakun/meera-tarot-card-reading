@@ -75,38 +75,20 @@ function fanPosition(
     };
   }
 
-  /* -----------------------------------------------------
-     DESKTOP
-  ----------------------------------------------------- */
-
-  const maxAngle = 62;
-
-  const angle =
-    total <= 1
-      ? 0
-      : -maxAngle +
-        index * ((maxAngle * 2) / (total - 1));
-
+  /* Desktop: rotating window, so every card is reachable via wheel. */
+  const visualIndex = index - rotationOffset;
+  const angle = visualIndex * 6.8;
+  const radius = typeof window === "undefined" ? 520 : Math.min(690, Math.max(340, window.innerWidth * 0.42));
   const radians = (angle * Math.PI) / 180;
-  const radius = typeof window === "undefined" ? 690 : Math.min(870, Math.max(340, window.innerWidth * 0.49));
+  const hidden = Math.abs(visualIndex) > 7;
 
   return {
     "--fan-x": `${Math.sin(radians) * radius}px`,
-
-    "--fan-y": `${
-      radius * (1 - Math.cos(radians)) * 0.60
-    }px`,
-
-    "--fan-r": `${angle * 0.9}deg`,
-
-    "--fan-delay": `${Math.min(
-      index * 0.025,
-      0.42,
-    )}s`,
-
-    "--fan-opacity": 1,
-
-    "--fan-pointer": "auto",
+    "--fan-y": `${radius * (1 - Math.cos(radians)) * 0.60}px`,
+    "--fan-r": `${angle * 0.85}deg`,
+    "--fan-delay": "0s",
+    "--fan-opacity": hidden ? 0 : 1,
+    "--fan-pointer": hidden ? "none" : "auto",
   };
 }
 
@@ -120,9 +102,79 @@ export default function SelectionScene({
   locked,
   onChoose,
   onRemove,
+  revealed = [],
+  onReveal,
 }) {
   const viewport = useRef(null);
   const cardButtons = useRef({});
+  const pickSlots = useRef([]);
+  const flying = useRef(false);
+  const wheelAccum = useRef(0);
+  const MAX_SELECTION = 3;
+  const POSITIONS = ["Past", "Present", "Future"];
+  const [phase, setPhase] = useState("choosing");
+  const [flippingIds, setFlippingIds] = useState([]);
+  const flipTimers = useRef(new Set());
+
+  useEffect(() => () => {
+    flipTimers.current.forEach(window.clearTimeout);
+    flipTimers.current.clear();
+  }, []);
+
+  // Complete the third card's flight before the fan departs.
+  useEffect(() => {
+    if (selected.length !== MAX_SELECTION || phase !== "choosing") return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const exit = window.setTimeout(() => setPhase("departing"), reduce ? 0 : 380);
+    const focus = window.setTimeout(() => setPhase("reading"), reduce ? 50 : 1180);
+    return () => { window.clearTimeout(exit); window.clearTimeout(focus); };
+  }, [selected.length, phase]);
+
+  function revealInPlace(card) {
+    if (phase !== "reading" || revealed.includes(card.id) || flippingIds.includes(card.id)) return;
+    setFlippingIds((ids) => [...ids, card.id]);
+    onReveal?.(card);
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 980;
+    const timer = window.setTimeout(() => {
+      flipTimers.current.delete(timer);
+      setFlippingIds((ids) => ids.filter((id) => id !== card.id));
+    }, duration);
+    flipTimers.current.add(timer);
+  }
+
+
+  function chooseWithMotion(card) {
+    if (locked || phase !== "choosing" || flying.current || selected.length >= MAX_SELECTION || selected.some((item) => item.id === card.id)) return;
+    const source = cardButtons.current[card.id];
+    const target = pickSlots.current[selected.length];
+    const start = source?.getBoundingClientRect();
+    const end = target?.getBoundingClientRect();
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!source || !start || !end || reduce) { onChoose(card); return; }
+
+    const clone = source.cloneNode(true);
+    Object.assign(clone.style, {
+      position: "fixed", left: `${start.left}px`, top: `${start.top}px`,
+      width: `${start.width}px`, height: `${start.height}px`,
+      margin: "0", transform: "none", transformOrigin: "center center",
+      zIndex: "9999", pointerEvents: "none", opacity: "1", transition: "none",
+    });
+    clone.removeAttribute("id");
+    clone.setAttribute("aria-hidden", "true");
+    document.body.appendChild(clone);
+    flying.current = true;
+    const dx = end.left + end.width / 2 - (start.left + start.width / 2);
+    const dy = end.top + end.height / 2 - (start.top + start.height / 2);
+    const scale = end.width / start.width;
+    const animation = clone.animate([
+      { transform: "translate(0, 0) rotate(0deg) scale(1)", opacity: 1 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(0deg) scale(${scale})`, opacity: 1 },
+    ], { duration: 520, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "forwards" });
+    const finish = () => {
+      clone.remove(); flying.current = false; onChoose(card);
+    };
+    animation.finished.then(finish).catch(() => { clone.remove(); flying.current = false; });
+  }
 
   const pointer = useRef({
     active: false,
@@ -173,50 +225,10 @@ export default function SelectionScene({
      OFFSET LIMIT
   =================================================== */
 function clampOffset(value) {
-  const total = cards.length;
-
-  if (total <= 1) {
-    return 0;
-  }
-
-  /*
-   * Base edge berdasarkan jumlah
-   * visible cards di sisi fan.
-   */
-  const baseMinOffset = Math.min(
-    MOBILE_VISIBLE_SIDE,
-    Math.floor((total - 1) / 2),
-  );
-
-  const baseMaxOffset = Math.max(
-    baseMinOffset,
-    total - 1 - MOBILE_VISIBLE_SIDE,
-  );
-
-  /*
-   * Extra edge allowance.
-   *
-   * LEFT  = -1
-   * RIGHT = +1
-   *
-   * Tujuannya supaya card paling ujung
-   * masuk sedikit lebih ke viewport
-   * dan tetap terlihat.
-   */
-  const minOffset = Math.max(
-    0,
-    baseMinOffset - 1,
-  );
-
-  const maxOffset = Math.min(
-    total - 1,
-    baseMaxOffset + 1,
-  );
-
-  return Math.min(
-    maxOffset,
-    Math.max(minOffset, value),
-  );
+    const total = cards.length;
+    if (total <= 1) return 0;
+    // Allow first and last cards to reach the center of the fan.
+    return Math.min(total - 1, Math.max(0, value));
 }
 
   /* ===================================================
@@ -228,7 +240,7 @@ function clampOffset(value) {
      * Desktop tidak menggunakan rotation offset.
      */
     if (!isMobile) {
-      setRotationOffset(0);
+      setRotationOffset(Math.min(6, Math.max(0, cards.length - 1)));
       return;
     }
 
@@ -296,9 +308,7 @@ function clampOffset(value) {
           ) % cards.length;
     }
 
-    if (isMobile) {
-      setRotationOffset(next);
-    }
+    setRotationOffset(next);
 
     const nextButton =
       cardButtons.current[cards[next]?.id];
@@ -313,7 +323,7 @@ function clampOffset(value) {
   =================================================== */
 
   function handlePointerDown(event, card) {
-    if (!isMobile || locked) {
+    if (!isMobile || locked || phase !== "choosing") {
       return;
     }
 
@@ -355,7 +365,7 @@ function clampOffset(value) {
   function handlePointerMove(event) {
     if (
       !isMobile ||
-      locked ||
+      locked || phase !== "choosing" ||
       !pointer.current.active
     ) {
       return;
@@ -476,12 +486,8 @@ function clampOffset(value) {
      * → select
      * → masuk ke slot
      */
-    if (
-      !moved &&
-      card &&
-      !locked
-    ) {
-      onChoose(card);
+    if (!moved && card && !locked && phase === "choosing") {
+      chooseWithMotion(card);
     }
   }
 
@@ -513,7 +519,7 @@ function clampOffset(value) {
 
   function handleDesktopClick(card, chosen) {
     if (
-      locked ||
+      locked || phase !== "choosing" ||
       isMobile
     ) {
       return;
@@ -522,7 +528,7 @@ function clampOffset(value) {
     if (chosen) {
       onRemove(card);
     } else {
-      onChoose(card);
+      chooseWithMotion(card);
     }
   }
 
@@ -532,7 +538,7 @@ function clampOffset(value) {
 
   return (
     <section
-      className={`selection-scene ${
+      className={`selection-scene is-${phase} ${
         locked ? "is-locked" : ""
       } ${
         isMobile
@@ -551,33 +557,37 @@ function clampOffset(value) {
         </p>
 
         <h2 id="selection-title">
-          Choose one card.
+          Choose three cards.
         </h2>
       </div>
 
-      {/* ===================================
-          SINGLE SELECTED CARD
-      =================================== */}
-
-      <div
-        className="selection-picks"
-        aria-label={`${selected.length} of 1 card selected`}
-      >
-        <div className={`selection-pick-slot ${selected[0] ? "has-card" : ""}`}>
-          {selected[0] ? (
-            <button
-              type="button"
-              className="selection-pick-card"
-              onClick={() => !locked && onRemove(selected[0])}
-              disabled={locked}
-              aria-label={`${selected[0].name} selected. Return card to deck.`}
-            >
-              <TarotCardView card={selected[0]} />
-            </button>
-          ) : (
-            <span className="selection-pick-placeholder" aria-hidden="true">?</span>
-          )}
-        </div>
+      {/* No visible placeholders: positions are spatial anchors for the flight. */}
+      <div className="selection-picks" aria-label={`${selected.length} of 3 cards selected`}>
+        {POSITIONS.map((position, index) => (
+          <div key={position} className={`selection-pick-slot ${selected[index] ? "has-card" : ""}`}
+            ref={(node) => { pickSlots.current[index] = node; }}>
+            {selected[index] && (
+              <>
+                <button type="button"
+                  className={`selection-pick-card ${revealed.includes(selected[index].id) ? "is-revealed" : ""} ${flippingIds.includes(selected[index].id) ? "is-flipping" : ""}`}
+                  onClick={() => phase === "reading" ? revealInPlace(selected[index]) : (!locked && phase === "choosing" && onRemove(selected[index]))}
+                  disabled={locked || phase === "departing" || (phase === "reading" && (revealed.includes(selected[index].id) || flippingIds.includes(selected[index].id)))}
+                  aria-label={`${position}: ${selected[index].name}. ${revealed.includes(selected[index].id) ? "Revealed" : phase === "reading" ? "Tap to reveal" : "Selected"}`}>
+                  <span className="selection-flip-inner">
+                    <span className="selection-card-face selection-card-back" aria-hidden={revealed.includes(selected[index].id)}>
+                      <TarotCardView card={selected[index]} />
+                    </span>
+                    <span className="selection-card-face selection-card-front" aria-hidden={!revealed.includes(selected[index].id)}>
+                      {/* Front placeholder is owned by Artwork.jsx until the real card artwork exists. */}
+                      <TarotCardView card={selected[index]} faceUp position={position} />
+                    </span>
+                  </span>
+                </button>
+                <span className="selection-pick-label">{position}</span>
+              </>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* ===================================
@@ -589,6 +599,18 @@ function clampOffset(value) {
           dragging ? "is-dragging" : ""
         }`}
         ref={viewport}
+        onWheel={(event) => {
+          if (isMobile || locked || phase !== "choosing") return;
+          event.stopPropagation();
+          wheelAccum.current += event.deltaY;
+          const step = 38;
+          const moves = Math.trunc(wheelAccum.current / step);
+          if (moves !== 0) {
+            // Wheel down = rotate toward cards on the right; up = left.
+            setRotationOffset((current) => clampOffset(current + moves));
+            wheelAccum.current -= moves * step;
+          }
+        }}
       >
         <div className="card-spread">
           {cards.map((card, index) => {
@@ -692,28 +714,6 @@ function clampOffset(value) {
         </div>
       </div>
 
-      {/* ===================================
-          STATUS
-      =================================== */}
-
-      <div
-        className="selection-status"
-        aria-live="polite"
-      >
-        {locked
-          ? "Your cards are finding their place"
-          : `${selected.length} / 1 selected`}
-      </div>
-
-      <p className="selection-hint">
-        <span className="desktop-hint">
-          Let your attention wander.
-        </span>
-
-        <span className="mobile-hint">
-          Swipe to explore · press and release to choose
-        </span>
-      </p>
     </section>
   );
 }

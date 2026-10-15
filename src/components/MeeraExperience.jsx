@@ -9,9 +9,10 @@ import {
 
 import { tarotCards } from "../data/cards";
 
+const REQUIRED_CARDS = 3;
+
 import IntroScene from "./IntroScene";
 import SelectionScene from "./SelectionScene";
-import RevealScene from "./RevealScene";
 import ResultScene from "./ResultScene";
 
 function useReducedMotion() {
@@ -54,7 +55,6 @@ export default function MeeraExperience() {
 
   const timers = useRef(new Set());
 
-  const firstRevealButton = useRef(null);
   const resultTitle = useRef(null);
 
   const deck = useMemo(() => {
@@ -84,12 +84,6 @@ export default function MeeraExperience() {
   }, []);
 
   useEffect(() => {
-    if (scene === "reveal") {
-      firstRevealButton.current?.focus({
-        preventScroll: true,
-      });
-    }
-
     if (scene === "result") {
       resultTitle.current?.focus({
         preventScroll: true,
@@ -121,6 +115,7 @@ export default function MeeraExperience() {
   function choose(card) {
     if (
       scene !== "selection" ||
+      selected.length >= REQUIRED_CARDS ||
       selected.some((item) => item.id === card.id)
     ) {
       return;
@@ -129,14 +124,8 @@ export default function MeeraExperience() {
     const next = [...selected, card];
     setSelected(next);
 
-    if (next.length === 1) {
-      setScene("selection-complete");
+    // All three cards stay in SelectionScene for fan exit, zoom and flip.
 
-      schedule(
-        () => setScene("reveal"),
-        reducedMotion ? 100 : 1650
-      );
-    }
   }
 
   function removeChoice(card) {
@@ -151,16 +140,13 @@ export default function MeeraExperience() {
 
   function reveal(card) {
     if (
-      scene !== "reveal" ||
+      scene !== "selection" ||
       flipping.includes(card.id)
     ) {
       return;
     }
 
-    if (revealed.includes(card.id)) {
-      setActiveId(card.id);
-      return;
-    }
+    if (revealed.includes(card.id)) return;
 
     setFlipping((items) => [...items, card.id]);
 
@@ -171,33 +157,42 @@ export default function MeeraExperience() {
           : [...items, card.id]
       );
       setActiveId(card.id);
-    }, reducedMotion ? 0 : 160);
+    }, reducedMotion ? 0 : 490);
 
     schedule(() => {
       setFlipping((items) =>
         items.filter((id) => id !== card.id)
       );
-    }, reducedMotion ? 80 : 980);
+    }, reducedMotion ? 20 : 1000);
   }
+
+  /* AUTO RESULT — after all three flip animations have settled. */
+  useEffect(() => {
+    if (
+      scene !== "selection" ||
+      selected.length !== REQUIRED_CARDS ||
+      !selected.every((card) => revealed.includes(card.id)) ||
+      flipping.length > 0
+    ) return;
+
+    // Brief hold on three opened cards, then gather and enter ResultScene.
+    const hold = schedule(() => setScene("gathering"), reducedMotion ? 0 : 320);
+    return () => {
+      window.clearTimeout(hold);
+      timers.current.delete(hold);
+    };
+  }, [scene, selected, revealed, flipping, reducedMotion, schedule]);
+
+  useEffect(() => {
+    if (scene !== "gathering") return;
+    const pending = schedule(() => setScene("result"), reducedMotion ? 100 : 1050);
+    return () => {
+      window.clearTimeout(pending);
+      timers.current.delete(pending);
+    };
+  }, [scene, reducedMotion, schedule]);
 
   /* RESULT */
-
-  function showResult() {
-    if (
-      revealed.length !== 1 ||
-      flipping.length > 0
-    ) {
-      return;
-    }
-
-    setScene("gathering");
-    setActiveId(null);
-
-    schedule(
-      () => setScene("result"),
-      reducedMotion ? 100 : 1050
-    );
-  }
 
   /* RESET */
 
@@ -214,7 +209,7 @@ export default function MeeraExperience() {
   }
 
   function returnToCards() {
-    setScene("reveal");
+    setScene("selection");
     setActiveId(selected[0]?.id ?? null);
   }
 
@@ -223,24 +218,17 @@ export default function MeeraExperience() {
   const visibleScene =
     scene === "intro-entering" ? "intro" :
     scene === "intro-arriving" ? "selection" :
-    scene === "selection-complete" ? "selection" :
-    scene === "gathering" ? "reveal" : scene;
+    scene === "gathering" ? "selection" : scene;
 
   const activeCard = selected.find(
     (card) => card.id === activeId
   );
 
-  const settledReveals = revealed.filter(
-    (id) => !flipping.includes(id)
-  ).length;
-
   const status =
     scene === "intro-entering" || scene === "intro-arriving"
       ? "Entering the card experience."
       : scene === "selection"
-        ? `${selected.length} of 1 card selected.`
-        : scene === "reveal"
-          ? `${settledReveals} of 1 card revealed.`
+        ? `${selected.length} of ${REQUIRED_CARDS} cards selected.`
           : scene === "result"
             ? "Your reflection is ready."
             : "The cards are moving.";
@@ -267,22 +255,11 @@ export default function MeeraExperience() {
         <SelectionScene
           cards={deck}
           selected={selected}
-          locked={scene === "selection-complete" || scene === "intro-arriving"}
+          locked={scene === "gathering" || scene === "intro-arriving"}
           onChoose={choose}
           onRemove={removeChoice}
-        />
-      )}
-
-      {visibleScene === "reveal" && (
-        <RevealScene
-          selected={selected}
           revealed={revealed}
-          flipping={flipping}
-          activeCard={activeCard}
-          gathering={scene === "gathering"}
-          firstButtonRef={firstRevealButton}
           onReveal={reveal}
-          onContinue={showResult}
         />
       )}
 

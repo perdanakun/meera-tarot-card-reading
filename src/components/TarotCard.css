@@ -3,11 +3,13 @@
    This component owns clipping, radius and artwork fill. */
 .tarot-card {
   --tarot-radius: 10px;
+  --tarot-aspect-ratio: 972 / 1619;
   display: block;
   position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
+  aspect-ratio: var(--tarot-aspect-ratio);
   min-width: 0;
   min-height: 0;
   overflow: hidden;
@@ -35,6 +37,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   border-radius: inherit;
 }

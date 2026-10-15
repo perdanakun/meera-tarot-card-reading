@@ -386,9 +386,12 @@
 }
 .meera-portal__paw { position: absolute; top: 0; left: 0; z-index: 2; will-change: transform, opacity; }
 .meera-portal__eye { pointer-events: none; }
+.meera-portal__cover-hole, .meera-portal__eye-opening { pointer-events: none; }
 .meera-hypnosis__svg { position: absolute; inset: 0; z-index: 3; display: block; width: 100%; height: 100%; overflow: visible; }
-.meera-hypnosis__ring { opacity: 0; }
-/* No fullscreen black finish element: the pupil/backdrop itself bridges scenes. */
+/* Both ribbons are progressively drawn along the spiral tip, not circle-masked. */
+.meera-hypnosis__tunnel { visibility: hidden; will-change: transform; }
+.meera-hypnosis__black-ribbon,
+.meera-hypnosis__yellow-ribbon { stroke: none; }
 
 /* =========================================
    MOBILE

@@ -36,11 +36,48 @@ const CAT_FRAMES = [
   catFrame4,
 ];
 
-// Each closed ring originates at the exact centre of the pupil.
-// Unlike SVG dash drawing, a closed circle has no visible seam or starting endpoint.
-const HYPNOSIS_RING_COUNT = 20;
-const HYPNOSIS_GROWTH = 1.43;
-const HYPNOSIS_STAGGER = 0.205;
+// A pair of interlocking ribbons is drawn along the spiral itself.
+// No circular reveal, no stroke-dash endpoint, and no solid-black handoff frame.
+const HYPNOSIS_GROWTH = 1.43; // Radius multiplier per complete revolution.
+const HYPNOSIS_DURATION = 4.6; // Same duration in both directions.
+const HYPNOSIS_ROTATION = 48; // Degrees; reversed on exit.
+const HYPNOSIS_OVERSCAN = 2.4; // Covers corners even at intermediate spiral angles.
+const HYPNOSIS_SAMPLES_PER_TURN = 72; // More points = smoother curves, more SVG work.
+
+// EYE: perfectly circular yellow iris and black pupil.
+const EYE_CENTER_X = 64;
+const EYE_CENTER_Y = 82;
+const EYE_IRIS_RADIUS = 15;
+const EYE_PUPIL_RADIUS = 6.5;
+const EYE_OPEN_DURATION = 0.72;
+
+
+function makeSpiralGeometry(cx, cy, pupilRadius, requiredRadius) {
+  const growthRate = Math.log(HYPNOSIS_GROWTH) / (Math.PI * 2);
+  const startRadius = Math.max(1, pupilRadius * 0.42);
+  const totalAngle = Math.log(requiredRadius / startRadius) / growthRate;
+  const steps = Math.ceil(totalAngle / (Math.PI * 2) * HYPNOSIS_SAMPLES_PER_TURN);
+  const points = Array.from({ length: steps + 1 }, (_, i) => {
+    const theta = -Math.PI / 2 + totalAngle * i / steps;
+    const r = startRadius * Math.exp(growthRate * totalAngle * i / steps);
+    const x = (multiplier) => `${(cx + r * multiplier * Math.cos(theta)).toFixed(2)},${(cy + r * multiplier * Math.sin(theta)).toFixed(2)}`;
+    return { inner: x(1), middle: x(Math.sqrt(HYPNOSIS_GROWTH)), outer: x(HYPNOSIS_GROWTH) };
+  });
+  return { points, steps, startRadius };
+}
+
+// Each ribbon grows from its own moving spiral-shaped tip.
+// The black and yellow bands together tile the expanding spiral tunnel.
+function ribbonAt(points, progress, innerKey, outerKey) {
+  const lastIndex = Math.max(1, Math.min(points.length - 1, Math.ceil(progress * (points.length - 1))));
+  const inside = [];
+  const outside = [];
+  for (let i = 0; i <= lastIndex; i += 1) {
+    inside.push(points[i][innerKey]);
+    outside.push(points[i][outerKey]);
+  }
+  return `M ${inside.join(' L ')} L ${outside.reverse().join(' L ')} Z`;
+}
 
 export default function IntroScene({
   entering = false,
@@ -60,17 +97,14 @@ export default function IntroScene({
   const portalCallbacks = useRef({ onPortalReached, onTransitionComplete });
   portalCallbacks.current = { onPortalReached, onTransitionComplete };
   const [portalLayout, setPortalLayout] = useState(null);
-  const rings = portalLayout
-    ? Array.from({ length: HYPNOSIS_RING_COUNT }, (_, index) => {
-        const pupilRadius = portalLayout.size * (6.5 / 128);
-        const radius = pupilRadius * Math.pow(HYPNOSIS_GROWTH, index + 1);
-        return {
-          radius,
-          width: Math.max(2, radius * 0.43),
-          color: index % 2 === 0 ? "#fccd4b" : "#000000",
-        };
-      })
-    : [];
+  const spiralGeometry = portalLayout
+    ? makeSpiralGeometry(
+        portalLayout.eyeX,
+        portalLayout.eyeY,
+        portalLayout.size * (EYE_PUPIL_RADIUS / 128),
+        Math.hypot(portalLayout.viewportWidth / 2, portalLayout.viewportHeight / 2) * HYPNOSIS_OVERSCAN
+      )
+    : null;
 
   const activePortal = entering || arriving;
 
@@ -84,7 +118,7 @@ export default function IntroScene({
       fromX: rect.left,
       fromY: rect.top,
       toX: window.innerWidth / 2 - size / 2,
-      toY: window.innerHeight / 2 - size * (82 / 128),
+      toY: window.innerHeight / 2 - size * (EYE_CENTER_Y / 128),
       eyeX: window.innerWidth / 2,
       eyeY: window.innerHeight / 2,
       viewportWidth: window.innerWidth,
@@ -97,92 +131,100 @@ export default function IntroScene({
     const layer = hypnosisRef.current;
     const paw = layer.querySelector(".meera-portal__paw");
     const eyelid = layer.querySelector(".meera-portal__eye-opening");
+    const coverHole = layer.querySelector(".meera-portal__cover-hole");
     const tunnel = layer.querySelector(".meera-hypnosis__tunnel");
-    const circles = Array.from(layer.querySelectorAll(".meera-hypnosis__ring"));
-    const backdrop = layer.querySelector(".meera-hypnosis__backdrop");
-    const finish = layer.querySelector(".meera-hypnosis__finish");
+    const blackRibbon = layer.querySelector(".meera-hypnosis__black-ribbon");
+    const yellowRibbon = layer.querySelector(".meera-hypnosis__yellow-ribbon");
+    const core = layer.querySelector(".meera-hypnosis__core");
     const { size, fromX, fromY, toX, toY } = portalLayout;
-    const pupilRadius = size * (6.5 / 128);
-    const lastRadius = rings[rings.length - 1].radius + rings[rings.length - 1].width;
+    const pupilRadius = size * (EYE_PUPIL_RADIUS / 128);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ctx = gsap.context(() => {
       gsap.set(paw, { x: fromX, y: fromY, width: size, height: size, opacity: 1 });
       // Clip opens symmetrically through the pad; the eye never translates.
-      gsap.set(eyelid, { attr: { y: 82, height: 0 } });
-      gsap.set(tunnel, { opacity: 1 });
-      gsap.set(backdrop, { attr: { r: pupilRadius } });
-      circles.forEach((circle) => {
-        gsap.set(circle, { attr: { r: pupilRadius, "stroke-width": 0.6 }, opacity: 0 });
-      });
-      gsap.set(finish, { opacity: 0 });
+      gsap.set(eyelid, { attr: { r: 0 } });
+      gsap.set(coverHole, { attr: { r: 0 } });
+      const geometry = spiralGeometry;
+      const draw = { progress: 0 };
+      const updateSpiral = () => {
+        const progress = Math.max(0, Math.min(1, draw.progress));
+        const visible = progress > 0.0001;
+        gsap.set(tunnel, { visibility: visible ? "visible" : "hidden" });
+        // Cut the paw away from the centre only as the progressing spiral grows.
+        // The paw stays fully opaque: no fade or visible jump. Reversing the same
+        // draw.progress automatically restores it from the outside inward.
+        const maxHole = Math.hypot(128, 128);
+        const spiralReach = geometry.startRadius *
+          Math.pow(HYPNOSIS_GROWTH, (geometry.points.length - 1) * progress / HYPNOSIS_SAMPLES_PER_TURN);
+        const holeInSvg = Math.max(0, (spiralReach / size) * 128 - EYE_PUPIL_RADIUS);
+        coverHole.setAttribute("r", String(Math.min(maxHole, holeInSvg)));
+        if (!visible) return;
+        blackRibbon.setAttribute("d", ribbonAt(geometry.points, progress, "middle", "outer"));
+        yellowRibbon.setAttribute("d", ribbonAt(geometry.points, progress, "inner", "middle"));
+      };
+      gsap.set(tunnel, { rotation: 0, svgOrigin: `${portalLayout.eyeX} ${portalLayout.eyeY}`, visibility: "hidden" });
+      gsap.set(core, { attr: { r: geometry.startRadius * 1.6 } });
+      updateSpiral();
 
       const tl = gsap.timeline({ paused: true });
       if (reduced) {
-        tl.set(finish, { opacity: 1 })
+        tl.set(draw, { progress: 1, onUpdate: updateSpiral })
           .call(() => portalCallbacks.current.onPortalReached?.())
           .addPause("portal")
-          .set(finish, { opacity: 0 })
+          .set(draw, { progress: 0, onUpdate: updateSpiral })
           .call(() => portalCallbacks.current.onTransitionComplete?.());
       } else {
-        // 1. Paw lands in the viewport centre.
+        // 1. Paw lands with its eye precisely at viewport centre.
         tl.to(paw, {
           x: toX, y: toY - size * 0.14,
           duration: 0.58, ease: "power2.inOut",
         }, 0)
           .to(paw, { y: toY, duration: 0.36, ease: "back.out(1.45)" }, 0.58)
-          // 2. A slit opens INSIDE the paw pad, revealing a stationary eye.
-          .to(eyelid, { attr: { y: 70, height: 24 }, duration: 0.72, ease: "power3.inOut" }, 0.92)
-          // Rings rise radially from the same black pupil, one after another.
-          // Their closed outlines avoid the visible start/end seam of stroke dashes.
-          .to(paw, { opacity: 0, duration: 0.65, ease: "sine.inOut" }, 2.08);
+          .to(eyelid, { attr: { r: EYE_IRIS_RADIUS }, duration: EYE_OPEN_DURATION, ease: "power3.inOut" }, 0.92);
 
-        const ringStart = 1.7;
-        circles.forEach((circle, index) => {
-          const ring = rings[index];
-          const at = ringStart + index * HYPNOSIS_STAGGER;
-          tl.to(backdrop, {
-            attr: { r: ring.radius + ring.width * 0.55 },
-            duration: 0.9,
+        // 2. Draw BOTH ribbons, tip-first, along the true logarithmic spiral.
+        // Nothing is unveiled with a circular mask.
+        const expandStart = 1.72;
+        tl.to(draw, {
+          progress: 1,
+          duration: HYPNOSIS_DURATION,
+          ease: "sine.inOut",
+          onUpdate: updateSpiral,
+        }, expandStart)
+          .to(tunnel, {
+            rotation: HYPNOSIS_ROTATION,
+            duration: HYPNOSIS_DURATION,
             ease: "sine.inOut",
-          }, at);
-          tl.set(circle, { opacity: 1 }, at);
-          tl.to(circle, {
-            attr: { r: ring.radius, "stroke-width": ring.width },
-            duration: 1.1,
-            ease: "power2.out",
-          }, at);
-        });
+          }, expandStart);
+        // Paw stays fully opaque and is covered by the progressing spiral.
 
-        const forwardEnd = ringStart + (circles.length - 1) * HYPNOSIS_STAGGER + 1.12;
-        tl.to(backdrop, { attr: { r: lastRadius }, duration: 0.3 }, forwardEnd - 0.4)
-          .to(finish, { opacity: 1, duration: 0.25, ease: "sine.inOut" }, forwardEnd - 0.1)
-          .call(() => portalCallbacks.current.onPortalReached?.(), [], forwardEnd + 0.17)
-          .addPause("portal", forwardEnd + 0.17);
+        // The complete two-colour spiral itself holds the viewport during scene
+        // switching. No black finish overlay is faded in or out.
+        const forwardEnd = expandStart + HYPNOSIS_DURATION;
+        tl.call(() => portalCallbacks.current.onPortalReached?.(), [], forwardEnd)
+          .addPause("portal", forwardEnd);
 
-        // Reverse the expanding layers: farthest ring closes first,
-        // everything returns to the SAME pupil position.
-        const reverseStart = forwardEnd + 0.3;
-        tl.to(finish, { opacity: 0, duration: 0.28, ease: "sine.inOut" }, reverseStart);
-        [...circles].reverse().forEach((circle, reversedIndex) => {
-          const index = circles.length - 1 - reversedIndex;
-          const at = reverseStart + 0.08 + reversedIndex * 0.105;
-          tl.to(circle, {
-            attr: { r: pupilRadius, "stroke-width": 0.6 },
-            duration: 0.7,
-            ease: "power2.inOut",
-          }, at);
-          tl.to(backdrop, {
-            attr: { r: index === 0 ? pupilRadius : rings[index - 1].radius + rings[index - 1].width * 0.55 },
-            duration: 0.44,
+        // 3. Retrace the very SAME drawn ribbons backwards, with symmetric ease.
+        const reverseStart = forwardEnd + 0.02;
+        tl.to(draw, {
+          progress: 0,
+          duration: HYPNOSIS_DURATION,
+          ease: "sine.inOut",
+          onUpdate: updateSpiral,
+        }, reverseStart)
+          .to(tunnel, {
+            rotation: 0,
+            duration: HYPNOSIS_DURATION,
             ease: "sine.inOut",
-          }, at);
-        });
-        const reverseEnd = reverseStart + 0.08 + (circles.length - 1) * 0.105 + 0.72;
-        tl.set(paw, { x: toX, y: toY, scale: 1, opacity: 1 }, reverseEnd - 0.36)
-          .to(eyelid, { attr: { y: 82, height: 0 }, duration: 0.58, ease: "power3.inOut" }, reverseEnd)
-          .to(paw, { opacity: 0, scale: 0.9, duration: 0.38, ease: "power2.in" }, reverseEnd + 0.57)
-          .call(() => portalCallbacks.current.onTransitionComplete?.(), [], reverseEnd + 0.98);
+          }, reverseStart);
+
+        const reverseEnd = reverseStart + HYPNOSIS_DURATION;
+        // The returning spiral reveals the original, stationary paw underneath.
+        // After the spiral has fully returned into the pupil, blink the eye shut.
+        tl.to(eyelid, { attr: { r: 0 }, duration: 0.58, ease: "power3.inOut" }, reverseEnd + 0.04)
+          .to(paw, { opacity: 0, scale: 0.9, duration: 0.38, ease: "power2.in" }, reverseEnd + 0.61)
+          .call(() => portalCallbacks.current.onTransitionComplete?.(), [], reverseEnd + 1.02);
       }
       portalTimelineRef.current = tl;
       tl.play();
@@ -408,6 +450,18 @@ export default function IntroScene({
         <div className="meera-intro__transition" ref={hypnosisRef} aria-hidden="true">
           <div className="meera-portal__paw">
             <svg viewBox="0 0 128 128" width="100%" height="100%" aria-hidden="true">
+              <defs>
+                {/* Eye opening is circular, not an elliptical slit. */}
+                <clipPath id="meera-paw-eye-clip">
+                  <circle className="meera-portal__eye-opening" cx={EYE_CENTER_X} cy={EYE_CENTER_Y} r="0" />
+                </clipPath>
+                {/* The spiral cuts through the paw. No opacity blink during expansion/reverse. */}
+                <mask id="meera-paw-cover-mask" maskUnits="userSpaceOnUse" x="-128" y="-128" width="384" height="384">
+                  <rect x="-128" y="-128" width="384" height="384" fill="white" />
+                  <circle className="meera-portal__cover-hole" cx={EYE_CENTER_X} cy={EYE_CENTER_Y} r="0" fill="black" />
+                </mask>
+              </defs>
+              <g mask="url(#meera-paw-cover-mask)">
               <g fill="#000">
                 <path d="M96.46,89.97c0,16.88-13.42,23.56-31.35,23.56s-33.58-6.67-33.58-23.56,14.53-36.71,32.46-36.71,32.46,19.83,32.46,36.71Z" />
                 <path d="M79.07,14.51c8.19-.74,14.78,9.37,15.44,16.66.83,9.23-4.42,20.57-15.19,19.41-16.06-1.72-16.22-34.63-.25-36.07Z" />
@@ -415,37 +469,20 @@ export default function IntroScene({
                 <path d="M48.93,14.51c-8.19-.74-14.78,9.37-15.44,16.66-.83,9.23,4.42,20.57,15.19,19.41,16.06-1.72,16.22-34.63.25-36.07Z" />
                 <ellipse cx="23.18" cy="59.09" rx="12.87" ry="16.75" transform="rotate(3.77 23.18 59.09)" />
               </g>
-              <defs>
-                <clipPath id="meera-paw-eye-clip">
-                  <rect className="meera-portal__eye-opening" x="45" y="82" width="38" height="0" />
-                </clipPath>
-              </defs>
-              <g className="meera-portal__eye" clipPath="url(#meera-paw-eye-clip)">
-                <ellipse cx="64" cy="82" rx="18" ry="12" fill="#ffcf4d" />
-                <ellipse cx="64" cy="82" rx="6.5" ry="11" fill="#000" />
-                <circle cx="61" cy="78" r="2.2" fill="#fff" />
+                <g className="meera-portal__eye" clipPath="url(#meera-paw-eye-clip)">
+                  <circle cx={EYE_CENTER_X} cy={EYE_CENTER_Y} r={EYE_IRIS_RADIUS} fill="#fccd4b" />
+                  <circle cx={EYE_CENTER_X} cy={EYE_CENTER_Y} r={EYE_PUPIL_RADIUS} fill="#000000" />
+                </g>
               </g>
             </svg>
           </div>
           <svg className="meera-hypnosis__svg" viewBox={`0 0 ${portalLayout.viewportWidth} ${portalLayout.viewportHeight}`} preserveAspectRatio="none" aria-hidden="true">
             <g className="meera-hypnosis__tunnel">
-              <circle className="meera-hypnosis__backdrop" cx={portalLayout.eyeX} cy={portalLayout.eyeY} r="0" fill="#000000" />
-              {rings.map((ring, index) => (
-                <circle
-                  key={index}
-                  className="meera-hypnosis__ring"
-                  cx={portalLayout.eyeX}
-                  cy={portalLayout.eyeY}
-                  r="0"
-                  fill="none"
-                  stroke={ring.color}
-                  strokeWidth="0.6"
-                  strokeLinecap="round"
-                />
-              ))}
+              <circle className="meera-hypnosis__core" cx={portalLayout.eyeX} cy={portalLayout.eyeY} fill="#000000" />
+              <path className="meera-hypnosis__black-ribbon" fill="#000000" />
+              <path className="meera-hypnosis__yellow-ribbon" fill="#fccd4b" />
             </g>
           </svg>
-          <div className="meera-hypnosis__finish" />
         </div>
       )}
     </section>
