@@ -48,8 +48,6 @@ export default function MeeraExperience() {
   const [scene, setScene] = useState("intro");
 
   const [selected, setSelected] = useState([]);
-  const [revealed, setRevealed] = useState([]);
-  const [flipping, setFlipping] = useState([]);
   const [reviewing, setReviewing] = useState(false);
   const [run, setRun] = useState(0);
 
@@ -65,16 +63,6 @@ export default function MeeraExperience() {
       ...tarotCards.slice(0, offset),
     ];
   }, [run]);
-
-  const schedule = useCallback((action, delay) => {
-    const timer = window.setTimeout(() => {
-      timers.current.delete(timer);
-      action();
-    }, delay);
-
-    timers.current.add(timer);
-    return timer;
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -136,53 +124,9 @@ export default function MeeraExperience() {
     );
   }
 
-  /* CARD REVEAL */
-
-  function reveal(card) {
-    if (
-      scene !== "selection" ||
-      flipping.includes(card.id) ||
-      selected.length !== REQUIRED_CARDS ||
-      !selected.some((item) => item.id === card.id)
-    ) {
-      return;
-    }
-
-    if (revealed.includes(card.id)) return;
-
-    setFlipping((items) => items.includes(card.id) ? items : [...items, card.id]);
-  }
-
-  const finishReveal = useCallback((id) => {
-    setRevealed((items) => items.includes(id) ? items : [...items, id]);
-    setFlipping((items) => items.filter((item) => item !== id));
+  const finishSpread = useCallback(() => {
+    setScene((current) => current === "selection" ? "result" : current);
   }, []);
-
-  /* AUTO RESULT — after all three flip animations have settled. */
-  useEffect(() => {
-    if (
-      scene !== "selection" || reviewing ||
-      selected.length !== REQUIRED_CARDS ||
-      !selected.every((card) => revealed.includes(card.id)) ||
-      flipping.length > 0
-    ) return;
-
-    // Brief hold on three opened cards, then gather and enter ResultScene.
-    const hold = schedule(() => setScene("gathering"), reducedMotion ? 0 : 320);
-    return () => {
-      window.clearTimeout(hold);
-      timers.current.delete(hold);
-    };
-  }, [scene, selected, revealed, flipping, reviewing, reducedMotion, schedule]);
-
-  useEffect(() => {
-    if (scene !== "gathering") return;
-    const pending = schedule(() => setScene("result"), reducedMotion ? 100 : 1050);
-    return () => {
-      window.clearTimeout(pending);
-      timers.current.delete(pending);
-    };
-  }, [scene, reducedMotion, schedule]);
 
   /* RESULT */
 
@@ -193,8 +137,6 @@ export default function MeeraExperience() {
     timers.current.clear();
 
     setSelected([]);
-    setRevealed([]);
-    setFlipping([]);
     setReviewing(false);
     setRun((value) => value + 1);
     setScene("intro");
@@ -210,14 +152,14 @@ export default function MeeraExperience() {
   const visibleScene =
     scene === "intro-entering" ? "intro" :
     scene === "intro-arriving" ? "selection" :
-    scene === "gathering" ? "selection" : scene;
+    scene;
 
   const status =
     scene === "intro-entering" || scene === "intro-arriving"
       ? "Entering the card experience."
       : scene === "selection"
         ? selected.length === REQUIRED_CARDS
-          ? `${revealed.length} of ${REQUIRED_CARDS} cards revealed.`
+          ? "Three cards selected. Moving to your reading."
           : `${selected.length} of ${REQUIRED_CARDS} cards selected.`
           : scene === "result"
             ? "Your reflection is ready."
@@ -246,16 +188,12 @@ export default function MeeraExperience() {
         <SelectionScene
           cards={deck}
           selected={selected}
-          locked={scene === "gathering" || scene === "intro-arriving"}
+          locked={scene === "intro-arriving"}
           onChoose={choose}
           onRemove={removeChoice}
-          revealed={revealed}
-          onReveal={reveal}
-          flipping={flipping}
-          onRevealComplete={finishReveal}
           reducedMotion={reducedMotion}
-          gathering={scene === "gathering"}
           reviewing={reviewing}
+          onSpreadComplete={finishSpread}
           onContinue={() => setScene("result")}
         />
       )}
@@ -266,6 +204,7 @@ export default function MeeraExperience() {
           titleRef={resultTitle}
           onReset={reset}
           onReturn={returnToCards}
+          reducedMotion={reducedMotion}
         />
       )}
 

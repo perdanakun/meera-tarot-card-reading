@@ -39,7 +39,7 @@ const CAT_FRAMES = [
 // A pair of interlocking ribbons is drawn along the spiral itself.
 // No circular reveal, no stroke-dash endpoint, and no solid-black handoff frame.
 const HYPNOSIS_GROWTH = 1.43; // Radius multiplier per complete revolution.
-const HYPNOSIS_DURATION = 4.6; // Same duration in both directions.
+const HYPNOSIS_DURATION = 2; // Same duration in both directions.
 const HYPNOSIS_ROTATION = 48; // Degrees; reversed on exit.
 const HYPNOSIS_OVERSCAN = 2.4; // Covers corners even at intermediate spiral angles.
 const HYPNOSIS_SAMPLES_PER_TURN = 72; // More points = smoother curves, more SVG work.

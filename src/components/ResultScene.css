@@ -1,4 +1,7 @@
 .result-scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 100svh;
   padding: clamp(32px, 7svh, 80px) var(--meera-page-padding-x);
   display: flex;
@@ -9,6 +12,92 @@
   background: var(--meera-ink);
   color: var(--meera-bg);
   font-family: var(--meera-font-body);
+}
+.result-heading,
+.result-grid,
+.result-actions { position: relative; z-index: 2; }
+
+/* Temporary magic layer: this is the handoff point for future artwork motion. */
+.result-magic {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 520ms ease;
+}
+.result-scene.is-magic .result-magic { opacity: 1; }
+.result-scene.is-ready .result-magic { opacity: 0; }
+.result-magic__ring,
+.result-magic__core {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+}
+.result-magic__ring {
+  border: 1px solid color-mix(in srgb, var(--meera-bg) 72%, transparent);
+  animation: result-magic-ring 1.8s cubic-bezier(.22, 1, .36, 1) infinite;
+}
+.result-magic__ring--outer { width: min(68vw, 620px); aspect-ratio: 1; animation-delay: -.9s; }
+.result-magic__ring--middle { width: min(42vw, 390px); aspect-ratio: 1; animation-delay: -.55s; }
+.result-magic__ring--inner { width: min(20vw, 180px); aspect-ratio: 1; animation-delay: -.2s; }
+.result-magic__core {
+  width: clamp(10px, 1.4vw, 18px);
+  aspect-ratio: 1;
+  background: var(--meera-bg);
+  box-shadow: 0 0 26px 8px color-mix(in srgb, var(--meera-bg) 35%, transparent);
+  animation: result-magic-core 1.2s ease-in-out infinite alternate;
+}
+@keyframes result-magic-ring {
+  0%, 100% { transform: scale(.82) rotate(0deg); opacity: .18; }
+  50% { transform: scale(1.04) rotate(12deg); opacity: .72; }
+}
+@keyframes result-magic-core {
+  from { transform: scale(.72); opacity: .55; }
+  to { transform: scale(1.2); opacity: 1; }
+}
+
+/* The artwork remains present during the magic hold; copy arrives afterward. */
+.result-scene.is-magic .result-number,
+.result-scene.is-magic .result-item h2,
+.result-scene.is-magic .result-item p,
+.result-scene.is-magic .result-actions {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+.result-scene.is-magic .result-art {
+  animation: result-artwork-breathe 2.4s ease-in-out infinite;
+}
+.result-scene.is-ready .result-heading {
+  animation: result-copy-in 560ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.result-scene.is-ready .result-number,
+.result-scene.is-ready .result-item h2,
+.result-scene.is-ready .result-item p {
+  animation: result-copy-in 520ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.result-scene.is-ready .result-item:nth-child(1) .result-number,
+.result-scene.is-ready .result-item:nth-child(1) h2,
+.result-scene.is-ready .result-item:nth-child(1) p { animation-delay: 80ms; }
+.result-scene.is-ready .result-item:nth-child(2) .result-number,
+.result-scene.is-ready .result-item:nth-child(2) h2,
+.result-scene.is-ready .result-item:nth-child(2) p { animation-delay: 160ms; }
+.result-scene.is-ready .result-item:nth-child(3) .result-number,
+.result-scene.is-ready .result-item:nth-child(3) h2,
+.result-scene.is-ready .result-item:nth-child(3) p { animation-delay: 240ms; }
+.result-scene.is-ready .result-actions {
+  animation: result-copy-in 520ms cubic-bezier(.22, 1, .36, 1) 360ms both;
+}
+@keyframes result-artwork-breathe {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 7px 10px rgb(0 0 0 / 15%)); }
+  50% { transform: translateY(-7px) scale(1.018); filter: drop-shadow(0 16px 20px rgb(0 0 0 / 26%)); }
+}
+@keyframes result-copy-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
 }
 .result-heading { text-align: center; display: grid; gap: 12px; }
 .result-eyebrow { font-size: 11px; letter-spacing: .04em; }
@@ -75,5 +164,8 @@
   .result-art { margin-bottom: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .result-actions button { transition: none; }
+  .result-actions button,
+  .result-magic,
+  .result-magic__ring,
+  .result-magic__core { transition: none; animation: none; }
 }

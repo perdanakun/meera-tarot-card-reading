@@ -3,6 +3,7 @@
 .selection-scene {
   --selection-card-ratio: 972 / 1619; /* exact source art, ~3:5 */
   --selection-slot-width: clamp(110px, 12vw, 180px);
+  --selection-stack-width: clamp(150px, 18vw, 220px);
   --selection-fan-width: clamp(166px, 13.8vw, 245px);
   --selection-fan-bottom: -100px;
   --selection-peek: 28px;
@@ -47,24 +48,33 @@
 .selection-picks {
   position: absolute;
   z-index: 6;
-  top: 45%; left: 50%;
-  width: min(90vw, 720px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  --selection-pick-gap: clamp(10px, 3vw, 36px);
-  gap: var(--selection-pick-gap);
+  top: 48%; left: 50%;
+  width: min(calc(100% - 2 * var(--meera-page-padding-x, 24px)), 900px);
+  height: 0;
+  container-type: inline-size;
+  --selection-pick-gap: clamp(12px, 3vw, 32px);
   transform: translate(-50%, -50%);
   pointer-events: none;
-  transform-origin: top left;
 }
 .selection-pick-slot {
-  position: relative;
-  flex: 0 1 var(--selection-slot-width);
-  width: var(--selection-slot-width);
+  position: absolute;
+  left: 50%; top: 0;
+  --selection-column: calc((100cqw - 2 * var(--selection-pick-gap)) / 3);
+  width: min(200px, var(--selection-column));
   aspect-ratio: var(--selection-card-ratio);
   border-radius: 10px;
   pointer-events: none;
+  transform: translate(-50%, -50%) translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-r));
+  transform-origin: center center;
+  z-index: calc(10 + var(--pick-index));
+  transition: transform 1050ms cubic-bezier(.22, 1, .36, 1);
+}
+.selection-scene.is-stack .selection-pick-label {
+  display: none;
+}
+.selection-scene:is(.is-spread, .is-revealing, .is-magic) .selection-pick-slot {
+  transform: translate(-50%, -50%) translateX(calc((var(--pick-index) - 1) * (var(--selection-column) + var(--selection-pick-gap))));
+  z-index: 10;
 }
 .selection-pick-card {
   display: block;
@@ -74,6 +84,12 @@
   overflow: hidden; pointer-events: auto;
 }
 .selection-pick-card .tarot-card { width: 100%; height: 100%; }
+.selection-pick-card { overflow: visible; perspective: 1100px; }
+.selection-flip-inner, .selection-card-face { position: absolute; inset: 0; display: block; border-radius: inherit; }
+.selection-flip-inner { transform-style: preserve-3d; transition: transform 960ms cubic-bezier(.45,.04,.2,1); }
+.selection-pick-card.is-flipped .selection-flip-inner { transform: rotateY(180deg); }
+.selection-card-face { overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.selection-card-front { transform: rotateY(180deg); }
 .selection-pick-label {
   position: absolute;
   left: 0; right: 0; top: calc(100% + 12px);
@@ -86,6 +102,28 @@
 .spread-card:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .selection-pick-card { color: var(--meera-bg); }
 .selection-pick-card[aria-disabled="true"] { cursor: default; }
+
+/* Picked cards are the ones that get the playful hover reaction. */
+@media (hover: hover) and (pointer: fine) {
+  .selection-pick-card:not([aria-disabled="true"]):hover {
+    animation: selected-card-happy 720ms cubic-bezier(.22, 1, .36, 1) both;
+  }
+}
+
+@keyframes selected-card-happy {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 7px 9px rgb(0 0 0 / 13%));
+  }
+  35% {
+    transform: translateY(-9px) rotate(-2.5deg);
+    filter: drop-shadow(0 14px 16px rgb(0 0 0 / 23%));
+  }
+  68% {
+    transform: translateY(-6px) rotate(2.5deg);
+    filter: drop-shadow(0 12px 14px rgb(0 0 0 / 20%));
+  }
+}
 
 /* Fan is anchored low; edges droop DOWN in the fanPosition() math. */
 .card-spread-viewport {
@@ -122,6 +160,96 @@
   transition: transform 350ms var(--meera-ease, ease), opacity 250ms ease, filter 250ms ease;
   filter: drop-shadow(0 7px 9px rgb(0 0 0 / 13%));
 }
+
+/* The deck assembles itself from the center outward on entry. */
+.selection-scene.is-fan-entering .spread-card {
+  animation: fan-card-arrive var(--fan-entry-duration, 620ms) cubic-bezier(.22, 1, .36, 1) both;
+  animation-delay: var(--fan-entry-delay, 0ms);
+}
+
+@keyframes fan-card-arrive {
+  0% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) + 52px))
+      rotate(var(--fan-r)) scale(.88);
+  }
+  65% {
+    opacity: var(--fan-opacity, 1);
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 7px))
+      rotate(var(--fan-r)) scale(1.015);
+  }
+  100% {
+    opacity: var(--fan-opacity, 1);
+    transform: translate(calc(-50% + var(--fan-x)), var(--fan-y))
+      rotate(var(--fan-r)) scale(1);
+  }
+}
+
+/* A small piece of character: one card quietly reacts inside the fan. */
+.spread-card.is-conscious {
+  animation: card-conscious 820ms cubic-bezier(.35, 0, .2, 1) both;
+}
+
+@keyframes card-conscious {
+  0%, 100% {
+    transform: translate(calc(-50% + var(--fan-x)), var(--fan-y))
+      rotate(var(--fan-r)) scale(1);
+    filter: drop-shadow(0 7px 9px rgb(0 0 0 / 13%));
+  }
+  10% {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 2px))
+      rotate(calc(var(--fan-r) - .45deg)) scale(1.005);
+  }
+  16% {
+    transform: translate(calc(-50% + var(--fan-x) + 1px), calc(var(--fan-y) - 3px))
+      rotate(calc(var(--fan-r) + .35deg)) scale(1.006);
+  }
+  22% {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 5px))
+      rotate(calc(var(--fan-r) + .65deg)) scale(1.01);
+    filter: drop-shadow(0 10px 13px rgb(0 0 0 / 18%));
+  }
+  28% {
+    transform: translate(calc(-50% + var(--fan-x) - 1px), calc(var(--fan-y) - 4px))
+      rotate(calc(var(--fan-r) - .35deg)) scale(1.008);
+  }
+  34% {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 3px))
+      rotate(calc(var(--fan-r) - .55deg)) scale(1.006);
+  }
+  41% {
+    transform: translate(calc(-50% + var(--fan-x) + 1px), calc(var(--fan-y) - 5px))
+      rotate(calc(var(--fan-r) + .35deg)) scale(1.008);
+  }
+  48% {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 7px))
+      rotate(calc(var(--fan-r) + .75deg)) scale(1.012);
+  }
+  55% {
+    transform: translate(calc(-50% + var(--fan-x) - 1px), calc(var(--fan-y) - 5px))
+      rotate(calc(var(--fan-r) - .4deg)) scale(1.008);
+  }
+  62% {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 4px))
+      rotate(calc(var(--fan-r) - .45deg)) scale(1.007);
+  }
+  69% {
+    transform: translate(calc(-50% + var(--fan-x) + 1px), calc(var(--fan-y) - 6px))
+      rotate(calc(var(--fan-r) + .35deg)) scale(1.009);
+  }
+  76% {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 6px))
+      rotate(calc(var(--fan-r) + .45deg)) scale(1.01);
+  }
+  84% {
+    transform: translate(calc(-50% + var(--fan-x) - 1px), calc(var(--fan-y) - 3px))
+      rotate(calc(var(--fan-r) - .25deg)) scale(1.006);
+  }
+  92% {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - 2px))
+      rotate(calc(var(--fan-r) + .15deg)) scale(1.003);
+  }
+}
 .spread-card > .tarot-card { display: block; width: 100%; height: 100%; }
 .spread-card.is-pressed {
   transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - var(--selection-peek))) rotate(var(--fan-r)) scale(1.045);
@@ -140,6 +268,7 @@
 .spread-card:disabled { cursor: default; }
 @media (max-width: 800px) {
   .selection-scene {
+    --selection-stack-width: clamp(118px, 36vw, 150px);
     --selection-slot-width: clamp(82px, 26vw, 126px);
     --selection-fan-width: clamp(112px, 34vw, 150px);
     --selection-fan-bottom: -65px;
@@ -147,7 +276,7 @@
     padding: 20px 12px 14px;
   }
   .selection-intro h2 { font-size: clamp(20px, 5vw, 30px); }
-  .selection-picks { width: calc(100% - 24px); --selection-pick-gap: 10px; top: 43%; }
+  .selection-picks { width: calc(100% - 24px); --selection-pick-gap: 10px; top: 48%; }
 
   .spread-card { touch-action: none; }
 }
@@ -168,115 +297,57 @@
 }
 
 /* THREE-CARD READING — keep this in the same scene */
-.selection-scene { --selection-zoom-slot-width: clamp(145px, 17vw, 260px); }
-.selection-pick-slot { transform-origin: top left; }
-.card-spread-viewport { transition: transform 850ms cubic-bezier(.55,0,.35,1), opacity 720ms ease; }
-.selection-scene.is-departing .card-spread-viewport,
-.selection-scene.is-reading .card-spread-viewport {
+.selection-pick-slot { transform-origin: center center; }
+.card-spread-viewport { transition: transform 920ms cubic-bezier(.55,0,.35,1), opacity 780ms ease; }
+.selection-scene.is-stacking .card-spread-viewport {
+  transform: translateY(35svh) rotate(-2deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.selection-scene:is(.is-spread, .is-revealing, .is-magic) .card-spread-viewport {
   transform: translateY(72svh) rotate(-4deg);
   opacity: 0;
   pointer-events: none;
 }
-.selection-scene.is-departing .selection-picks,
-.selection-scene.is-reading .selection-picks { top: 49%; --selection-pick-gap: clamp(10px, 2.8vw, 42px); }
-.selection-scene.is-departing .selection-pick-slot,
-.selection-scene.is-reading .selection-pick-slot {
-  flex-basis: var(--selection-zoom-slot-width);
-  width: var(--selection-zoom-slot-width);
+.selection-scene:is(.is-spread, .is-revealing, .is-magic) .selection-pick-card { cursor: default; }
+.selection-magic { position: absolute; inset: 0; z-index: 20; pointer-events: none; overflow: hidden; }
+.selection-magic::after {
+  content: ""; position: absolute; inset: 0; background: var(--meera-ink, #000);
+  clip-path: circle(0 at 50% 48%);
+  animation: selection-veil 1100ms cubic-bezier(.45,.04,.2,1) forwards;
 }
-.selection-scene.is-reading .selection-pick-card { cursor: pointer; }
-.selection-flip-inner {
-  position: relative;
-  display: block;
-  width: 100%; height: 100%;
-  transform-style: preserve-3d;
-  transform: rotateY(0deg);
-  transition: transform 980ms cubic-bezier(.2,.75,.2,1);
-  will-change: transform;
+.selection-magic span {
+  position: absolute; left: 50%; top: 48%; width: min(36vw, 330px); aspect-ratio: 1;
+  border: 1px solid rgb(255 245 208 / 54%); border-radius: 50%;
+  transform: translate(-50%, -50%) scale(.25); opacity: 0;
+  animation: selection-ring 900ms cubic-bezier(.2,.7,.3,1) forwards;
 }
-/* Perspective belongs to the outer button; both faces stay mounted. */
-.selection-pick-card {
-  perspective: 1300px;
-  -webkit-perspective: 1300px;
-  overflow: visible;
-  transform-style: preserve-3d;
+.selection-magic span:nth-child(2) { animation-delay: 140ms; }
+.selection-magic span:nth-child(3) { animation-delay: 280ms; }
+@keyframes selection-ring {
+  15% { opacity: .65; }
+  100% { transform: translate(-50%, -50%) scale(3.4); opacity: 0; }
 }
-/* Start rotation immediately on click, rather than waiting for revealed state. */
-.selection-pick-card.is-flipping .selection-flip-inner,
-.selection-pick-card.is-revealed .selection-flip-inner {
-  transform: rotateY(180deg);
+@keyframes selection-veil {
+  0%, 38% { clip-path: circle(0 at 50% 48%); }
+  100% { clip-path: circle(150vmax at 50% 48%); }
 }
-.selection-pick-card.is-flipping {
-  cursor: default;
-}
-.selection-card-face {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; height: 100%; border-radius: inherit;
-  overflow: hidden; backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.selection-card-back .tarot-card { width: 100%; height: 100%; }
-.selection-card-front {
-  transform: rotateY(180deg);
-  background: var(--meera-surface, #fff);
-  color: var(--meera-ink, #000);
-  border: 0;
-}
-.selection-card-front img { width: 100%; height: 100%; object-fit: cover; }
-.selection-card-front-name { padding: 12px; text-align: center; font-family: var(--meera-font-title, serif); font-size: clamp(14px, 2vw, 24px); }
 .selection-continue {
   position: absolute; bottom: max(28px, 5svh); left: 50%;
   transform: translateX(-50%); z-index: 8;
   padding: 12px 28px; border: 1px solid currentColor;
   background: transparent; color: inherit; font: inherit; cursor: pointer;
 }
-@media(max-width: 800px) {
-  .selection-scene { --selection-zoom-slot-width: clamp(90px, 28vw, 148px); }
-  .selection-scene.is-reading .selection-picks,
-  .selection-scene.is-departing .selection-picks { top: 46%; --selection-pick-gap: 10px; }
-}
-@media(max-height: 650px) {
-  .selection-scene { --selection-zoom-slot-width: clamp(70px, 23svh, 155px); }
+@media (max-width: 800px) {
+  .selection-picks { --selection-pick-gap: 10px; }
 }
 @media(prefers-reduced-motion: reduce) {
-  .selection-picks, .selection-pick-slot, .card-spread-viewport, .selection-flip-inner { transition-duration: .01ms !important; }
-}
-/* Extra horizontal room for the enlarged three-card spread on desktop. */
-.selection-scene.is-departing .selection-picks,
-.selection-scene.is-reading .selection-picks { width: min(94vw, 1040px); }
-@media (max-width: 800px) {
-  .selection-scene.is-departing .selection-picks,
-  .selection-scene.is-reading .selection-picks { width: calc(100% - 24px); }
+  .selection-picks, .selection-pick-slot, .card-spread-viewport { transition-duration: .01ms !important; }
 }
 
-/* Keep the front/back template edge-to-edge inside the flip faces. */
-.selection-card-front .tarot-card,
-.selection-card-back .tarot-card { width: 100%; height: 100%; aspect-ratio: var(--selection-card-ratio); }
-.selection-card-front .artwork-card-front,
-.selection-card-back .artwork-card-back { width: 100%; height: 100%; }
-/* Keep both faces positioned on one physical plane and avoid mirrored text. */
-.selection-card-face { transform-style: flat; }
-.selection-card-back { transform: rotateY(0deg); }
-.selection-card-front { transform: rotateY(180deg); }
 
-.selection-scene.is-gathering .selection-intro,
-.selection-scene.is-gathering .selection-pick-label { opacity: 0; transition: opacity 180ms ease; }
-.selection-scene.is-gathering .selection-pick-slot {
-  transform-origin: center;
-  animation: selection-gather 1000ms cubic-bezier(.45,0,.2,1) both;
-}
-.selection-pick-slot:first-child { --gather-x: calc(100% + var(--selection-pick-gap)); }
-.selection-pick-slot:nth-child(2) { --gather-x: 0px; }
-.selection-pick-slot:last-child { --gather-x: calc(-100% - var(--selection-pick-gap)); }
-@keyframes selection-gather {
-  0% { transform: translateX(0) scale(1); opacity: 1; }
-  68% { transform: translateX(var(--gather-x)) scale(.94); opacity: 1; }
-  100% { transform: translateX(var(--gather-x)) scale(.94); opacity: 0; }
-}
 .selection-continue { min-height: 44px; border-radius: 10px; }
 .selection-continue:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
-@media (max-height: 500px) {
-  .selection-scene.is-reading .selection-picks,
-  .selection-scene.is-departing .selection-picks { top: 55%; }
+@media (max-height: 650px) {
+  .selection-picks { top: 52%; }
 }

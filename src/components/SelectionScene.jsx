@@ -3,6 +3,15 @@ import { TarotCardView } from "./TarotCard";
 import "./SelectionScene.css";
 
 const MOBILE_BREAKPOINT = 800;
+const FAN_ENTRY_LEAD = 220;
+const FAN_ENTRY_STAGGER = 90;
+const FAN_ENTRY_DURATION = 620;
+const FAN_ENTRY_TOTAL = 1550;
+const STACK_OFFSETS = [
+  { x: -12, y: 10, r: -5 },
+  { x: 0, y: 0, r: 1.5 },
+  { x: 12, y: -10, r: 5 },
+];
 
 /*
  * Berapa card dari center sampai tepi fan di mobile.
@@ -103,82 +112,138 @@ export default function SelectionScene({
   locked,
   onChoose,
   onRemove,
-  revealed = [],
-  onReveal,
-  flipping = [],
-  onRevealComplete,
   reducedMotion = false,
-  gathering = false,
   reviewing = false,
   onContinue,
+  onSpreadComplete,
 }) {
   const viewport = useRef(null);
   const cardButtons = useRef({});
   const pickSlots = useRef([]);
   const flying = useRef(null);
   const [inFlight, setInFlight] = useState(false);
+  const [fanEntering, setFanEntering] = useState(true);
+  const [consciousCardId, setConsciousCardId] = useState(null);
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
-  const previousSlots = useRef([]);
-  const zoomAnimations = useRef([]);
+  const handoffCard = useRef(null);
   const heading = useRef(null);
-  const firstPick = useRef(null);
   const wheelAccum = useRef(0);
+  const consciousnessTimer = useRef(null);
+  const consciousnessClearTimer = useRef(null);
+  const consciousCardRef = useRef(null);
   const MAX_SELECTION = 3;
   const POSITIONS = ["Past", "Present", "Future"];
-  const [phase, setPhase] = useState(() => selected.length === MAX_SELECTION ? "reading" : "choosing");
+  const [phase, setPhase] = useState(() => selected.length === MAX_SELECTION ? "spread" : "choosing");
+  const [flippedCount, setFlippedCount] = useState(() => reviewing ? MAX_SELECTION : 0);
 
   useEffect(() => () => {
     flying.current?.cancel();
-    zoomAnimations.current.forEach((animation) => animation.cancel());
+    window.clearInterval(consciousnessTimer.current);
+    window.clearTimeout(consciousnessClearTimer.current);
   }, []);
 
-  // Complete the third card's flight before the fan departs.
+  // Let the deck assemble itself before it starts behaving "alive".
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setFanEntering(false),
+      reducedMotion ? 0 : FAN_ENTRY_TOTAL,
+    );
+    return () => window.clearTimeout(timer);
+  }, [reducedMotion]);
+
+  // Small, non-blocking gimmick: the deck occasionally "chooses" a card.
+  // It never changes selection state and stops as soon as the reading begins.
+  useEffect(() => {
+    window.clearInterval(consciousnessTimer.current);
+    window.clearTimeout(consciousnessClearTimer.current);
+    consciousCardRef.current = null;
+    setConsciousCardId(null);
+
+    if (
+      reducedMotion ||
+      fanEntering ||
+      locked ||
+      phase !== "choosing" ||
+      selected.length >= MAX_SELECTION
+    ) return undefined;
+
+    const pick = () => {
+      const candidates = cards.filter((card) => {
+        const element = cardButtons.current[card.id];
+        return element && getComputedStyle(element).opacity !== "0" &&
+          card.id !== consciousCardRef.current;
+      });
+      if (!candidates.length) return;
+      const next = candidates[Math.floor(Math.random() * candidates.length)];
+      consciousCardRef.current = next.id;
+      setConsciousCardId(next.id);
+      window.clearTimeout(consciousnessClearTimer.current);
+      consciousnessClearTimer.current = window.setTimeout(
+        () => setConsciousCardId(null),
+        820,
+      );
+    };
+
+    const scheduleNext = () => {
+      pick();
+      consciousnessTimer.current = window.setTimeout(
+        scheduleNext,
+        1800 + Math.random() * 1500,
+      );
+    };
+
+    const initial = window.setTimeout(scheduleNext, 650);
+    return () => {
+      window.clearTimeout(initial);
+      window.clearInterval(consciousnessTimer.current);
+      window.clearTimeout(consciousnessClearTimer.current);
+      consciousCardRef.current = null;
+    };
+  }, [cards, fanEntering, locked, phase, reducedMotion, selected.length]);
+
+  // The last flight lands before the pile begins its final move.
   useEffect(() => {
     if (selected.length !== MAX_SELECTION || phase !== "choosing") return;
-    const exit = window.setTimeout(() => setPhase("departing"), reducedMotion ? 0 : 120);
+    const exit = window.setTimeout(() => setPhase("stacking"), reducedMotion ? 0 : 180);
     return () => window.clearTimeout(exit);
   }, [selected.length, phase, reducedMotion]);
 
+  // Hold the physical stack, then move those same DOM cards to result-grid columns.
   useEffect(() => {
-    if (phase !== "departing") return;
-    const timer = window.setTimeout(() => setPhase("reading"), reducedMotion ? 0 : 850);
+    if (phase !== "stacking") return;
+    const timer = window.setTimeout(() => setPhase("spread"), reducedMotion ? 0 : 850);
     return () => window.clearTimeout(timer);
   }, [phase, reducedMotion]);
 
-  useLayoutEffect(() => {
-    const slots = pickSlots.current.filter(Boolean);
-    const next = slots.map((slot) => slot.getBoundingClientRect());
-    if (phase === "departing" && !reducedMotion) {
-      zoomAnimations.current = slots.map((slot, i) => {
-        const from = previousSlots.current[i];
-        const to = next[i];
-        if (!from || !to.width || !slot.animate) return null;
-        return slot.animate([
-          { transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})` },
-          { transform: "none" },
-        ], { duration: 850, easing: "cubic-bezier(.22,1,.36,1)" });
-      }).filter(Boolean);
-    }
-    previousSlots.current = next;
+  useEffect(() => {
+    if (phase !== "spread" || reviewing) return;
+    const timer = window.setTimeout(() => setPhase("revealing"), reducedMotion ? 0 : 1550);
+    return () => window.clearTimeout(timer);
+  }, [phase, reducedMotion, reviewing]);
+
+  useEffect(() => {
+    if (phase !== "revealing") return;
+    const timers = [0, 1, 2].map((index) => window.setTimeout(
+      () => setFlippedCount(index + 1), reducedMotion ? 0 : 220 + index * 510,
+    ));
+    const magic = window.setTimeout(() => setPhase("magic"), reducedMotion ? 0 : 2420);
+    return () => { timers.forEach(window.clearTimeout); window.clearTimeout(magic); };
   }, [phase, reducedMotion]);
 
   useEffect(() => {
-    if (locked) return;
-    if (phase === "reading") firstPick.current?.focus({ preventScroll: true });
-    else if (phase === "choosing" && selected.length === 0) heading.current?.focus({ preventScroll: true });
-  }, [locked, phase]);
+    if (phase !== "magic") return;
+    const timer = window.setTimeout(() => onSpreadComplete?.(), reducedMotion ? 0 : 1100);
+    return () => window.clearTimeout(timer);
+  }, [phase, reducedMotion, onSpreadComplete]);
 
   useEffect(() => {
-    if (!flipping.length) return;
-    const timers = flipping.map((id) => window.setTimeout(() => onRevealComplete(id), reducedMotion ? 0 : 1100));
-    return () => timers.forEach(window.clearTimeout);
-  }, [flipping, reducedMotion, onRevealComplete]);
+    if (locked) return;
+    if (phase === "choosing" && selected.length === 0) heading.current?.focus({ preventScroll: true });
+  }, [locked, phase]);
 
   useEffect(() => {
     const resize = () => {
       flying.current?.finish();
-      zoomAnimations.current.forEach((animation) => animation.cancel());
-      previousSlots.current = pickSlots.current.filter(Boolean).map((slot) => slot.getBoundingClientRect());
       setViewportWidth(window.innerWidth);
     };
     window.addEventListener("resize", resize);
@@ -188,14 +253,18 @@ export default function SelectionScene({
   useEffect(() => {
     if (!reducedMotion) return;
     flying.current?.finish();
-    zoomAnimations.current.forEach((animation) => animation.cancel());
   }, [reducedMotion]);
 
-  function revealInPlace(card) {
-    if (locked || phase !== "reading" || revealed.includes(card.id) || flipping.includes(card.id)) return;
-    onReveal?.(card);
-  }
-
+  // React commits the real selected card underneath the flight before we
+  // remove the flying image. No opacity animation or empty frame at handoff.
+  useLayoutEffect(() => {
+    const pending = handoffCard.current;
+    if (!pending || !selected.some((card) => card.id === pending.id)) return;
+    const slot = pickSlots.current[pending.index];
+    if (!slot?.querySelector(".selection-pick-card")) return;
+    pending.cleanup();
+    handoffCard.current = null;
+  }, [selected]);
 
   function chooseWithMotion(card) {
     if (locked || phase !== "choosing" || flying.current || selected.length >= MAX_SELECTION || selected.some((item) => item.id === card.id)) return;
@@ -228,11 +297,18 @@ export default function SelectionScene({
     setInFlight(true);
     const dx = end.left + end.width / 2 - (start.left + start.width / 2);
     const dy = end.top + end.height / 2 - (start.top + start.height / 2);
-    const scale = end.width / width;
+    const scale = target.offsetWidth / width;
+    const targetAngle = STACK_OFFSETS[selected.length].r;
     const animation = clone.animate([
       { transform: `translate(0, 0) rotate(${angle}deg) scale(${startScale})`, opacity: 1 },
-      { transform: `translate(${dx}px, ${dy}px) rotate(0deg) scale(${scale})`, opacity: 1 },
-    ], { duration: 520, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "forwards" });
+      {
+        transform: `translate(${dx * 0.48}px, ${dy * 0.42 - Math.min(42, start.height * 0.16)}px) rotate(${angle * 0.42}deg) scale(${Math.max(scale, startScale) * 1.045})`,
+        opacity: 1,
+        offset: 0.56,
+      },
+      { transform: `translate(${dx}px, ${dy}px) rotate(${targetAngle}deg) scale(${scale * 1.025})`, opacity: 1, offset: 0.9 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(${targetAngle}deg) scale(${scale})`, opacity: 1 },
+    ], { duration: reducedMotion ? 0 : 640, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "forwards" });
     let settled = false;
     const cleanup = () => {
       clone.remove();
@@ -244,9 +320,9 @@ export default function SelectionScene({
       settled = true;
       flying.current = null;
       setInFlight(false);
+      handoffCard.current = { id: card.id, index: selected.length, cleanup };
       onChoose(card);
       window.requestAnimationFrame(() => {
-        cleanup();
         if (!restoreFocus || !source.isConnected || selected.length >= MAX_SELECTION - 1) return;
         const startIndex = cards.findIndex((item) => item.id === card.id);
         const next = cards.map((_, index) => (startIndex + index + 1) % cards.length)
@@ -585,8 +661,10 @@ function clampOffset(value) {
 
   return (
     <section
-      className={`selection-scene is-${phase} ${gathering ? "is-gathering" : ""} ${
+      className={`selection-scene is-${phase} ${phase === "choosing" || phase === "stacking" ? "is-stack" : ""} ${
         locked ? "is-locked" : ""
+      } ${
+        fanEntering ? "is-fan-entering" : ""
       } ${
         isMobile
           ? "is-mobile-wheel"
@@ -600,38 +678,35 @@ function clampOffset(value) {
 
       <div className="selection-intro">
         <p className="eyebrow">
-          {phase === "reading" ? "Turn your cards, one at a time." : "The first feeling is enough"}
+          The first feeling is enough
         </p>
 
         <h2 id="selection-title" ref={heading} tabIndex={-1}>
-          {phase === "reading" ? "The Reveal" : "Choose three cards."}
+          Choose three cards.
         </h2>
       </div>
 
       {/* No visible placeholders: positions are spatial anchors for the flight. */}
       <div className="selection-picks" role="group" aria-label={`${selected.length} of 3 cards selected`}>
         {POSITIONS.map((position, index) => (
-          <div key={position} className={`selection-pick-slot ${selected[index] ? "has-card" : ""}`} style={{ "--pick-index": index }}
+          <div key={position} className={`selection-pick-slot ${selected[index] ? "has-card" : ""}`} style={{
+            "--pick-index": index,
+            "--stack-x": `${STACK_OFFSETS[index].x}px`,
+            "--stack-y": `${STACK_OFFSETS[index].y}px`,
+            "--stack-r": `${STACK_OFFSETS[index].r}deg`,
+          }}
             ref={(node) => { pickSlots.current[index] = node; }}>
             {selected[index] && (
               <>
                 <button type="button"
-                  ref={index === 0 ? firstPick : undefined}
-                  className={`selection-pick-card ${revealed.includes(selected[index].id) ? "is-revealed" : ""} ${flipping.includes(selected[index].id) ? "is-flipping" : ""}`}
-                  onClick={() => phase === "reading" ? revealInPlace(selected[index]) : (!locked && !inFlight && selected.length < MAX_SELECTION && phase === "choosing" && onRemove(selected[index]))}
-                  aria-disabled={locked || inFlight || phase === "departing" || (phase === "choosing" && selected.length === MAX_SELECTION) || (phase === "reading" && (revealed.includes(selected[index].id) || flipping.includes(selected[index].id)))}
-                  tabIndex={locked || phase === "departing" ? -1 : 0}
-                  aria-label={`${position}: ${revealed.includes(selected[index].id) ? `${selected[index].name}. Revealed` : phase === "reading" ? "Face-down card. Tap to reveal" : "Selected card. Remove selection"}`}>
-                  <span className="selection-flip-inner" onTransitionEnd={(event) => {
-                    if (event.target === event.currentTarget && event.propertyName === "transform" && flipping.includes(selected[index].id)) onRevealComplete(selected[index].id);
-                  }}>
-                    <span className="selection-card-face selection-card-back" aria-hidden={revealed.includes(selected[index].id)}>
-                      <TarotCardView card={selected[index]} />
-                    </span>
-                    <span className="selection-card-face selection-card-front" aria-hidden={!revealed.includes(selected[index].id)}>
-                      {/* Front placeholder is owned by Artwork.jsx until the real card artwork exists. */}
-                      <TarotCardView card={selected[index]} faceUp position={position} />
-                    </span>
+                  className={`selection-pick-card ${index < flippedCount ? "is-flipped" : ""}`}
+                  onClick={() => !locked && !inFlight && phase === "choosing" && onRemove(selected[index])}
+                  aria-disabled={locked || inFlight || phase !== "choosing" || selected.length === MAX_SELECTION}
+                  tabIndex={!locked && phase === "choosing" && selected.length < MAX_SELECTION ? 0 : -1}
+                  aria-label={`${position}: ${index < flippedCount ? (selected[index].name ?? selected[index].title ?? "revealed card") : "selected face-down card"}${phase === "choosing" ? ". Remove selection" : ""}`}>
+                  <span className="selection-flip-inner">
+                    <span className="selection-card-face selection-card-back"><TarotCardView card={selected[index]} /></span>
+                    <span className="selection-card-face selection-card-front"><TarotCardView card={selected[index]} faceUp position={position} /></span>
                   </span>
                 </button>
                 <span className="selection-pick-label">{position}</span>
@@ -640,6 +715,8 @@ function clampOffset(value) {
           </div>
         ))}
       </div>
+
+      {phase === "magic" && <div className="selection-magic" aria-hidden="true"><span /><span /><span /></div>}
 
       {/* ===================================
           FAN
@@ -705,7 +782,7 @@ function clampOffset(value) {
                   pressed
                     ? "is-pressed"
                     : ""
-                }`}
+                } ${consciousCardId === card.id ? "is-conscious" : ""}`}
                 style={{
                   ...fanStyle,
 
@@ -719,6 +796,8 @@ function clampOffset(value) {
                    * tetap menggunakan layer asli.
                    */
                   "--fan-z": index + 1,
+                  "--fan-entry-delay": `${FAN_ENTRY_LEAD + Math.abs(index - rotationOffset) * FAN_ENTRY_STAGGER}ms`,
+                  "--fan-entry-duration": `${FAN_ENTRY_DURATION}ms`,
 
                   zIndex: isMobile ? index + 1 : cards.length - Math.abs(index - rotationOffset),
                 }}
