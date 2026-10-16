@@ -30,8 +30,9 @@
 }
 .selection-intro .eyebrow {
   margin: 0 0 var(--meera-space-3, 12px);
-  color: var(--meera-muted, #666);
+  color: var(--meera-bg);
   font-size: 13px;
+  opacity: .8;
   line-height: 1.5;
 }
 .selection-intro h2 {
@@ -51,9 +52,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(10px, 3vw, 36px);
+  --selection-pick-gap: clamp(10px, 3vw, 36px);
+  gap: var(--selection-pick-gap);
   transform: translate(-50%, -50%);
   pointer-events: none;
+  transform-origin: top left;
 }
 .selection-pick-slot {
   position: relative;
@@ -81,6 +84,8 @@
 }
 .selection-pick-card:focus-visible,
 .spread-card:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.selection-pick-card { color: var(--meera-bg); }
+.selection-pick-card[aria-disabled="true"] { cursor: default; }
 
 /* Fan is anchored low; edges droop DOWN in the fanPosition() math. */
 .card-spread-viewport {
@@ -118,11 +123,20 @@
   filter: drop-shadow(0 7px 9px rgb(0 0 0 / 13%));
 }
 .spread-card > .tarot-card { display: block; width: 100%; height: 100%; }
-.spread-card:hover:not(:disabled), .spread-card.is-pressed {
+.spread-card.is-pressed {
   transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - var(--selection-peek))) rotate(var(--fan-r)) scale(1.045);
   filter: drop-shadow(0 12px 15px rgb(0 0 0 / 22%));
 }
-.spread-card.is-chosen { opacity: .20; pointer-events: none; }
+@media (hover: hover) and (pointer: fine) {
+  .spread-card:hover:not(:disabled):not([aria-disabled="true"]) {
+    transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - var(--selection-peek))) rotate(var(--fan-r)) scale(1.045);
+  }
+}
+.spread-card:focus-visible {
+  color: var(--meera-bg);
+  transform: translate(calc(-50% + var(--fan-x)), calc(var(--fan-y) - var(--selection-peek))) rotate(var(--fan-r));
+}
+.spread-card.is-chosen { opacity: calc(var(--fan-opacity, 1) * .20); pointer-events: none; }
 .spread-card:disabled { cursor: default; }
 @media (max-width: 800px) {
   .selection-scene {
@@ -133,7 +147,7 @@
     padding: 20px 12px 14px;
   }
   .selection-intro h2 { font-size: clamp(20px, 5vw, 30px); }
-  .selection-picks { width: calc(100% - 24px); gap: 10px; top: 43%; }
+  .selection-picks { width: calc(100% - 24px); --selection-pick-gap: 10px; top: 43%; }
 
   .spread-card { touch-action: none; }
 }
@@ -155,8 +169,7 @@
 
 /* THREE-CARD READING — keep this in the same scene */
 .selection-scene { --selection-zoom-slot-width: clamp(145px, 17vw, 260px); }
-.selection-picks { transition: top 850ms cubic-bezier(.22,1,.36,1), gap 850ms cubic-bezier(.22,1,.36,1); }
-.selection-pick-slot { transition: flex-basis 850ms cubic-bezier(.22,1,.36,1), width 850ms cubic-bezier(.22,1,.36,1); }
+.selection-pick-slot { transform-origin: top left; }
 .card-spread-viewport { transition: transform 850ms cubic-bezier(.55,0,.35,1), opacity 720ms ease; }
 .selection-scene.is-departing .card-spread-viewport,
 .selection-scene.is-reading .card-spread-viewport {
@@ -165,7 +178,7 @@
   pointer-events: none;
 }
 .selection-scene.is-departing .selection-picks,
-.selection-scene.is-reading .selection-picks { top: 49%; gap: clamp(10px, 2.8vw, 42px); }
+.selection-scene.is-reading .selection-picks { top: 49%; --selection-pick-gap: clamp(10px, 2.8vw, 42px); }
 .selection-scene.is-departing .selection-pick-slot,
 .selection-scene.is-reading .selection-pick-slot {
   flex-basis: var(--selection-zoom-slot-width);
@@ -194,7 +207,7 @@
   transform: rotateY(180deg);
 }
 .selection-pick-card.is-flipping {
-  filter: drop-shadow(0 18px 20px rgb(0 0 0 / 22%));
+  cursor: default;
 }
 .selection-card-face {
   position: absolute; inset: 0;
@@ -221,7 +234,7 @@
 @media(max-width: 800px) {
   .selection-scene { --selection-zoom-slot-width: clamp(90px, 28vw, 148px); }
   .selection-scene.is-reading .selection-picks,
-  .selection-scene.is-departing .selection-picks { top: 46%; gap: 10px; }
+  .selection-scene.is-departing .selection-picks { top: 46%; --selection-pick-gap: 10px; }
 }
 @media(max-height: 650px) {
   .selection-scene { --selection-zoom-slot-width: clamp(70px, 23svh, 155px); }
@@ -246,3 +259,24 @@
 .selection-card-face { transform-style: flat; }
 .selection-card-back { transform: rotateY(0deg); }
 .selection-card-front { transform: rotateY(180deg); }
+
+.selection-scene.is-gathering .selection-intro,
+.selection-scene.is-gathering .selection-pick-label { opacity: 0; transition: opacity 180ms ease; }
+.selection-scene.is-gathering .selection-pick-slot {
+  transform-origin: center;
+  animation: selection-gather 1000ms cubic-bezier(.45,0,.2,1) both;
+}
+.selection-pick-slot:first-child { --gather-x: calc(100% + var(--selection-pick-gap)); }
+.selection-pick-slot:nth-child(2) { --gather-x: 0px; }
+.selection-pick-slot:last-child { --gather-x: calc(-100% - var(--selection-pick-gap)); }
+@keyframes selection-gather {
+  0% { transform: translateX(0) scale(1); opacity: 1; }
+  68% { transform: translateX(var(--gather-x)) scale(.94); opacity: 1; }
+  100% { transform: translateX(var(--gather-x)) scale(.94); opacity: 0; }
+}
+.selection-continue { min-height: 44px; border-radius: 10px; }
+.selection-continue:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+@media (max-height: 500px) {
+  .selection-scene.is-reading .selection-picks,
+  .selection-scene.is-departing .selection-picks { top: 55%; }
+}

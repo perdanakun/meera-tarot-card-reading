@@ -20,7 +20,7 @@ const PAW_BOTTOM = 113.53;
 
 // Offset dihitung dari batas bawah button
 const CIRCLE_OFFSET_Y = BUTTON_BOTTOM - CIRCLE_BOTTOM;
-const PAW_OFFSET_Y = BUTTON_BOTTOM - PAW_BOTTOM;
+export const PAW_OFFSET_Y = BUTTON_BOTTOM - PAW_BOTTOM;
 
 // Edit these fractions to tune the flow. Values refer to total duration.
 const PHASE = {
@@ -39,6 +39,7 @@ export default function MorphButton({
   duration = 1.05,
   onClick,
   disabled = false,
+  reducedMotion = false,
   className = "",
   type = "button",
   ...rest
@@ -52,6 +53,7 @@ export default function MorphButton({
   const reducedRef = useRef(false);
   const onClickRef = useRef(onClick);
   onClickRef.current = onClick;
+  reducedRef.current = reducedMotion;
 
   useLayoutEffect(() => {
     const button = buttonRef.current;
@@ -61,7 +63,6 @@ export default function MorphButton({
     const toes = Array.from(button.querySelectorAll("[data-toe]"));
     const shape = button.querySelector("[data-shape]");
     const d = Math.max(0.25, duration);
-    reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ctx = gsap.context(() => {
       gsap.set(main, { attr: { d: BUTTON } });
@@ -191,6 +192,17 @@ tl.to(
       ctx.revert();
     };
   }, [duration]);
+
+  useLayoutEffect(() => {
+    if (!reducedMotion || !timelineRef.current) return;
+    if (busyRef.current) {
+      clickTweenRef.current?.progress(1);
+      pressRef.current?.progress(1);
+    } else {
+      const active = buttonRef.current?.matches(":hover, :focus-visible");
+      timelineRef.current.progress(active ? 1 : 0).pause();
+    }
+  }, [reducedMotion]);
 
   function handleEnter() {
     if (disabled || busyRef.current) return;

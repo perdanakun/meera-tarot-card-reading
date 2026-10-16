@@ -1,8 +1,8 @@
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import "./IntroScene.css";
-import MorphButton from "./ui/MorphButton/MorphButton";
+import MorphButton, { PAW_OFFSET_Y } from "./ui/MorphButton/MorphButton";
 
 import catFrame1 from "../assets/background/cat_hero-01.svg";
 import catFrame2 from "../assets/background/cat_hero-02.svg";
@@ -85,6 +85,7 @@ export default function IntroScene({
   onBegin,
   onPortalReached,
   onTransitionComplete,
+  reducedMotion = false,
 }) {
   const [stage, setStage] = useState("typing");
   const [typedCount, setTypedCount] = useState(0);
@@ -97,14 +98,14 @@ export default function IntroScene({
   const portalCallbacks = useRef({ onPortalReached, onTransitionComplete });
   portalCallbacks.current = { onPortalReached, onTransitionComplete };
   const [portalLayout, setPortalLayout] = useState(null);
-  const spiralGeometry = portalLayout
+  const spiralGeometry = useMemo(() => portalLayout
     ? makeSpiralGeometry(
         portalLayout.eyeX,
         portalLayout.eyeY,
         portalLayout.size * (EYE_PUPIL_RADIUS / 128),
         Math.hypot(portalLayout.viewportWidth / 2, portalLayout.viewportHeight / 2) * HYPNOSIS_OVERSCAN
       )
-    : null;
+    : null, [portalLayout]);
 
   const activePortal = entering || arriving;
 
@@ -116,7 +117,7 @@ export default function IntroScene({
     setPortalLayout({
       size,
       fromX: rect.left,
-      fromY: rect.top,
+      fromY: rect.top + size * (PAW_OFFSET_Y / 128),
       toX: window.innerWidth / 2 - size / 2,
       toY: window.innerHeight / 2 - size * (EYE_CENTER_Y / 128),
       eyeX: window.innerWidth / 2,
@@ -127,7 +128,7 @@ export default function IntroScene({
   }, [entering, portalLayout]);
 
   useLayoutEffect(() => {
-    if (!entering || !portalLayout || !hypnosisRef.current) return;
+    if (!entering || !portalLayout || !hypnosisRef.current || reducedMotion) return;
     const layer = hypnosisRef.current;
     const paw = layer.querySelector(".meera-portal__paw");
     const eyelid = layer.querySelector(".meera-portal__eye-opening");
@@ -138,7 +139,6 @@ export default function IntroScene({
     const core = layer.querySelector(".meera-hypnosis__core");
     const { size, fromX, fromY, toX, toY } = portalLayout;
     const pupilRadius = size * (EYE_PUPIL_RADIUS / 128);
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ctx = gsap.context(() => {
       gsap.set(paw, { x: fromX, y: fromY, width: size, height: size, opacity: 1 });
@@ -147,6 +147,7 @@ export default function IntroScene({
       gsap.set(coverHole, { attr: { r: 0 } });
       const geometry = spiralGeometry;
       const draw = { progress: 0 };
+      let drawnIndex = -1;
       const updateSpiral = () => {
         const progress = Math.max(0, Math.min(1, draw.progress));
         const visible = progress > 0.0001;
@@ -160,21 +161,18 @@ export default function IntroScene({
         const holeInSvg = Math.max(0, (spiralReach / size) * 128 - EYE_PUPIL_RADIUS);
         coverHole.setAttribute("r", String(Math.min(maxHole, holeInSvg)));
         if (!visible) return;
-        blackRibbon.setAttribute("d", ribbonAt(geometry.points, progress, "middle", "outer"));
-        yellowRibbon.setAttribute("d", ribbonAt(geometry.points, progress, "inner", "middle"));
+        const index = Math.ceil(progress * (geometry.points.length - 1));
+        if (index !== drawnIndex) {
+          blackRibbon.setAttribute("d", ribbonAt(geometry.points, progress, "middle", "outer"));
+          yellowRibbon.setAttribute("d", ribbonAt(geometry.points, progress, "inner", "middle"));
+          drawnIndex = index;
+        }
       };
       gsap.set(tunnel, { rotation: 0, svgOrigin: `${portalLayout.eyeX} ${portalLayout.eyeY}`, visibility: "hidden" });
       gsap.set(core, { attr: { r: geometry.startRadius * 1.6 } });
       updateSpiral();
 
       const tl = gsap.timeline({ paused: true });
-      if (reduced) {
-        tl.set(draw, { progress: 1, onUpdate: updateSpiral })
-          .call(() => portalCallbacks.current.onPortalReached?.())
-          .addPause("portal")
-          .set(draw, { progress: 0, onUpdate: updateSpiral })
-          .call(() => portalCallbacks.current.onTransitionComplete?.());
-      } else {
         // 1. Paw lands with its eye precisely at viewport centre.
         tl.to(paw, {
           x: toX, y: toY - size * 0.14,
@@ -203,7 +201,7 @@ export default function IntroScene({
         // switching. No black finish overlay is faded in or out.
         const forwardEnd = expandStart + HYPNOSIS_DURATION;
         tl.call(() => portalCallbacks.current.onPortalReached?.(), [], forwardEnd)
-          .addPause("portal", forwardEnd);
+          .addPause(forwardEnd);
 
         // 3. Retrace the very SAME drawn ribbons backwards, with symmetric ease.
         const reverseStart = forwardEnd + 0.02;
@@ -225,7 +223,6 @@ export default function IntroScene({
         tl.to(eyelid, { attr: { r: 0 }, duration: 0.58, ease: "power3.inOut" }, reverseEnd + 0.04)
           .to(paw, { opacity: 0, scale: 0.9, duration: 0.38, ease: "power2.in" }, reverseEnd + 0.61)
           .call(() => portalCallbacks.current.onTransitionComplete?.(), [], reverseEnd + 1.02);
-      }
       portalTimelineRef.current = tl;
       tl.play();
     }, layer);
@@ -233,12 +230,21 @@ export default function IntroScene({
       portalTimelineRef.current = null;
       ctx.revert();
     };
-  }, [entering, portalLayout]);
+  }, [entering, portalLayout, reducedMotion]);
 
   // The parent changes the underlying scene only at full cover; resume after commit.
   useLayoutEffect(() => {
-    if (arriving) portalTimelineRef.current?.play();
-  }, [arriving]);
+    if (arriving && !reducedMotion) portalTimelineRef.current?.play();
+  }, [arriving, reducedMotion]);
+
+  useEffect(() => {
+    if (!activePortal || !reducedMotion) return;
+    const frame = window.requestAnimationFrame(() => {
+      if (arriving) portalCallbacks.current.onTransitionComplete?.();
+      else portalCallbacks.current.onPortalReached?.();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activePortal, arriving, reducedMotion]);
 
   /* =========================================
      TYPEWRITER
@@ -246,6 +252,12 @@ export default function IntroScene({
 
   useEffect(() => {
     const full = PREFIX + ORIGINAL;
+    if (reducedMotion) {
+      setTypedCount(full.length);
+      setStage("done");
+      return;
+    }
+    if (stage === "done") return;
     let count = 0;
 
     const interval = window.setInterval(() => {
@@ -259,7 +271,7 @@ export default function IntroScene({
     }, 65);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [reducedMotion]);
 
   /* =========================================
      PAUSE BEFORE CORRECTION
@@ -308,7 +320,7 @@ export default function IntroScene({
   ========================================= */
 
   useEffect(() => {
-    if (activePortal) return; // Freeze sprite during the portal.
+    if (activePortal || reducedMotion) return;
     const interval = window.setInterval(() => {
       setCatFrame(
         (previous) => (previous + 1) % CAT_FRAMES.length
@@ -316,7 +328,7 @@ export default function IntroScene({
     }, 200);
 
     return () => window.clearInterval(interval);
-  }, [activePortal]);
+  }, [activePortal, reducedMotion]);
 
   /* =========================================
      TEXT VISIBILITY
@@ -353,6 +365,7 @@ export default function IntroScene({
       {/* BRAND — TOP */}
       <div
         className="meera-intro__brand"
+        role="img"
         aria-label={BRAND}
       >
         {Array.from(BRAND).map((letter, index) => (
@@ -372,7 +385,7 @@ export default function IntroScene({
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="meera-intro__content">
+      <div className="meera-intro__content">
 
         {/* CAT — FIXED VISUAL ANCHOR */}
         <div
@@ -437,6 +450,7 @@ export default function IntroScene({
             color="#000000"
             textColor="#ffffff"
             duration={0.55}
+            reducedMotion={reducedMotion}
             onClick={onBegin}
             disabled={entering}
             aria-label="Let's Paw!"
@@ -444,10 +458,11 @@ export default function IntroScene({
             Let's Paw!
           </MorphButton>
         </div>
-      </main>
+      </div>
 
       {activePortal && portalLayout && (
         <div className="meera-intro__transition" ref={hypnosisRef} aria-hidden="true">
+          <div className="meera-portal__coordinates" style={{ width: portalLayout.viewportWidth, height: portalLayout.viewportHeight }}>
           <div className="meera-portal__paw">
             <svg viewBox="0 0 128 128" width="100%" height="100%" aria-hidden="true">
               <defs>
@@ -478,11 +493,12 @@ export default function IntroScene({
           </div>
           <svg className="meera-hypnosis__svg" viewBox={`0 0 ${portalLayout.viewportWidth} ${portalLayout.viewportHeight}`} preserveAspectRatio="none" aria-hidden="true">
             <g className="meera-hypnosis__tunnel">
-              <circle className="meera-hypnosis__core" cx={portalLayout.eyeX} cy={portalLayout.eyeY} fill="#000000" />
+              <circle className="meera-hypnosis__core" cx={portalLayout.eyeX} cy={portalLayout.eyeY} r="0" fill="#000000" />
               <path className="meera-hypnosis__black-ribbon" fill="#000000" />
               <path className="meera-hypnosis__yellow-ribbon" fill="#fccd4b" />
             </g>
           </svg>
+          </div>
         </div>
       )}
     </section>

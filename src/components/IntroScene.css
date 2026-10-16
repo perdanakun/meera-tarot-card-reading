@@ -367,6 +367,7 @@
   pointer-events: none;
 }
 .meera-intro.is-entering .meera-intro__cat { opacity: 0; transition: opacity 0.35s ease; }
+.meera-intro.is-entering .meera-intro__action { visibility: hidden; }
 .meera-intro.is-arriving {
   position: fixed;
   inset: 0;
@@ -383,6 +384,12 @@
   overflow: hidden;
   pointer-events: none;
   isolation: isolate;
+}
+.meera-portal__coordinates {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .meera-portal__paw { position: absolute; top: 0; left: 0; z-index: 2; will-change: transform, opacity; }
 .meera-portal__eye { pointer-events: none; }
@@ -477,6 +484,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .meera-intro__transition { background: #000; }
+  .meera-intro__transition { background: #000; width: 100vw !important; height: 100dvh !important; }
 
 }

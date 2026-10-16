@@ -9,28 +9,28 @@
    or update the paths to match your project. */
 @font-face {
   font-family: "Michelangelus";
-  src: url("./fonts/Michelangelus-Regular.ttf") format("truetype");
+  src: url("./design-system/fonts/Michelangelus-Regular.ttf") format("truetype");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: "Michelangelus";
-  src: url("./fonts/Michelangelus-Italic.ttf") format("truetype");
+  src: url("./design-system/fonts/Michelangelus-Italic.ttf") format("truetype");
   font-style: italic;
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: "Michelangelus";
-  src: url("./fonts/Michelangelus-Bold.ttf") format("truetype");
+  src: url("./design-system/fonts/Michelangelus-Bold.ttf") format("truetype");
   font-style: normal;
   font-weight: 700;
   font-display: swap;
 }
 @font-face {
   font-family: "Michelangelus";
-  src: url("./fonts/Michelangelus-BoldItalic.ttf") format("truetype");
+  src: url("./design-system/fonts/Michelangelus-BoldItalic.ttf") format("truetype");
   font-style: italic;
   font-weight: 700;
   font-display: swap;

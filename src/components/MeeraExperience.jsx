@@ -50,7 +50,7 @@ export default function MeeraExperience() {
   const [selected, setSelected] = useState([]);
   const [revealed, setRevealed] = useState([]);
   const [flipping, setFlipping] = useState([]);
-  const [activeId, setActiveId] = useState(null);
+  const [reviewing, setReviewing] = useState(false);
   const [run, setRun] = useState(0);
 
   const timers = useRef(new Set());
@@ -121,15 +121,15 @@ export default function MeeraExperience() {
       return;
     }
 
-    const next = [...selected, card];
-    setSelected(next);
+    setSelected((items) => items.length < REQUIRED_CARDS && !items.some((item) => item.id === card.id)
+      ? [...items, card] : items);
 
     // All three cards stay in SelectionScene for fan exit, zoom and flip.
 
   }
 
   function removeChoice(card) {
-    if (scene !== "selection") return;
+    if (scene !== "selection" || selected.length === REQUIRED_CARDS) return;
 
     setSelected((items) =>
       items.filter((item) => item.id !== card.id)
@@ -141,35 +141,27 @@ export default function MeeraExperience() {
   function reveal(card) {
     if (
       scene !== "selection" ||
-      flipping.includes(card.id)
+      flipping.includes(card.id) ||
+      selected.length !== REQUIRED_CARDS ||
+      !selected.some((item) => item.id === card.id)
     ) {
       return;
     }
 
     if (revealed.includes(card.id)) return;
 
-    setFlipping((items) => [...items, card.id]);
-
-    schedule(() => {
-      setRevealed((items) =>
-        items.includes(card.id)
-          ? items
-          : [...items, card.id]
-      );
-      setActiveId(card.id);
-    }, reducedMotion ? 0 : 490);
-
-    schedule(() => {
-      setFlipping((items) =>
-        items.filter((id) => id !== card.id)
-      );
-    }, reducedMotion ? 20 : 1000);
+    setFlipping((items) => items.includes(card.id) ? items : [...items, card.id]);
   }
+
+  const finishReveal = useCallback((id) => {
+    setRevealed((items) => items.includes(id) ? items : [...items, id]);
+    setFlipping((items) => items.filter((item) => item !== id));
+  }, []);
 
   /* AUTO RESULT — after all three flip animations have settled. */
   useEffect(() => {
     if (
-      scene !== "selection" ||
+      scene !== "selection" || reviewing ||
       selected.length !== REQUIRED_CARDS ||
       !selected.every((card) => revealed.includes(card.id)) ||
       flipping.length > 0
@@ -181,7 +173,7 @@ export default function MeeraExperience() {
       window.clearTimeout(hold);
       timers.current.delete(hold);
     };
-  }, [scene, selected, revealed, flipping, reducedMotion, schedule]);
+  }, [scene, selected, revealed, flipping, reviewing, reducedMotion, schedule]);
 
   useEffect(() => {
     if (scene !== "gathering") return;
@@ -203,14 +195,14 @@ export default function MeeraExperience() {
     setSelected([]);
     setRevealed([]);
     setFlipping([]);
-    setActiveId(null);
+    setReviewing(false);
     setRun((value) => value + 1);
     setScene("intro");
   }
 
   function returnToCards() {
+    setReviewing(true);
     setScene("selection");
-    setActiveId(selected[0]?.id ?? null);
   }
 
   /* SCENE RESOLUTION */
@@ -220,15 +212,13 @@ export default function MeeraExperience() {
     scene === "intro-arriving" ? "selection" :
     scene === "gathering" ? "selection" : scene;
 
-  const activeCard = selected.find(
-    (card) => card.id === activeId
-  );
-
   const status =
     scene === "intro-entering" || scene === "intro-arriving"
       ? "Entering the card experience."
       : scene === "selection"
-        ? `${selected.length} of ${REQUIRED_CARDS} cards selected.`
+        ? selected.length === REQUIRED_CARDS
+          ? `${revealed.length} of ${REQUIRED_CARDS} cards revealed.`
+          : `${selected.length} of ${REQUIRED_CARDS} cards selected.`
           : scene === "result"
             ? "Your reflection is ready."
             : "The cards are moving.";
@@ -248,6 +238,7 @@ export default function MeeraExperience() {
           onBegin={begin}
           onPortalReached={handlePortalReached}
           onTransitionComplete={handlePortalComplete}
+          reducedMotion={reducedMotion}
         />
       )}
 
@@ -260,6 +251,12 @@ export default function MeeraExperience() {
           onRemove={removeChoice}
           revealed={revealed}
           onReveal={reveal}
+          flipping={flipping}
+          onRevealComplete={finishReveal}
+          reducedMotion={reducedMotion}
+          gathering={scene === "gathering"}
+          reviewing={reviewing}
+          onContinue={() => setScene("result")}
         />
       )}
 
