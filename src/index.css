@@ -37,20 +37,22 @@
 }
 
 :root {
-  /* COLOR — inspired by the black cat on orange artwork */
-  --meera-bg: #ff6500;
-  --meera-surface: #ff761a;
-  --meera-ink: #000000;
-  --meera-muted: #3d1b08;
-  --meera-border: #17110b;
-  --meera-primary: #000000;
-  --meera-primary-hover: #242424;
-  --meera-on-primary: #ffffff;
+/* COLOR — Crimson Red, Black & White Theme */
+--meera-bg: #DC2626;
+--meera-surface: #EF4444;
+--meera-ink: #000000;
+--meera-muted: #450A0A;
+--meera-border: #000000;
 
-  --meera-accent: #ffdc5e;
-  --meera-orange: #ff6500;
-  --meera-black: #000000;
-  --meera-white: #ffffff;
+--meera-primary: #000000;
+--meera-primary-hover: #262626;
+--meera-on-primary: #FFFFFF;
+
+--meera-accent: #FFFFFF;
+--meera-orange: #DC2626;
+--meera-black: #000000;
+--meera-white: #FFFFFF;
+
 
   /* FONT — typewriter throughout the interface */
   --meera-font-brand: "Courier New", Courier, monospace;

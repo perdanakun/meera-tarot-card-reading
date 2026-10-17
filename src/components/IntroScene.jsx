@@ -1,40 +1,59 @@
 
+
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import "./IntroScene.css";
+import PurrHeader from "./ui/PurrHeader/PurrHeader";
 import MorphButton, { PAW_OFFSET_Y } from "./ui/MorphButton/MorphButton";
+
+import titleSource from "../assets/background/tittle.svg?raw";
+import walk0 from "../assets/background/cat walking_0.svg";
+import walk1 from "../assets/background/cat walking_1.svg";
+import walk2 from "../assets/background/cat walking_2.svg";
+import walk3 from "../assets/background/cat walking_3.svg";
+import walk4 from "../assets/background/cat walking_4.svg";
+import walk5 from "../assets/background/cat walking_5.svg";
+
+import catAngry from "../assets/background/cat_angry.svg";
 
 import catFrame1 from "../assets/background/cat_hero-01.svg";
 import catFrame2 from "../assets/background/cat_hero-02.svg";
 import catFrame3 from "../assets/background/cat_hero-03.svg";
 import catFrame4 from "../assets/background/cat_hero-04-04.svg";
 
-/* =========================================
-   BACKGROUND CONFIG
-   "solid" = design-system background
-   "image" = Image from assets/background
-========================================= */
-
-const BACKGROUND_MODE = "solid";
-
-/* =========================================
-   CONTENT
-========================================= */
-
-const PREFIX =
-  "im lucifur son of the darkness and i will tell your ";
-
+// Motion controls. Wave speed is seconds per complete, seamless drift.
+const EASE = { reveal: "expo.out", settle: "power4.out", cat: "back.out(1.35)" };
+const OPENING = {
+  beat: 0.4, letterGap: 0.085, letterDrop: 0.78,
+  bounceUp: 0.22, bounceDown: 0.24, settle: 0.3,
+  walk: 2.65, handoff: 0.3,
+};
+const CAT_POSE = { duration: 0.35, returnAfter: 1800 };
+const WALK_FRAME_MS = 110;
+const WALK_FRAMES = [walk0, walk1, walk2, walk3, walk4, walk5];
+const PREFIX = "im lucifur son of the darkness, and ill tell your ";
 const ORIGINAL = "fortune";
-const REPLACEMENT = "purrtune!";
+const REPLACEMENT = "purrtune";
 const MESSAGE = `${PREFIX}${REPLACEMENT}`;
-const BRAND = "Purranormal";
+const CAT_FRAMES = [catFrame1, catFrame2, catFrame3, catFrame4];
 
-const CAT_FRAMES = [
-  catFrame1,
-  catFrame2,
-  catFrame3,
-  catFrame4,
-];
+// Illustrator's path order is NOT the reading order. Verified against tittle.svg.
+// P U R R A N O R M A L, from left to right.
+const TITLE_ORDER = [2, 7, 5, 6, 4, 1, 8, 9, 0, 3, 10];
+const exportedPaths = Array.from(titleSource.matchAll(/<path\b[^>]*\bd="([^"]+)"/g), match => match[1]);
+const TITLE_PATHS = TITLE_ORDER.map(index => exportedPaths[index]).filter(Boolean);
+
+function TitleLine({ from, to, viewBox, className }) {
+  return (
+    <svg className={className} viewBox={viewBox} aria-hidden="true" focusable="false">
+      {TITLE_PATHS.slice(from, to).map((d, index) => (
+        <g key={from + index} className="meera-intro__letter" data-letter={from + index}>
+          <path d={d} fill="currentColor" />
+        </g>
+      ))}
+    </svg>
+  );
+}
 
 // A pair of interlocking ribbons is drawn along the spiral itself.
 // No circular reveal, no stroke-dash endpoint, and no solid-black handoff frame.
@@ -85,11 +104,29 @@ export default function IntroScene({
   onBegin,
   onPortalReached,
   onTransitionComplete,
-  reducedMotion = false,
+  reducedMotion: reducedMotionProp = false,
 }) {
+  const [systemReduced, setSystemReduced] = useState(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const reducedMotion = reducedMotionProp || systemReduced;
+  const [angry, setAngry] = useState(false);
+  const [angryReady, setAngryReady] = useState(false);
+  const [loopVisible, setLoopVisible] = useState(true);
+  const angryRef = useRef(false);
+  const poseBusy = useRef(false);
+  const poseTimer = useRef(null);
+  const poseTimeline = useRef(null);
+  const pointerStart = useRef(null);
   const [stage, setStage] = useState("typing");
   const [typedCount, setTypedCount] = useState(0);
   const [catFrame, setCatFrame] = useState(0);
+  const [walkFrame, setWalkFrame] = useState(0);
+  const openingAllowed = useRef(!entering && !arriving);
+  const [assetsReady, setAssetsReady] = useState(false);
+  const [walkingAvailable, setWalkingAvailable] = useState(true);
+  const [openingDone, setOpeningDone] = useState(false);
+  const [catSettled, setCatSettled] = useState(false);
+  const [catHovered, setCatHovered] = useState(false);
+  const [chatPinned, setChatPinned] = useState(false);
   const introRef = useRef(null);
   const catRef = useRef(null);
   const hypnosisRef = useRef(null);
@@ -108,6 +145,217 @@ export default function IntroScene({
     : null, [portalLayout]);
 
   const activePortal = entering || arriving;
+
+  const bubbleVisible = openingDone && !activePortal && (catHovered || chatPinned);
+
+  // Decode before playback to avoid empty frames. Failed walking assets fall back
+  // to the existing idle cat; no timeout reveals an unfinished opening.
+  useEffect(() => {
+    let cancelled = false;
+    const pending = [];
+    const load = src => new Promise(resolve => {
+      const image = new Image();
+      let finished = false;
+      const finish = ok => {
+        if (finished) return;
+        finished = true;
+        image.onload = null;
+        image.onerror = null;
+        resolve(ok);
+      };
+      pending.push(() => finish(false));
+      image.onload = () => {
+        if (image.decode) image.decode().then(() => finish(true), () => finish(true));
+        else finish(true);
+      };
+      image.onerror = () => finish(false);
+      image.src = src;
+    });
+    Promise.all([...WALK_FRAMES, ...CAT_FRAMES, catAngry].map(load)).then(results => {
+      if (cancelled) return;
+      setWalkingAvailable(results.slice(0, WALK_FRAMES.length).every(Boolean));
+      setAngryReady(results[results.length - 1]);
+      setAssetsReady(true);
+    });
+    return () => { cancelled = true; pending.forEach(cancel => cancel()); };
+  }, []);
+
+  // One owner for the intro, including its temporary iOS scroll lock.
+  useLayoutEffect(() => {
+    if (!assetsReady || !openingAllowed.current) return;
+    const root = introRef.current;
+    let alive = true;
+    let released = false;
+    let tl;
+    const oldOverflow = document.body.style.overflow;
+    const oldOverscroll = document.body.style.overscrollBehavior;
+    const release = () => {
+      if (released) return;
+      released = true;
+      document.body.style.overflow = oldOverflow;
+      document.body.style.overscrollBehavior = oldOverscroll;
+      window.removeEventListener("wheel", gesture);
+      window.removeEventListener("touchmove", gesture);
+      window.removeEventListener("pointerdown", skip);
+      window.removeEventListener("keydown", keySkip);
+    };
+    const ready = () => {
+      release();
+      if (alive) { setCatSettled(true); setOpeningDone(true); }
+    };
+    const skip = () => {
+      release();
+      // Seek over the remaining animation; a short fade softens the handoff.
+      if (tl && tl.progress() < 1) {
+        tl.progress(1);
+        gsap.fromTo(root.querySelector(".meera-intro__content"), { opacity: 0.65 },
+          { opacity: 1, duration: reducedMotion ? 0.1 : 0.18, overwrite: true });
+      }
+    };
+    const gesture = event => { if (event.cancelable) event.preventDefault(); skip(); };
+    const keySkip = event => { if ([" ", "ArrowDown", "PageDown", "End", "Escape"].includes(event.key)) skip(); };
+    const ctx = gsap.context(() => {
+      const letters = Array.from(root.querySelectorAll(".meera-intro__letter"));
+      const cat = catRef.current;
+      const walk = root.querySelector(".meera-intro__walking");
+      const idle = root.querySelector(".meera-intro__idle");
+      const action = actionRef.current;
+      if (reducedMotion) {
+        gsap.set(letters, { y: 0, rotation: 0, scaleX: 1, scaleY: 1, opacity: 1 });
+        gsap.set(cat, { x: 0, opacity: 1, visibility: "visible" });
+        gsap.set(walk, { opacity: 0 });
+        gsap.set(idle, { opacity: 1 });
+        gsap.set(action, { opacity: 1, y: 0, visibility: "visible" });
+        ready();
+        return;
+      }
+      const distance = -(window.innerWidth / 2 + cat.getBoundingClientRect().width);
+      gsap.set(letters, { y: -window.innerHeight, opacity: 1, transformOrigin: "50% 95%" });
+      gsap.set(cat, { x: distance, opacity: 1, visibility: "visible" });
+      gsap.set(walk, { opacity: walkingAvailable ? 1 : 0 });
+      gsap.set(idle, { opacity: walkingAvailable ? 0 : 1 });
+      gsap.set(action, { opacity: 0, y: 14, visibility: "hidden" });
+      document.body.style.overflow = "hidden";
+      document.body.style.overscrollBehavior = "none";
+      window.addEventListener("wheel", gesture, { passive: false });
+      window.addEventListener("touchmove", gesture, { passive: false });
+      window.addEventListener("pointerdown", skip, { passive: true });
+      window.addEventListener("keydown", keySkip);
+      tl = gsap.timeline({ onComplete: ready });
+      // Art-directed irregularity: repeatable on every render, each glyph has
+      // its own release, lean and bounce. Shared final transforms lock layout.
+      const personalities = [
+        [0.04, -11, -16, 1.00, 1.18], [0.16, 7, 12, 0.91, 0.78],
+        [0.00, -5, -8, 1.08, 1.02], [0.21, 13, 20, 0.94, 1.28],
+        [0.07, -8, 10, 1.04, 0.87], [0.18, 5, -14, 0.93, 1.12],
+        [0.02, 10, 16, 1.07, 0.76], [0.15, -13, -20, 0.95, 1.20],
+        [0.05, 6, 8, 1.03, 0.94], [0.20, -7, -12, 0.92, 1.08],
+        [0.01, 12, 18, 1.06, 1.25],
+      ];
+      letters.forEach((letter, index) => {
+        const [delay, tilt, drift, fallSpeed, bounceSize] = personalities[index % personalities.length];
+        const start = OPENING.beat + index * OPENING.letterGap + delay;
+        const fall = OPENING.letterDrop * fallSpeed;
+        const impact = start + fall;
+        const rebound = Math.min(34, Math.max(10, letter.getBBox().height * 0.065)) * bounceSize;
+        const up = OPENING.bounceUp * (0.94 + bounceSize * 0.12);
+        const down = OPENING.bounceDown * (0.94 + bounceSize * 0.12);
+        tl.fromTo(letter, { x: drift, rotation: tilt, scaleX: 1, scaleY: 1 }, {
+          x: 0, y: 0, rotation: -tilt * 0.13,
+          duration: fall, ease: "power2.in",
+        }, start)
+          .to(letter, { scaleX: 1.04, scaleY: 0.94,
+            duration: 0.075, ease: "sine.out" }, impact)
+          .to(letter, { y: -rebound, rotation: tilt * 0.17, scaleX: 0.985, scaleY: 1.025,
+            duration: up, ease: "power2.out" }, impact + 0.045)
+          .to(letter, { y: 0, rotation: -tilt * 0.045, scaleX: 1.014, scaleY: 0.98,
+            duration: down, ease: "power2.in" }, impact + 0.045 + up)
+          .to(letter, { y: -rebound * 0.12, rotation: 0, scaleX: 0.998, scaleY: 1.004,
+            duration: 0.13, ease: "power2.out" }, impact + 0.045 + up + down)
+          .to(letter, { x: 0, y: 0, scaleX: 1, scaleY: 1, rotation: 0,
+            duration: 0.23, ease: "sine.inOut" }, impact + 0.175 + up + down);
+      });
+      const walkStart = tl.duration() + OPENING.settle;
+      // Frame clock lives in this timeline, so sprite playback stops on handoff.
+      const clock = { time: 0 };
+      if (walkingAvailable) {
+        tl.to(clock, {
+          time: OPENING.walk, duration: OPENING.walk, ease: "none",
+          onUpdate: () => {
+            if (alive) setWalkFrame(Math.floor(clock.time * 1000 / WALK_FRAME_MS) % WALK_FRAMES.length);
+          },
+        }, walkStart);
+      }
+      tl.to(cat, { x: 0, duration: OPENING.walk, ease: "sine.inOut" }, walkStart);
+      const handoff = walkStart + OPENING.walk;
+      tl.to(walk, { opacity: 0, duration: OPENING.handoff, ease: "sine.inOut" }, handoff)
+        .to(idle, { opacity: 1, duration: OPENING.handoff, ease: "sine.inOut" }, handoff)
+        .call(() => { if (alive) setCatSettled(true); }, [], handoff + OPENING.handoff)
+        .set(action, { visibility: "visible" }, handoff + OPENING.handoff + 0.25)
+        .to(action, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" })
+        .call(ready);
+    }, root);
+    return () => { alive = false; release(); ctx.revert(); };
+  }, [assetsReady, reducedMotion, walkingAvailable]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const change = () => setSystemReduced(media.matches);
+    media.addEventListener("change", change);
+    return () => media.removeEventListener("change", change);
+  }, []);
+
+  const swapPose = next => {
+    if (poseBusy.current || !angryReady || !openingDone || activePortal) return;
+    window.clearTimeout(poseTimer.current);
+    angryRef.current = next;
+    setAngry(next);
+    if (next) poseTimer.current = window.setTimeout(() => swapPose(false), CAT_POSE.returnAfter);
+    if (reducedMotion) return;
+    poseBusy.current = true;
+    poseTimeline.current = gsap.timeline({ onComplete: () => { poseBusy.current = false; } })
+      .to(catRef.current.querySelector(".meera-intro__cat-trigger"), { scaleX: 1.04, scaleY: 0.94, duration: 0.08 }, 0)
+      .to(catRef.current.querySelector(".meera-intro__cat-trigger"), { scaleX: 0.98, scaleY: 1.04, rotation: -1.5, duration: 0.09 }, 0.08)
+      .to(catRef.current.querySelector(".meera-intro__cat-trigger"), { scaleX: 1, scaleY: 1, rotation: 0, duration: CAT_POSE.duration - 0.17, ease: EASE.cat }, 0.17);
+  };
+  useEffect(() => () => {
+    window.clearTimeout(poseTimer.current);
+    poseTimeline.current?.kill();
+  }, []);
+  useEffect(() => {
+    if (activePortal) {
+      window.clearTimeout(poseTimer.current);
+      poseTimeline.current?.kill();
+      poseBusy.current = false;
+    }
+  }, [activePortal]);
+
+  // Stop sprite playback when this hero or the browser tab is hidden.
+  useEffect(() => {
+    let visible = true;
+    const update = () => setLoopVisible(visible && !document.hidden);
+    const observer = new IntersectionObserver(entries => {
+      visible = entries[0].isIntersecting;
+      update();
+    });
+    observer.observe(introRef.current);
+    document.addEventListener("visibilitychange", update);
+    update();
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, []);
+
+  // Escape dismisses the hover / keyboard speech bubble. Cat clicks keep the angry pose toggle.
+  useEffect(() => {
+    if (!bubbleVisible) return;
+    const dismiss = event => {
+      if (event.key === "Escape") { setChatPinned(false); setCatHovered(false); }
+    };
+    window.addEventListener("keydown", dismiss);
+    return () => window.removeEventListener("keydown", dismiss);
+  }, [bubbleVisible]);
 
   // Lock measurements at click-time. The eye rests exactly at the viewport centre.
   useLayoutEffect(() => {
@@ -251,13 +499,15 @@ export default function IntroScene({
   ========================================= */
 
   useEffect(() => {
+    if (!bubbleVisible) return;
+    setStage("typing");
+    setTypedCount(0);
     const full = PREFIX + ORIGINAL;
     if (reducedMotion) {
       setTypedCount(full.length);
       setStage("done");
       return;
     }
-    if (stage === "done") return;
     let count = 0;
 
     const interval = window.setInterval(() => {
@@ -271,56 +521,56 @@ export default function IntroScene({
     }, 65);
 
     return () => window.clearInterval(interval);
-  }, [reducedMotion]);
+  }, [reducedMotion, bubbleVisible]);
 
   /* =========================================
      PAUSE BEFORE CORRECTION
   ========================================= */
 
   useEffect(() => {
-    if (stage !== "pause") return;
+    if (!bubbleVisible || stage !== "pause") return;
 
     const timer = window.setTimeout(() => {
       setStage("strike");
     }, 450);
 
     return () => window.clearTimeout(timer);
-  }, [stage]);
+  }, [stage, bubbleVisible]);
 
   /* =========================================
      STRIKE THROUGH "FORTUNE"
   ========================================= */
 
   useEffect(() => {
-    if (stage !== "strike") return;
+    if (!bubbleVisible || stage !== "strike") return;
 
     const timer = window.setTimeout(() => {
       setStage("replace");
     }, 650);
 
     return () => window.clearTimeout(timer);
-  }, [stage]);
+  }, [stage, bubbleVisible]);
 
   /* =========================================
      REPLACE WITH "PURRTUNE!"
   ========================================= */
 
   useEffect(() => {
-    if (stage !== "replace") return;
+    if (!bubbleVisible || stage !== "replace") return;
 
     const timer = window.setTimeout(() => {
       setStage("done");
     }, 800);
 
     return () => window.clearTimeout(timer);
-  }, [stage]);
+  }, [stage, bubbleVisible]);
 
   /* =========================================
      CAT SPRITE ANIMATION
   ========================================= */
 
   useEffect(() => {
-    if (activePortal || reducedMotion) return;
+    if (activePortal || reducedMotion || !catSettled || !loopVisible || angry) return;
     const interval = window.setInterval(() => {
       setCatFrame(
         (previous) => (previous + 1) % CAT_FRAMES.length
@@ -328,7 +578,7 @@ export default function IntroScene({
     }, 200);
 
     return () => window.clearInterval(interval);
-  }, [activePortal, reducedMotion]);
+  }, [activePortal, reducedMotion, catSettled, loopVisible, angry]);
 
   /* =========================================
      TEXT VISIBILITY
@@ -357,90 +607,62 @@ export default function IntroScene({
     <section
       ref={introRef}
       className={`meera-intro${
-        activePortal ? " is-entering" : ""}${arriving ? " is-arriving" : ""
+        activePortal ? " is-entering" : ""}${reducedMotion ? " is-reduced-motion" : ""}${arriving ? " is-arriving" : ""
       }`}
-      data-background={BACKGROUND_MODE}
       aria-labelledby="intro-title"
     >
-      {/* BRAND — TOP */}
-      <div
-        className="meera-intro__brand"
-        role="img"
-        aria-label={BRAND}
-      >
-        {Array.from(BRAND).map((letter, index) => (
-          <span
-            key={index}
-            className={
-              letter === " "
-                ? "meera-intro__brand-space"
-                : "meera-intro__brand-letter"
-            }
-            style={{ "--letter-index": index }}
-            aria-hidden="true"
-          >
-            {letter === " " ? "\u00a0" : letter}
-          </span>
-        ))}
-      </div>
-
-      {/* MAIN CONTENT */}
+      <PurrHeader visible={openingDone && !activePortal} />
+      <h1 id="intro-title" className="meera-intro__sr-only">Purranormal</h1>
       <div className="meera-intro__content">
-
-        {/* CAT — FIXED VISUAL ANCHOR */}
-        <div
-          className="meera-intro__cat"
-          ref={catRef}
-          aria-hidden="true"
-        >
-          <img
-            src={CAT_FRAMES[catFrame]}
-            alt=""
-            draggable={false}
-          />
+        <div className="meera-intro__wordmark" aria-hidden="true">
+          <TitleLine from={0} to={4} viewBox="0 0 522.162 353.96" className="meera-intro__wordmark-purr" />
+          <TitleLine from={4} to={11} viewBox="522.162 0 1004.798 353.96" className="meera-intro__wordmark-anormal" />
         </div>
 
-        {/* TITLE — GROWS DOWNWARD */}
-        <div className="meera-intro__title-area">
-          <h1
-            id="intro-title"
-            className="meera-intro__title"
-            aria-label={MESSAGE}
+        <div className="meera-intro__cat" ref={catRef}>
+          <button
+            className="meera-intro__cat-trigger"
+            type="button"
+            disabled={!openingDone || activePortal}
+            aria-label="Make the cat angry"
+            aria-pressed={angry}
+            aria-describedby={bubbleVisible ? "lucifur-speech" : undefined}
+            onPointerEnter={event => { if (event.pointerType !== "touch") setCatHovered(true); }}
+            onPointerLeave={() => { setCatHovered(false); pointerStart.current = null; }}
+            onFocus={event => { if (event.currentTarget.matches(":focus-visible")) setCatHovered(true); }}
+            onBlur={() => setCatHovered(false)}
+            onPointerDown={event => {
+              pointerStart.current = { id: event.pointerId, x: event.clientX, y: event.clientY, scroll: window.scrollY, moved: false };
+            }}
+            onPointerMove={event => {
+              const p = pointerStart.current;
+              if (p && Math.hypot(event.clientX - p.x, event.clientY - p.y) > 10) p.moved = true;
+            }}
+            onPointerCancel={() => { pointerStart.current = null; }}
+            onPointerUp={event => {
+              const p = pointerStart.current;
+              pointerStart.current = null;
+              if (p && p.id === event.pointerId && !p.moved && Math.abs((window.scrollY) - p.scroll) < 10 &&
+                Math.hypot(event.clientX - p.x, event.clientY - p.y) <= 10) swapPose(!angryRef.current);
+            }}
+            onClick={event => { if (event.detail === 0) swapPose(!angryRef.current); }}
           >
-            <span aria-hidden="true">
+            <img className="meera-intro__walking" src={WALK_FRAMES[walkFrame]} alt="" draggable={false} />
+            <img className="meera-intro__idle" src={angry ? catAngry : CAT_FRAMES[catFrame]} alt="" draggable={false} />
+          </button>
+          <div id="lucifur-speech" className="meera-intro__speech" hidden={!bubbleVisible}>
+            <span className="meera-intro__sr-only">{MESSAGE}</span>
+            <p aria-hidden="true">
               {visiblePrefix}
-            </span>
-
-            {visibleOriginal && (
-              <span
-                className={`meera-intro__correction${
-                  stage === "strike" ||
-                  showReplacement
-                    ? " is-struck"
-                    : ""
-                }`}
-                aria-hidden="true"
-              >
-                {visibleOriginal}
-              </span>
-            )}
-
-            {showReplacement && (
-              <span
-                className="meera-intro__replacement"
-                aria-hidden="true"
-              >
-                {REPLACEMENT}
-              </span>
-            )}
-
-            {!showReplacement && (
-              <span
-                className="meera-intro__cursor"
-                aria-hidden="true"
-              />
-            )}
-          </h1>
+              {visibleOriginal && (
+                <span className={`meera-intro__correction${stage === "strike" || showReplacement ? " is-struck" : ""}`}>
+                  {visibleOriginal}
+                </span>
+              )}
+              {showReplacement && <span className="meera-intro__replacement">{REPLACEMENT}</span>}
+              {!showReplacement && <span className="meera-intro__cursor" />}
+            </p>
+          </div>
         </div>
 
         {/* MORPH BUTTON — BOTTOM */}
@@ -451,8 +673,8 @@ export default function IntroScene({
             textColor="#ffffff"
             duration={0.55}
             reducedMotion={reducedMotion}
-            onClick={onBegin}
-            disabled={entering}
+            onClick={() => { if (openingDone && !activePortal) onBegin?.(); }}
+            disabled={!openingDone || activePortal}
             aria-label="Let's Paw!"
           >
             Let's Paw!

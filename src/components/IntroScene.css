@@ -1,231 +1,168 @@
-
-/* =========================================
-   PURRANORMAL — INTRO
-========================================= */
-
+/* PURRANORMAL — replace all of IntroScene.css with this file. */
 .meera-intro {
-  /* Page-specific layout only. Shared tokens live in src/index.css. */
-
-  /* =====================================
-     BACKGROUND IMAGE PLACEHOLDER
-
-     Example:
-     ../assets/background/main.png
-  ===================================== */
-
-  --background-image:
-    url("../assets/background/main.png");
-
-  --background-position: center center;
-  --background-size: cover;
-
-  /* SHARED CAT POSITION */
-  --cat-top: 22svh;
-  --cat-width: clamp(170px, 28vw, 340px);
+  --intro-red: var(--meera-bg, #DC2626); /* Solid homepage red: adjust this value only. */
+  --intro-title-color: #ffffff;
+  --hero-center-y: 44svh;
+  --cat-width: clamp(180px, 27vw, 380px);
   --cat-height: var(--cat-width);
-
-  /* LAYOUT */
-  --page-padding-top: var(--meera-page-padding-top);
-  --page-padding-bottom: var(--meera-page-padding-bottom);
-
-  --cat-title-gap: var(--meera-space-4);
   --button-size: 160px;
-
+  --page-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
-
   width: 100%;
+  height: 100vh;
   height: 100svh;
+  min-height: 100vh;
   min-height: 100svh;
-
   overflow: hidden;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  padding:
-    var(--page-padding-top)
-    var(--meera-page-padding-x)
-    var(--page-padding-bottom);
-
-  background-color: var(--meera-bg);
-  color: var(--meera-ink);
+  background: var(--intro-red);
+  color: #ffffff;
 }
-
-/* =========================================
-   BACKGROUND — IMAGE MODE
-========================================= */
-
-.meera-intro[data-background="image"] {
-  background-image: var(--background-image);
-  background-position: var(--background-position);
-  background-size: var(--background-size);
-  background-repeat: no-repeat;
-}
-
-/* =========================================
-   BRAND
-========================================= */
-
-.meera-intro__brand {
-  position: relative;
-  z-index: 10;
-
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  margin: 0;
+.meera-intro__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   padding: 0;
-
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
-  color: var(--meera-ink);
-
-  font-family: var(--meera-font-brand);
-  font-size: var(--meera-text-brand);
-  font-weight: 800;
-  letter-spacing: var(--meera-tracking-tight);
-
-  transition: opacity 0.6s ease;
+  border: 0;
 }
-
-.meera-intro__brand-letter {
-  display: inline-block;
-  transform-origin: center 80%;
-
-  animation:
-    meera-brand-wiggle
-    2.8s ease-in-out infinite;
-
-  animation-delay:
-    calc(var(--letter-index) * -0.12s);
-}
-
-.meera-intro__brand-space {
-  display: inline-block;
-  width: 0.32em;
-}
-
-@keyframes meera-brand-wiggle {
-  0%, 100% {
-    transform: rotate(0deg) translateY(0);
-  }
-
-  25% {
-    transform: rotate(-4deg) translateY(-2px);
-  }
-
-  65% {
-    transform: rotate(4deg) translateY(1px);
-  }
-}
-
-/* =========================================
-   MAIN CONTENT
-========================================= */
-
-.meera-intro__content {
-  position: relative;
-  z-index: 5;
-
-  width: 100%;
-  max-width: var(--meera-content-max);
-  flex: 1;
-  min-height: 0;
-
-  text-align: center;
-
-  transition:
-    opacity 0.6s ease,
-    transform 0.8s ease,
-    filter 0.6s ease;
-}
-
-/* =========================================
-   CAT — VIEWPORT ANCHOR
-========================================= */
-
-.meera-intro__cat {
-  position: fixed;
-  z-index: 2;
-
-  top: var(--cat-top);
+.meera-intro__content { position: absolute; inset: 0; z-index: 5; }
+.meera-intro__wordmark {
+  position: absolute;
+  top: var(--hero-center-y);
   left: 50%;
-
-  width: var(--cat-width);
-  height: var(--cat-height);
-
-  transform: translateX(-50%);
-
-  display: grid;
-  place-items: center;
-
+  transform: translate(-50%, -50%);
+  width: min(94vw, 1500px);
+  display: flex;
+  align-items: center;
+  color: var(--intro-title-color);
   pointer-events: none;
 }
-
-.meera-intro__cat img {
+.meera-intro__wordmark svg { display: block; height: auto; overflow: visible; flex-shrink: 0; }
+.meera-intro__wordmark-purr { width: 34.195%; }
+.meera-intro__wordmark-anormal { width: 65.805%; }
+.meera-intro__letter { opacity: 0; transform-box: fill-box; transform-origin: 50% 95%; }
+.meera-intro__cat {
+  position: absolute;
+  z-index: 3;
+  top: calc(var(--hero-center-y) - var(--cat-height) / 2);
+  left: calc(50% - var(--cat-width) / 2);
+  width: var(--cat-width);
+  height: var(--cat-height);
+  visibility: hidden;
+}
+.meera-intro__cat-trigger {
+  appearance: none;
   display: block;
-
+  position: relative;
   width: 100%;
   height: 100%;
-
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 20%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.meera-intro__cat-trigger:disabled { cursor: default; opacity: 1; }
+.meera-intro__cat-trigger:focus-visible { outline: 2px dashed #ffffff; outline-offset: 6px; }
+.meera-intro__cat img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   object-position: center;
-
   user-select: none;
+  pointer-events: none;
 }
-
-/* =========================================
-   TITLE AREA — LOCKED BELOW CAT
-========================================= */
-
-.meera-intro__title-area {
-  position: fixed;
+.meera-intro__idle { opacity: 0; }
+.meera-intro__speech {
+  position: absolute;
   z-index: 5;
-
-  top: calc(
-    var(--cat-top) +
-    var(--cat-height) +
-    var(--cat-title-gap)
-  );
-
+  bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-
-  width: min(var(--meera-content-max), calc(100% - 2 * var(--meera-page-padding-x)));
-
-  text-align: center;
+  box-sizing: border-box;
+  width: min(340px, 88vw);
+  min-height: 110px;
+  padding: 16px 20px;
+  border: 2px solid #000000;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #000000;
+  pointer-events: none;
 }
-
-.meera-intro__title {
+.meera-intro__speech[hidden] { display: none; }
+.meera-intro__speech::after {
+  content: "";
+  position: absolute;
+  bottom: -9px;
+  left: calc(50% - 7px);
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  transform: rotate(45deg);
+}
+.meera-intro__speech p {
   margin: 0;
-  padding: 0;
-
-  width: 100%;
-
-  color: var(--meera-ink);
-
-  font-family: var(--meera-font-title);
-
-  font-size: var(--meera-text-title);
-  font-weight: 400;
-  line-height: var(--meera-line-height-title);
-  letter-spacing: var(--meera-tracking-tight);
-
-  text-wrap: wrap;
-  overflow-wrap: anywhere;
-
-  text-align: center;
+  font-family: var(--meera-font-title, "Courier New", monospace);
+  font-size: clamp(14px, 1.25vw, 17px);
+  line-height: 1.45;
+  text-align: left;
+  overflow-wrap: break-word;
 }
-
-/* =========================================
-   TYPEWRITER CURSOR
-========================================= */
-
+.meera-intro__action {
+  position: fixed;
+  z-index: 10;
+  bottom: calc(var(--page-padding-bottom) * 1.75);
+  left: calc(50% - var(--button-size) / 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-size);
+  height: var(--button-size);
+  opacity: 0;
+  visibility: hidden;
+}
+.meera-intro .meow-morph-button {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+  margin: 0;
+  translate: none;
+}
+.meera-intro .meow-morph-button__label {
+  font-family: var(--meera-font-body, "Courier New", monospace);
+  font-size: var(--meera-text-button, 14px);
+  font-weight: 600;
+}
+/* Fade the entire composition together. GSAP owns child opacity while opening. */
+.meera-intro.is-entering .meera-intro__content {
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+.meera-intro.is-entering .meera-intro__action { visibility: hidden !important; }
+.meera-intro.is-arriving {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: transparent;
+  pointer-events: none;
+}
+.meera-intro.is-arriving .meera-intro__content { opacity: 0; }
 .meera-intro__cursor {
   display: inline-block;
 
@@ -319,64 +256,6 @@
   }
 }
 
-/* =========================================
-   MORPH BUTTON — BOTTOM
-========================================= */
-
-.meera-intro__action {
-  position: fixed;
-  z-index: 10;
-
-  bottom: var(--page-padding-bottom);
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: var(--button-size);
-  height: var(--button-size);
-}
-
-.meera-intro .meow-morph-button {
-  position: relative;
-
-  width: 100%;
-  height: 100%;
-
-  flex-shrink: 0;
-  margin: 0;
-  translate: none;
-}
-
-.meera-intro .meow-morph-button__label {
-  font-family: var(--meera-font-body);
-
-  font-size: var(--meera-text-button);
-  font-weight: 600;
-}
-
-/* Continuous paw-to-eye portal. Above both scenes, without layout changes. */
-.meera-intro.is-entering .meera-intro__brand,
-.meera-intro.is-entering .meera-intro__title-area,
-.meera-intro.is-entering .meera-intro__action {
-  opacity: 0;
-  transition: opacity 0.22s ease;
-  pointer-events: none;
-}
-.meera-intro.is-entering .meera-intro__cat { opacity: 0; transition: opacity 0.35s ease; }
-.meera-intro.is-entering .meera-intro__action { visibility: hidden; }
-.meera-intro.is-arriving {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: transparent;
-  pointer-events: none;
-}
-.meera-intro.is-arriving .meera-intro__content,
-.meera-intro.is-arriving .meera-intro__brand { opacity: 0; }
 .meera-intro__transition {
   position: fixed;
   inset: 0;
@@ -400,90 +279,65 @@
 .meera-hypnosis__black-ribbon,
 .meera-hypnosis__yellow-ribbon { stroke: none; }
 
-/* =========================================
-   MOBILE
-========================================= */
 
 @media (max-width: 768px) {
   .meera-intro {
-    --cat-top: 19svh;
-    --cat-width: min(68vw, 280px);
-
-    --page-padding-top: var(--meera-page-padding-top-mobile, 20px);
-    --page-padding-bottom: var(--meera-page-padding-bottom-mobile, 12px);
-
-    --cat-title-gap: var(--meera-space-3);
-    --button-size: clamp(140px, 20svh, 180px);
-
-    padding-left: var(--meera-page-padding-x-mobile, 20px);
-    padding-right: var(--meera-page-padding-x-mobile, 20px);
+    --hero-center-y: 43svh;
+    --cat-width: clamp(180px, 57vw, 280px);
+    --button-size: clamp(130px, 20svh, 160px);
+    --page-padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
   }
-
-  .meera-intro__brand {
-    font-size: var(--meera-text-brand-mobile, 22px);
+  .meera-intro__wordmark { width: 92vw; flex-direction: column; gap: clamp(48px, 10svh, 92px); }
+  .meera-intro__wordmark-purr { width: 68%; }
+  .meera-intro__wordmark-anormal { width: 100%; }
+  .meera-intro__speech { bottom: auto; top: calc(100% + 8px); min-height: 100px; padding: 12px 16px; }
+  .meera-intro__speech::after {
+    top: -9px;
+    bottom: auto;
+    border: 0;
+    border-left: 2px solid #000000;
+    border-top: 2px solid #000000;
   }
-
-  .meera-intro__title-area {
-    width: calc(100% - 2 * var(--meera-page-padding-x-mobile, 20px));
-  }
-
-  .meera-intro__title {
-    font-size: var(--meera-text-title-mobile, clamp(20px, 5vw, 30px));
-    line-height: var(--meera-line-height-title);
-  }
-
-  .meera-intro .meow-morph-button__label {
-    font-size: var(--meera-text-button-mobile, 12px);
-  }
+  .meera-intro .meow-morph-button__label { font-size: var(--meera-text-button-mobile, 12px); }
 }
-
-/* =========================================
-   SHORT VIEWPORT
-========================================= */
-
 @media (max-height: 650px) {
   .meera-intro {
-    --cat-top: 15svh;
-    --cat-width: clamp(120px, 22svh, 180px);
-
-    --page-padding-top: var(--meera-space-3);
-    --page-padding-bottom: var(--meera-space-2);
-
-    --cat-title-gap: var(--meera-space-2);
-    --button-size: clamp(110px, 19svh, 150px);
+    --hero-center-y: 40svh;
+    --cat-width: clamp(105px, 31svh, 200px);
+    --button-size: clamp(95px, 21svh, 130px);
+    --page-padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
   }
-
-  .meera-intro__title {
-    font-size: clamp(18px, 3vw, 28px);
-  }
+  .meera-intro__wordmark { width: min(84vw, 1050px); }
+  .meera-intro__speech { min-height: 0; padding: 10px 14px; }
+  .meera-intro__speech p { font-size: 13px; }
 }
-
-/* =========================================
-   REDUCED MOTION
-========================================= */
-
+@media (max-width: 768px) and (max-height: 650px) {
+  .meera-intro__wordmark { width: min(84vw, 380px); gap: 24px; }
+  .meera-intro__wordmark-purr { width: 52%; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .meera-intro *,
-  .meera-intro *::before,
-  .meera-intro *::after {
+  .meera-intro *, .meera-intro *::before, .meera-intro *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-
-  .meera-intro__brand-letter {
-    animation: none !important;
-  }
-
-  .meera-intro__correction.is-struck::after {
-    animation: none !important;
-    transform: rotate(-4deg) scaleX(1);
-  }
-
-  .meera-intro__replacement {
-    animation: none !important;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
+  .meera-intro__correction.is-struck::after { animation: none !important; transform: rotate(-4deg) scaleX(1); }
+  .meera-intro__replacement { animation: none !important; }
   .meera-intro__transition { background: #000; width: 100vw !important; height: 100dvh !important; }
+}
+.meera-intro__cat-trigger { min-width: 44px; min-height: 44px; }
 
+/* Comic bubble: asymmetric ink outline, no floating / loop animation. */
+.meera-intro__speech {
+  border: 2px solid var(--meera-ink, #000);
+  border-radius: 47% 53% 49% 51% / 23% 29% 25% 31%;
+  background: var(--meera-white, #fff);
+  color: var(--meera-ink, #000);
+  box-shadow: 3px 3px 0 var(--meera-ink, #000);
+  padding: 20px 26px;
+  transform: translateX(-50%) rotate(-1.5deg);
+}
+.meera-intro__speech p { transform: rotate(1deg); }
+.meera-intro__speech::after { border-radius: 0 0 3px 0; }
+@media (max-width: 768px) {
+  .meera-intro__speech { padding: 16px 22px; }
 }

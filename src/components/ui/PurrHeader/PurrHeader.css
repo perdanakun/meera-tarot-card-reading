@@ -1,0 +1,116 @@
+
+/* Own layer: never changes the hero, morph button or portal coordinates. */
+.purr-header {
+  --purr-header-ink: var(--meera-white, #fff);
+  --purr-header-inset: clamp(16px, 3vw, 48px);
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 20;
+  padding-top: max(var(--meera-page-padding-top, 28px), env(safe-area-inset-top, 0px));
+  padding-left: max(var(--purr-header-inset), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--purr-header-inset), env(safe-area-inset-right, 0px));
+  color: var(--purr-header-ink);
+  pointer-events: none;
+  animation: purr-header-arrive 380ms var(--meera-ease, ease-out) both;
+}
+.purr-header[hidden] { display: none; }
+.purr-header__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.purr-header__link {
+  --purr-link-tilt: -3deg;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 9px 17px;
+  box-sizing: border-box;
+  color: inherit;
+  background: transparent;
+  font-family: var(--meera-font-body, "Courier New", monospace);
+  font-size: clamp(14px, 1.25vw, 17px);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transform: rotate(var(--purr-link-tilt));
+  transition: transform 200ms var(--meera-ease, ease-out);
+}
+/* Uneven contour and a short second pencil pass, without SVG filters. */
+.purr-header__link::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border: 1.8px solid currentColor;
+  border-radius: 47% 53% 49% 51% / 48% 43% 57% 52%;
+  transform: rotate(-1.5deg);
+  pointer-events: none;
+}
+.purr-header__link::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 26%;
+  bottom: -1px;
+  height: 8px;
+  border-bottom: 1.2px solid currentColor;
+  border-radius: 0 0 50% 45%;
+  transform: rotate(-3deg);
+  pointer-events: none;
+}
+.purr-header__link--cards { --purr-link-tilt: 3deg; }
+.purr-header__link--cards::before {
+  border-radius: 53% 47% 51% 49% / 42% 55% 45% 58%;
+  transform: rotate(2deg);
+}
+.purr-header__label { display: inline-block; transform: rotate(1deg); }
+.purr-header__icon {
+  display: block;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 200ms var(--meera-ease, ease-out);
+}
+.purr-header__cards { width: 29px; height: 29px; }
+.purr-header__link:focus-visible {
+  outline: 2px dashed currentColor;
+  outline-offset: 7px;
+  border-radius: 45%;
+}
+.purr-header__link[aria-current="page"] .purr-header__label {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-style: wavy;
+}
+@media (hover: hover) and (pointer: fine) {
+  .purr-header__link:hover { transform: translateY(-2px) rotate(0deg); }
+  .purr-header__link:hover .purr-header__arrow { transform: translate(2px, -2px) rotate(5deg); }
+  .purr-header__link:hover .purr-header__cards { transform: rotate(-8deg); }
+}
+.purr-header__link:active { transform: translateY(1px) rotate(0deg); }
+@keyframes purr-header-arrive {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 768px) {
+  .purr-header__link { min-height: 44px; padding: 7px 13px; gap: 6px; }
+  .purr-header__icon { width: 23px; height: 23px; }
+  .purr-header__cards { width: 26px; height: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .purr-header { animation: none; }
+  .purr-header__link, .purr-header__icon { transition: none; }
+}
