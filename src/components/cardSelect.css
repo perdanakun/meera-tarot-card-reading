@@ -299,3 +299,301 @@ html.card-select-open, html.card-select-open body {
   .card-thumb, .card-thumb__glow, .card-stage__drag { transition: none; }
   .card-thumb-strip { scroll-behavior: auto; }
 }
+
+/* FULLSCREEN 16:9 SCENE — replaces the earlier portrait stage layout. */
+.card-select-page {
+  --scene-focus-x: 50%;
+  --scene-focus-y: 50%;
+  --select-strip: 128px;
+  --select-description: 104px;
+}
+.card-select-page .card-stage { inset: 0; display: block; }
+.card-select-page .card-stage__canvas {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: max(100vw, calc(100vh * 16 / 9));
+  height: max(100vh, calc(100vw * 9 / 16));
+  width: max(100vw, calc(100svh * 16 / 9));
+  height: max(100svh, calc(100vw * 9 / 16));
+  max-width: none;
+  aspect-ratio: 16 / 9;
+  transform: translate(calc(-1 * var(--scene-focus-x)), calc(-1 * var(--scene-focus-y)));
+}
+.card-select-page .card-stage__name {
+  top: 42%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 96vw;
+  font-size: clamp(90px, 17vw, 300px);
+  line-height: .88;
+  letter-spacing: -.055em;
+}
+.card-select-page .card-stage__word-mask { padding-bottom: .22em; margin-bottom: -.22em; }
+.card-select-page .card-stage__badge { top: calc(var(--safe-top) + 86px); right: var(--select-inset); }
+.card-select__scene::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 18%) 0%, transparent 28%, transparent 42%, rgb(0 0 0 / 48%) 72%, rgb(0 0 0 / 92%) 100%);
+}
+.card-select-page .card-abilities, .card-select-page .card-stats { top: 47%; }
+.card-select-page .card-description { bottom: calc(var(--safe-bottom) + 8px); }
+.card-select-page .card-thumb-nav { bottom: calc(var(--safe-bottom) + var(--select-description)); }
+.card-select__mobile-summary { display: none; }
+/* Only the temporary square Lucifur fallback needs this. Real 16:9 exports
+   always fill their registered canvas without an individual sizing override. */
+.card-select__scene.is-placeholder .card-layer-media > img {
+  width: min(88vw, 78svh);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.card-info-dialog {
+  position: fixed;
+  inset: auto 0 0;
+  width: min(100%, 640px);
+  max-width: 100%;
+  max-height: 76vh;
+  max-height: 76svh;
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid var(--card-accent);
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  background: var(--card-bg);
+  color: var(--card-text);
+  font: inherit;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+.card-info-dialog::backdrop { background: rgb(0 0 0 / 65%); }
+.card-info-dialog__header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: var(--card-bg); border-bottom: 1px solid rgb(255 255 255 / 20%); }
+.card-info-dialog__header h2 { flex: 1; font-size: 16px; margin: 0; }
+.card-info-dialog__header button { flex: 0 0 44px; width: 44px; height: 44px; font-size: 28px; border: 1px solid currentColor; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.card-info-dialog__body { display: grid; gap: 28px; padding: 22px 22px max(28px, env(safe-area-inset-bottom, 0px)); }
+.card-select-page .card-info-dialog .card-description { position: static; width: 100%; height: auto; padding: 0; transform: none; text-align: left; }
+.card-select-page .card-info-dialog .card-description p { font-size: 15px; line-height: 1.6; }
+.card-select-page .card-info-dialog .card-abilities, .card-select-page .card-info-dialog .card-stats { position: static; width: 100%; display: grid; grid-template-columns: 1fr; gap: 20px; }
+.card-info-dialog .card-stat__track span { transform: scaleX(var(--stat-value)); }
+.card-select-page:has(.card-info-dialog[open]) .card-select__mobile-summary button { visibility: hidden; }
+@media (max-width: 800px) {
+  .card-select-page { --select-strip: 116px; --select-description: 0px; --select-panels: 0px; }
+  .card-select-page .card-stage__name { top: 38%; width: 94vw; font-size: clamp(40px, min(20vw, var(--title-fit)), 128px); }
+  .card-select-page .card-stage__badge { top: calc(var(--safe-top) + 74px); }
+  .card-select-page .card-select__scene > .card-select__panels,
+  .card-select-page .card-select__scene > .card-description { display: none; }
+  .card-select-page .card-thumb-nav { bottom: var(--safe-bottom); }
+  .card-select__mobile-summary {
+    position: absolute;
+    z-index: 16;
+    left: 16px; right: 16px;
+    bottom: calc(var(--safe-bottom) + var(--select-strip) + 4px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .card-select__mobile-summary > span { max-width: 60%; font-weight: 700; }
+  .card-select__mobile-summary button { flex-shrink: 0; min-height: 44px; padding: 10px 14px; background: rgb(0 0 0 / 40%); color: inherit; border: 1px solid currentColor; border-radius: 24px; cursor: pointer; }
+  .card-select__mobile-summary button:disabled { opacity: .5; }
+}
+@media (max-height: 540px) and (min-aspect-ratio: 6/5) {
+  .card-select-page { --select-strip: 88px; --select-description: 68px; }
+  .card-select-page .card-stage__name { top: 39%; font-size: clamp(72px, 15vw, 170px); }
+  .card-select-page .card-stage__badge { top: calc(var(--safe-top) + 52px); }
+  .card-select-page .card-abilities, .card-select-page .card-stats { top: 28%; }
+  .card-select-page .card-thumb-nav { bottom: calc(var(--safe-bottom) + var(--select-description)); }
+  .card-select-page .card-info-dialog .card-abilities, .card-select-page .card-info-dialog .card-stats { top: auto; }
+}
+@media (max-width: 800px) and (max-height: 540px) and (min-aspect-ratio: 6/5) {
+  .card-select-page { --select-description: 0px; }
+  .card-select-page .card-thumb-nav { bottom: var(--safe-bottom); }
+  .card-select__mobile-summary { left: auto; right: 18px; width: 180px; bottom: calc(var(--safe-bottom) + 104px); flex-direction: column; align-items: flex-end; }
+  .card-select__mobile-summary > span { max-width: 100%; text-align: right; }
+}
+
+/* Compact readable overlays when giant lettering crosses the side panels. */
+@media (min-width: 801px) {
+  .card-select__panels .card-abilities, .card-select__panels .card-stats {
+    padding: 16px;
+    border-radius: 12px;
+    background: rgb(0 0 0 / 68%);
+  }
+}
+
+/* V3: HEIGHT-LOCKED SCENE / INK CONTROLS / PHYSICAL CARD DETAILS */
+.card-select-page { --select-description: 0px; --select-strip: 136px; }
+.card-select-page .card-stage__canvas {
+  width: auto;
+  height: 100vh;
+  height: 100svh;
+  max-width: none;
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+}
+.card-select-page .card-stage__name { width: min(70vw, 1200px); font-size: clamp(80px, 13vw, 220px); top: 36%; }
+.card-select-page .card-select__panels .card-abilities,
+.card-select-page .card-select__panels .card-stats { background: transparent; border-radius: 0; }
+.card-select__scene::after {
+  background: linear-gradient(to top, rgb(0 0 0 / 94%) 0%, rgb(0 0 0 / 52%) 18%, transparent 42%);
+}
+.card-select-page .card-thumb-nav { bottom: calc(var(--safe-bottom) + 66px); }
+.card-select__read-more { position: absolute; z-index: 16; bottom: calc(var(--safe-bottom) + 14px); left: 50%; transform: translateX(-50%); }
+.card-select-page .purr-control.card-select__back,
+.card-select-page .purr-control.card-thumb-arrow { border: 0; border-radius: 0; background: transparent; padding: 8px 12px; }
+.card-select-page .purr-control.card-thumb-arrow { padding: 0; }
+.card-select-page .purr-control { color: var(--card-text); }
+.card-select-page .card-select__header { justify-content: flex-start; }
+.card-select-page .card-select__header h1.card-select__sr { position: absolute !important; }
+.card-select-page .card-select__loading.is-switching { bottom: calc(var(--safe-bottom) + 215px); }
+
+/* Details is a full viewport scene, not the old bottom-sheet layout. */
+.card-detail {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  height: 100svh;
+  max-height: none;
+  background: transparent;
+  color: var(--card-text);
+  font: inherit;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+.card-detail::backdrop { background: transparent; }
+.card-detail__backdrop { position: absolute; inset: 0; background: var(--card-bg); }
+.card-detail__slot {
+  position: absolute;
+  z-index: 2;
+  left: 28%;
+  top: 50%;
+  width: min(31vw, 380px, 52svh);
+  aspect-ratio: 2 / 3;
+  transform: translate(-50%, -50%);
+  perspective: 1400px;
+}
+.card-detail__surface { position: absolute; inset: 0; width: 100%; height: 100%; transform-style: preserve-3d; }
+.card-detail__front, .card-detail__back { position: absolute; inset: 0; overflow: hidden; border-radius: 12px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card-detail__front { transform: translateZ(.1px); background: var(--meera-primary); }
+.card-detail__back { transform: rotateY(180deg) translateZ(.1px); background: var(--card-bg); }
+.card-detail__back img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-detail__source {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: var(--detail-vw);
+  height: var(--detail-vh);
+  transform: translate(-50%, -50%);
+  background: var(--meera-primary);
+}
+.card-detail__registered {
+  position: absolute;
+  height: var(--detail-vh);
+  width: calc(var(--detail-vh) * 16 / 9);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.card-detail__registered img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.card-detail__registered.is-placeholder .card-detail__main { width: min(88vw, 78svh); left: 50%; transform: translateX(-50%); }
+.card-detail__portrait { position: absolute; inset: 0; background: var(--meera-primary); overflow: hidden; }
+.card-detail__registered.is-portrait { width: 100%; height: 100%; }
+.card-detail__registered.is-portrait img { object-fit: cover; }
+.card-detail__registered.is-portrait.is-placeholder .card-detail__main { width: 100%; left: 0; transform: none; object-fit: contain; }
+.card-detail__portrait-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.card-detail__frame { position: absolute; inset: 0; border: 2px solid #15120c; border-radius: inherit; box-shadow: inset 0 0 0 3px var(--card-accent); pointer-events: none; }
+.card-detail__frame::after { content: ""; position: absolute; inset: 6px; border: 1px solid rgb(20 15 5 / 65%); border-radius: 7px 10px 8px 11px; }
+.card-detail__controls { position: absolute; z-index: 5; top: max(20px, env(safe-area-inset-top, 0px)); left: max(24px, env(safe-area-inset-left, 0px)); }
+.card-detail__copy {
+  position: absolute;
+  z-index: 3;
+  width: min(42vw, 580px);
+  max-height: calc(100% - 140px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  top: 50%; right: 5%;
+  transform: translateY(-50%);
+}
+.card-detail__number { display: inline-block; margin-bottom: 12px; color: var(--card-accent); font-size: 18px; }
+.card-detail__copy h2 { margin: 0 0 18px; font-size: clamp(24px, 3vw, 40px); line-height: 1.1; overflow-wrap: anywhere; }
+.card-detail__description { margin: 0 0 26px; font-size: 15px; line-height: 1.7; }
+.card-select-page .card-detail .card-abilities,
+.card-select-page .card-detail .card-stats { position: static; width: 100%; margin: 24px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 0; background: transparent; }
+.card-detail .card-ability { gap: 6px; }
+.card-detail .card-ability dt, .card-detail .card-ability dd { font-size: 14px; }
+.card-detail .card-stat__track span { transform: scaleX(var(--stat-value)); }
+.card-detail .illustrated-panel { --panel-paper: var(--card-bg); }
+@media (max-width: 800px) {
+  .card-select-page { --select-strip: 116px; }
+  .card-select-page .card-stage__name { width: 94vw; font-size: clamp(40px, min(20vw, var(--title-fit)), 128px); top: 38%; }
+  .card-select-page .card-select__scene > .card-select__panels { display: block; position: absolute; top: auto; bottom: calc(var(--safe-bottom) + 190px); left: 16px; right: 16px; height: auto; }
+  .card-select-page .card-select__scene > .card-select__panels .card-abilities { display: none; }
+  .card-select-page .card-select__scene > .card-select__panels .card-stats { position: static; width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0; }
+  .card-select-page .card-thumb-nav { bottom: calc(var(--safe-bottom) + 64px); }
+  .card-detail { overflow-y: auto; }
+  .card-detail__slot { left: 50%; top: calc(max(76px, env(safe-area-inset-top, 0px)) + 21svh); width: min(55vw, 28svh); }
+  .card-detail__controls { position: fixed; top: max(16px, env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); }
+  .card-detail__copy { top: calc(max(76px, env(safe-area-inset-top, 0px)) + 45svh); left: 16px; right: 16px; width: auto; max-height: none; overflow: visible; transform: none; padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)); }
+  .card-detail__copy h2 { font-size: 26px; }
+  .card-select-page .card-detail .card-abilities { grid-template-columns: 1fr; }
+}
+@media (max-height: 540px) and (min-aspect-ratio: 6/5) {
+  .card-detail__slot { left: 25%; top: 53%; width: min(27vw, 45svh); }
+  .card-detail__copy { top: 56%; left: auto; right: 4%; width: 46%; max-height: 72svh; transform: translateY(-50%); overflow-y: auto; padding-bottom: 8px; }
+  .card-detail .illustrated-panel { padding: 20px; }
+  .card-detail__copy h2 { font-size: 22px; }
+  .card-select-page .card-detail .card-abilities { grid-template-columns: 1fr; }
+  .card-select-page .card-select__scene > .card-select__panels { bottom: calc(var(--safe-bottom) + 180px); }
+}
+.card-detail { scrollbar-width: none; }
+.card-detail::-webkit-scrollbar { display: none; }
+.card-detail[data-detail-phase="forming"], .card-detail[data-detail-phase="closing"] { overflow: hidden; }
+
+/* Animation and layout have separate owners: keep copy centered while it enters. */
+.card-detail__source { left: calc(50% - var(--detail-vw) / 2); top: calc(50% - var(--detail-vh) / 2); transform: none; }
+.card-detail__copy-motion { position: relative; width: 100%; }
+.card-select-page .card-select__back .purr-control__label { font-size: 14px; }
+.card-detail__surface, .card-detail__copy-motion, .card-detail__controls, .card-detail__backdrop { opacity: 0; }
+/* V4 shared layered-card renderer. Do not give the placeholder a pixel size:
+   normalized scene sizing preserves the exact uniform shrinking motion. */
+.card-select-page .layered-tarot-card.is-placeholder .card-layer-media > img { inset: 0; left: 0; width: 100%; height: 100%; transform: scale(.78); }
+.card-detail__surface { transform-style: preserve-3d; }
+@media (max-width: 800px) { .card-select-page .layered-tarot-card.is-placeholder .card-layer-media > img { transform: scale(.6); } }
+.card-detail__copy .card-stats + .card-detail__description { margin-top: 26px; }
+
+/* V5: page landscape never becomes part of the physical card. */
+.card-select-page { --scene-height: 100vh; --scene-vignette: linear-gradient(to top, rgb(0 0 0 / 94%) 0%, rgb(0 0 0 / 52%) 18%, transparent 42%); }
+@supports (height: 100svh) { .card-select-page { --scene-height: 100svh; } }
+.card-select-page .card-stage__canvas { height: var(--scene-height); width: calc(var(--scene-height) * 16 / 9); aspect-ratio: 16 / 9; }
+.card-page-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; pointer-events: none; user-select: none; }
+.card-select__scene::after, .card-page-vignette { background: var(--scene-vignette); }
+.card-page-vignette { position: absolute; inset: 0; pointer-events: none; }
+.card-select-page .layered-tarot-card.is-scene .layered-tarot-card__front,
+.card-detail__surface .layered-tarot-card__front { background: transparent; }
+.card-detail__backdrop { position: fixed; height: var(--scene-height); background: var(--meera-primary); }
+.card-detail, .card-detail__copy { scrollbar-width: none; -ms-overflow-style: none; }
+.card-detail::-webkit-scrollbar, .card-detail__copy::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.card-detail__copy { padding: 2px; scroll-padding-block: 24px; }
+.card-detail__copy .illustrated-panel--adventure { --panel-paper: transparent; padding: clamp(22px, 3vw, 38px); }
+.card-detail__copy .illustrated-panel--adventure .illustrated-panel__border { display: none; }
+.illustrated-panel--adventure::before { content: ""; position: absolute; inset: 0; border: 1px solid var(--card-accent); border-radius: 8px; opacity: .65; pointer-events: none; }
+.card-detail__number { font-size: 14px; letter-spacing: .22em; margin-bottom: 16px; }
+.card-detail__copy h2 { max-width: 16ch; font-size: clamp(28px, 3.4vw, 48px); line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; }
+.card-detail__description { max-width: 56ch; font-size: 15px; line-height: 1.85; margin-bottom: 22px; text-wrap: pretty; text-shadow: 0 1px 2px rgb(0 0 0 / 60%); }
+.card-detail__facts { border-block: 1px solid rgb(255 245 219 / 25%); padding: 18px 0; margin: 24px 0; }
+.card-select-page .card-detail__facts .card-abilities,
+.card-select-page .card-detail__facts .card-stats { margin: 0; }
+.card-select-page .card-detail__facts .card-stats { margin-top: 22px; }
+@media (max-width: 800px) {
+ .card-detail__copy { padding: 2px 2px max(28px, env(safe-area-inset-bottom, 0px)); }
+ .card-detail__copy h2 { font-size: clamp(26px, 7vw, 34px); }
+ .card-select-page .card-detail__facts .card-abilities { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+ .card-detail__facts .card-ability { flex-direction: column; align-items: flex-start; }
+}

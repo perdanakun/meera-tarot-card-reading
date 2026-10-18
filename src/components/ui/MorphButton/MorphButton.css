@@ -54,3 +54,17 @@
     height: 136px;
   }
 }
+
+
+/* Game menu variant: same button→circle→paw animation and coordinates. */
+.meow-morph-button--game [data-shape] {
+  stroke: #fccd4a;
+  stroke-width: 1.15;
+  paint-order: stroke fill;
+}
+.meow-morph-button--game .meow-morph-button__label {
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  letter-spacing: .25px;
+  text-transform: uppercase;
+}

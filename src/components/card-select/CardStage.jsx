@@ -1,12 +1,11 @@
 import { useRef } from "react";
-import LayerMedia from "./LayerMedia";
+import LayeredTarotCard from "../ui/LayeredTarotCard/LayeredTarotCard";
 import AbilityPanel from "./AbilityPanel";
 import StatPanel from "./StatPanel";
-import CardDescription from "./CardDescription";
 import { MOTION } from "./motion";
 
 export function cardTheme(card) {
-  return { "--meera-primary": card.theme.primary, "--card-accent": card.theme.accent, "--card-bg": card.theme.bg, "--card-text": card.theme.text };
+  return { "--title-fit": `${90 / (Math.max(...card.title.split(" ").map((word) => word.length)) * .72)}vw`, "--meera-primary": card.theme.primary, "--card-accent": card.theme.accent, "--card-bg": card.theme.bg, "--card-text": card.theme.text };
 }
 
 export default function CardStage({ card, phase, active, visible, reducedMotion, onSwipe, onBoundary, showFrame = false, renderFrame }) {
@@ -20,9 +19,11 @@ export default function CardStage({ card, phase, active, visible, reducedMotion,
     pointer.current = null;
     resetFollow();
   };
-  return <article className={`card-select__scene is-${phase}`} style={cardTheme(card)} data-card-scene={phase}
+  return <article className={`card-select__scene is-${phase}${card.media.placeholder ? " is-placeholder" : ""}`} style={cardTheme(card)} data-card-scene={phase}
     aria-hidden={!active || undefined} inert={!active}>
-    <div className="card-select__wash" data-wash />
+    <div className="card-select__wash" data-wash>
+      {card.media.page && <img className="card-page-background" src={card.media.page} alt="" decoding="async" draggable="false" />}
+    </div>
     <div className="card-stage" data-stage
       onPointerDown={(event) => {
         if (!active || event.isPrimary === false || event.button !== 0) return;
@@ -48,41 +49,16 @@ export default function CardStage({ card, phase, active, visible, reducedMotion,
         cancel(event);
       }} onPointerCancel={cancel} onLostPointerCapture={() => { pointer.current = null; resetFollow(); }}>
       <div className="card-stage__canvas" data-canvas>
-        <div className="card-stage__bg" data-bg>
-          {card.media.bg && <img src={card.media.bg} decoding="async" alt="" draggable={false} />}
-        </div>
-        <div className="card-stage__name" aria-hidden="true">
-          {card.title.split(" ").map((word, i) => <span className="card-stage__word-mask" key={`${word}-${i}`}><span data-name-word>{word}&nbsp;</span></span>)}
-        </div>
-        <div className="card-stage__main-motion" data-main>
-          <div className="card-stage__drag" ref={follow}>
-            <div className="card-stage__breath" data-breath>
-              <LayerMedia src={card.media.main} webm={card.media.webm} mov={card.media.mov} selected={active} visible={visible} reducedMotion={reducedMotion} />
-            </div>
-          </div>
-        </div>
-        {card.media.props.map((prop, index) => (
-          <div className="card-stage__props" data-prop data-prop-index={index} key={prop.id}>
-            <div className="card-stage__float" data-float>
-              {/* Static clips partition ONE registered export. Each band animates
-                  only transform / opacity. Bottom band enters first. */}
-              {Array.from({ length: MOTION.bandCount }, (_, band) => {
-                const top = (MOTION.bandCount - 1 - band) * 100 / MOTION.bandCount;
-                const bottom = band * 100 / MOTION.bandCount;
-                return <div className="card-stage__band" key={band} style={{ clipPath: `inset(${top}% 0 ${bottom}% 0)` }}>
-                  <img data-prop-band src={prop.src} decoding="async" alt="" draggable={false} />
-                </div>;
-              })}
-            </div>
-          </div>
-        ))}
-        {/* TAROT FRAME SLOT: no frame implementation or styles are included.
-            Usage: showFrame renderFrame={(card) => <TarotFrame ... />} */}
+        <LayeredTarotCard card={card} mode="scene" showFrame={false} decorative bandedProps
+          animateMedia selected={active} visible={visible} reducedMotion={reducedMotion} mainDragRef={follow}
+          betweenLayers={<div className="card-stage__name" aria-hidden="true">
+            {card.title.split(" ").map((word, i) => <span className="card-stage__word-mask" key={`${word}-${i}`}><span data-name-word>{word}&nbsp;</span></span>)}
+          </div>} />
         {showFrame && renderFrame?.(card)}
-        <span className="card-stage__badge" data-badge aria-label={`Card ${card.number}`}>{card.number}</span>
       </div>
+      <span className="card-stage__badge" data-badge aria-label={`Card ${card.number}`}>{card.number}</span>
     </div>
     <div className="card-select__panels"><AbilityPanel card={card} /><StatPanel card={card} /></div>
-    <CardDescription card={card} />
+
   </article>;
 }

@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import "./IntroScene.css";
+import IntroBackground from "./IntroBackground";
 import PurrHeader from "./ui/PurrHeader/PurrHeader";
 import MorphButton, { PAW_OFFSET_Y } from "./ui/MorphButton/MorphButton";
 
@@ -35,6 +36,7 @@ const PREFIX = "im lucifur son of the darkness, and ill tell your ";
 const ORIGINAL = "fortune";
 const REPLACEMENT = "purrtune";
 const MESSAGE = `${PREFIX}${REPLACEMENT}`;
+const CURSE_MESSAGE = "meow! don't touch me or i'll curse you..";
 const CAT_FRAMES = [catFrame1, catFrame2, catFrame3, catFrame4];
 
 // Illustrator's path order is NOT the reading order. Verified against tittle.svg.
@@ -48,7 +50,7 @@ function TitleLine({ from, to, viewBox, className }) {
     <svg className={className} viewBox={viewBox} aria-hidden="true" focusable="false">
       {TITLE_PATHS.slice(from, to).map((d, index) => (
         <g key={from + index} className="meera-intro__letter" data-letter={from + index}>
-          <path d={d} fill="currentColor" />
+          <g className="meera-intro__letter-wiggle" style={{ "--letter-phase": `${-(from + index) * .137}s` }}><path d={d} fill="currentColor" /></g>
         </g>
       ))}
     </svg>
@@ -127,6 +129,10 @@ export default function IntroScene({
   const [catSettled, setCatSettled] = useState(false);
   const [catHovered, setCatHovered] = useState(false);
   const [chatPinned, setChatPinned] = useState(false);
+  const [chatClicked, setChatClicked] = useState(false);
+  const [menuChoice, setMenuChoice] = useState(0);
+  const [titleExcited, setTitleExcited] = useState(false);
+  const titleTimer = useRef(null);
   const introRef = useRef(null);
   const catRef = useRef(null);
   const hypnosisRef = useRef(null);
@@ -147,6 +153,49 @@ export default function IntroScene({
   const activePortal = entering || arriving;
 
   const bubbleVisible = openingDone && !activePortal && (catHovered || chatPinned);
+
+  function touchCat() {
+    if (!openingDone || activePortal) return;
+    setChatClicked(true);
+    setChatPinned(true);
+    swapPose(!angryRef.current);
+  }
+
+  function dismissChat() {
+    setChatPinned(false);
+    setCatHovered(false);
+    setChatClicked(false);
+  }
+
+  function exciteTitle() {
+    window.clearTimeout(titleTimer.current);
+    setTitleExcited(true);
+    titleTimer.current = window.setTimeout(() => setTitleExcited(false), 950);
+  }
+  useEffect(() => () => window.clearTimeout(titleTimer.current), []);
+
+  // Keyboard selection uses real button/link focus; Enter keeps native activation.
+  useEffect(() => {
+    if (!openingDone || activePortal) return;
+    const keys = event => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      const target = event.target;
+      const inMenu = actionRef.current?.contains(target);
+      const onPage = target === document.body || target === document.documentElement;
+      if (!inMenu && !onPage) return;
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+        const next = menuChoice === 0 ? 1 : 0;
+        setMenuChoice(next);
+        actionRef.current?.querySelector(next === 0 ? ".meow-morph-button" : ".meera-intro__see-cards")?.focus({ preventScroll: true });
+      } else if (onPage && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        actionRef.current?.querySelector(menuChoice === 0 ? ".meow-morph-button" : ".meera-intro__see-cards")?.click();
+      }
+    };
+    window.addEventListener("keydown", keys);
+    return () => window.removeEventListener("keydown", keys);
+  }, [openingDone, activePortal, menuChoice]);
 
   // Decode before playback to avoid empty frames. Failed walking assets fall back
   // to the existing idle cat; no timeout reveals an unfinished opening.
@@ -351,7 +400,7 @@ export default function IntroScene({
   useEffect(() => {
     if (!bubbleVisible) return;
     const dismiss = event => {
-      if (event.key === "Escape") { setChatPinned(false); setCatHovered(false); }
+      if (event.key === "Escape") dismissChat();
     };
     window.addEventListener("keydown", dismiss);
     return () => window.removeEventListener("keydown", dismiss);
@@ -610,14 +659,32 @@ export default function IntroScene({
         activePortal ? " is-entering" : ""}${reducedMotion ? " is-reduced-motion" : ""}${arriving ? " is-arriving" : ""
       }`}
       aria-labelledby="intro-title"
+      data-ready={openingDone && !activePortal}
+      data-motion-active={openingDone && !activePortal && loopVisible && !reducedMotion}
+      data-title-excited={titleExcited}
     >
+      <IntroBackground
+        openingDone={openingDone}
+        activePortal={activePortal}
+        reducedMotion={reducedMotion}
+        loopVisible={loopVisible}
+      />
+      <IntroBackground
+        plane="foreground"
+        openingDone={openingDone}
+        activePortal={activePortal}
+        reducedMotion={reducedMotion}
+        loopVisible={loopVisible}
+      />
       <PurrHeader visible={openingDone && !activePortal} />
       <h1 id="intro-title" className="meera-intro__sr-only">Purranormal</h1>
       <div className="meera-intro__content">
-        <div className="meera-intro__wordmark" aria-hidden="true">
+        <button type="button" className="meera-intro__wordmark"
+          aria-label="Make Purranormal wiggle" disabled={!openingDone || activePortal}
+          onClick={exciteTitle}>
           <TitleLine from={0} to={4} viewBox="0 0 522.162 353.96" className="meera-intro__wordmark-purr" />
           <TitleLine from={4} to={11} viewBox="522.162 0 1004.798 353.96" className="meera-intro__wordmark-anormal" />
-        </div>
+        </button>
 
         <div className="meera-intro__cat" ref={catRef}>
           <button
@@ -643,32 +710,22 @@ export default function IntroScene({
               const p = pointerStart.current;
               pointerStart.current = null;
               if (p && p.id === event.pointerId && !p.moved && Math.abs((window.scrollY) - p.scroll) < 10 &&
-                Math.hypot(event.clientX - p.x, event.clientY - p.y) <= 10) swapPose(!angryRef.current);
+                Math.hypot(event.clientX - p.x, event.clientY - p.y) <= 10) touchCat();
             }}
-            onClick={event => { if (event.detail === 0) swapPose(!angryRef.current); }}
+            onClick={event => { if (event.detail === 0) touchCat(); }}
           >
             <img className="meera-intro__walking" src={WALK_FRAMES[walkFrame]} alt="" draggable={false} />
             <img className="meera-intro__idle" src={angry ? catAngry : CAT_FRAMES[catFrame]} alt="" draggable={false} />
           </button>
-          <div id="lucifur-speech" className="meera-intro__speech" hidden={!bubbleVisible}>
-            <span className="meera-intro__sr-only">{MESSAGE}</span>
-            <p aria-hidden="true">
-              {visiblePrefix}
-              {visibleOriginal && (
-                <span className={`meera-intro__correction${stage === "strike" || showReplacement ? " is-struck" : ""}`}>
-                  {visibleOriginal}
-                </span>
-              )}
-              {showReplacement && <span className="meera-intro__replacement">{REPLACEMENT}</span>}
-              {!showReplacement && <span className="meera-intro__cursor" />}
-            </p>
-          </div>
+
         </div>
 
         {/* MORPH BUTTON — BOTTOM */}
-        <div className="meera-intro__action" ref={actionRef}>
+        <div className="meera-intro__action" ref={actionRef} role="group" aria-label="Game menu" data-choice={menuChoice}>
+          <span className="meera-intro__menu-cursor" aria-hidden="true">▶</span>
+          <div className="meera-intro__start-row" onPointerEnter={() => setMenuChoice(0)} onFocusCapture={() => setMenuChoice(0)}>
           <MorphButton
-            variant="solid"
+            variant="game"
             color="#000000"
             textColor="#ffffff"
             duration={0.55}
@@ -679,8 +736,32 @@ export default function IntroScene({
           >
             Let's Paw!
           </MorphButton>
+          </div>
+          <a className="meera-intro__see-cards" href="/tarot-cards"
+            tabIndex={openingDone && !activePortal ? 0 : -1}
+            onPointerEnter={() => setMenuChoice(1)} onFocus={() => setMenuChoice(1)}>See Cards</a>
         </div>
       </div>
+          <div id="lucifur-speech" className="meera-intro__speech" hidden={!bubbleVisible}
+            data-clicked={chatClicked}>
+            <div className="meera-intro__speech-heading">
+              <span>LUCIFUR</span>
+              {chatPinned && <button type="button" onClick={dismissChat} aria-label="Close Lucifur dialogue">×</button>}
+            </div>
+            <span className="meera-intro__sr-only" role="status" aria-live="polite">{chatClicked ? CURSE_MESSAGE : MESSAGE}</span>
+            <p aria-hidden="true">
+              {chatClicked ? CURSE_MESSAGE : <>
+                {visiblePrefix}
+                {visibleOriginal && <span className={`meera-intro__correction${stage === "strike" || showReplacement ? " is-struck" : ""}`}>{visibleOriginal}</span>}
+                {showReplacement && <span className="meera-intro__replacement">{REPLACEMENT}</span>}
+                {!showReplacement && <span className="meera-intro__cursor" />}
+              </>}
+            </p>
+            <span className="meera-intro__speech-next" aria-hidden="true">▼</span>
+          </div>
+      <footer className="meera-intro__footer" hidden={!openingDone || activePortal}>
+        © 2026 design and code by <a href="https://perdanakun.com">@perdanakun</a>
+      </footer>
 
       {activePortal && portalLayout && (
         <div className="meera-intro__transition" ref={hypnosisRef} aria-hidden="true">

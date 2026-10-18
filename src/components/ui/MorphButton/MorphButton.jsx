@@ -205,6 +205,8 @@ tl.to(
   }, [reducedMotion]);
 
   function handleEnter() {
+    // Game menu keeps its label readable while selected; morph only on activation.
+    if (variant === "game") return;
     if (disabled || busyRef.current) return;
     if (reducedRef.current) timelineRef.current?.progress(1).pause();
     else timelineRef.current?.play();
@@ -281,3 +283,4 @@ tl.to(
     </button>
   );
 }
+

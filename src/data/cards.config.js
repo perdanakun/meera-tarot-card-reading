@@ -6,32 +6,35 @@ export const CARD_METADATA = [
     slug: "00-the-fool", number: "0", title: "THE FOOL",
     theme: { primary: "#496353", accent: "#FCCD4A", bg: "#142820", text: "#FFF5DB" },
     keyword: "Beginnings", element: "Air",
+    details: "The Fool invites a beginner’s mindset: curiosity before certainty, and movement before a perfect plan. Keep your sense of wonder while paying attention to the ground beneath your paws.",
     stats: { luck: 88, mystery: 42, courage: 92 },
     description: "A curious paw at the edge of possibility. Follow one small adventure, even before you know where it leads.",
-    motion: { propsFrom: "rise", mainFrom: "bottom" },
+    motion: { propsFrom: "rise", mainFrom: "drop" },
   },
   {
     slug: "01-the-magician", number: "I", title: "THE MAGICIAN",
     theme: { primary: "#8D292F", accent: "#FCCD4A", bg: "#30151C", text: "#FFF5DB" },
     keyword: "Creation", element: "Mercury",
+    details: "The Magician brings attention to what you can already work with: your skills, your tools, and the next deliberate action. Choose one intention and give it a tangible form, rather than waiting for every possibility to become clear.",
     stats: { luck: 76, mystery: 84, courage: 90 },
     description: "Focus turns possibility into something real. Lucifur reminds you that the tools you need may already be within reach.",
-    motion: { propsFrom: "pop", mainFrom: "bottom" },
+    motion: { propsFrom: "pop", mainFrom: "summon" },
   },
   {
     slug: "02-the-high-priestess", number: "II", title: "THE HIGH PRIESTESS",
     theme: { primary: "#23335A", accent: "#FCCD4A", bg: "#10192E", text: "#FFF5DB" },
     keyword: "Intuition", element: "Water",
+    details: "The High Priestess makes room for reflection before a decision. Notice what is unsaid, separate your observations from assumptions, and let a quiet moment reveal what deserves a closer look.",
     stats: { luck: 70, mystery: 95, courage: 50 },
     description: "Quiet eyes see what noise conceals. Pause beside the veil, trust your intuition, and let the answer arrive.",
-    motion: { propsFrom: "fade", mainFrom: "bottom" },
+    motion: { propsFrom: "fade", mainFrom: "levitate" },
   },
 ];
 
 // Vite needs literal patterns. * matches one folder level; no recursive lookup.
 // eager + ?url + default produces URL strings, not decoded image bytes.
 const files = import.meta.glob(
-  ["../assets/cards/*/*.png", "../assets/cards/*/*.webp", "../assets/cards/*/*.webm", "../assets/cards/*/*.mov"],
+  ["../assets/cards/*/*.png", "../assets/cards/*/*.webp", "../assets/cards/*/*.webm", "../assets/cards/*/*.mov", "!../assets/cards/*/detail.png", "!../assets/cards/*/detail.webp"],
   { eager: true, query: "?url", import: "default" },
 );
 const groups = {};
@@ -47,7 +50,7 @@ export const cards = CARD_METADATA.map((meta) => {
     .map((name) => name.replace(/\.(png|webp)$/, "")))]
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   return { ...meta, urlId: meta.slug.replace(/^\d+-the-/, "").replace(/^\d+-/, ""), media: {
-    bg: image("bg"), main: image("main") || placeholderCat,
+    page: image("bg_page"), bg: image("bg"), main: image("main") || placeholderCat,
     // Drop main.webm / main.mov in this card's folder. No import changes needed.
     webm: assets["main.webm"], mov: assets["main.mov"],
     props: propNames.map((name) => ({ id: name, src: image(name) })),
@@ -70,5 +73,6 @@ function decodeImage(src) {
 }
 export function preloadCard(card) {
   if (!card) return Promise.resolve();
-  return Promise.all([card.media.bg, card.media.main, ...card.media.props.map((prop) => prop.src)].map(decodeImage));
+  return Promise.all([card.media.page, card.media.bg, card.media.main, ...card.media.props.map((prop) => prop.src)].map(decodeImage));
 }
+

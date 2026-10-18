@@ -1,0 +1,11 @@
+<svg width="1024" height="1536" viewBox="0 0 1024 1536" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M64 18H960C990.667 18 1006 33.3333 1006 64V1472C1006 1502.67 990.667 1518 960 1518H64C33.3333 1518 18 1502.67 18 1472V64C18 33.3333 33.3333 18 64 18Z" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M36 98V54C36 42 42 36 54 36H98M46 84V56C46 49.3333 49.3333 46 56 46H84M54 66L66 54" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M66 72C68.6667 68.6667 71.3333 64 74 58C75.3333 64.6667 78.6667 69.3333 84 72C78 74 74 78 72 84C70.6667 78.6667 68.6667 74.6667 66 72Z" fill="#FCCD4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M988 98V54C988 42 982 36 970 36H926M978 84V56C978 49.3333 974.667 46 968 46H940M970 66L958 54" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M958 72C955.333 68.6667 952.667 64 950 58C948.667 64.6667 945.333 69.3333 940 72C946 74 950 78 952 84C953.333 78.6667 955.333 74.6667 958 72Z" fill="#FCCD4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M36 1438V1482C36 1494 42 1500 54 1500H98M46 1452V1480C46 1486.67 49.3333 1490 56 1490H84M54 1470L66 1482" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M66 1464C68.6667 1467.33 71.3333 1472 74 1478C75.3333 1471.33 78.6667 1466.67 84 1464C78 1462 74 1458 72 1452C70.6667 1457.33 68.6667 1461.33 66 1464Z" fill="#FCCD4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M988 1438V1482C988 1494 982 1500 970 1500H926M978 1452V1480C978 1486.67 974.667 1490 968 1490H940M970 1470L958 1482" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+<path d="M958 1464C955.333 1467.33 952.667 1472 950 1478C948.667 1471.33 945.333 1466.67 940 1464C946 1462 950 1458 952 1452C953.333 1457.33 955.333 1461.33 958 1464Z" fill="#FCCD4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#131212"/>
+</svg>

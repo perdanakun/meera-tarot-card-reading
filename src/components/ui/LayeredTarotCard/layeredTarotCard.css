@@ -1,0 +1,28 @@
+.layered-tarot-card { position: relative; width: 100%; height: 100%; aspect-ratio: 2 / 3; isolation: isolate; perspective: 1400px; }
+.layered-tarot-card.is-scene { aspect-ratio: 16 / 9; }
+.layered-tarot-card__flip { position: absolute; inset: 0; transform-style: preserve-3d; }
+.layered-tarot-card__front, .layered-tarot-card__back { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: var(--ltc-paper); }
+.layered-tarot-card.is-card .layered-tarot-card__front, .layered-tarot-card.is-card .layered-tarot-card__back { border-radius: 10px; }
+.layered-tarot-card__front { transform: translateZ(.1px); }
+.layered-tarot-card__back { transform: rotateY(180deg) translateZ(.1px); }
+.layered-tarot-card__back > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.layered-tarot-card__scene-position { position: absolute; height: 100%; width: var(--ltc-scene-width); left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.layered-tarot-card__camera { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.layered-tarot-card__background, .layered-tarot-card__main, .layered-tarot-card__drag, .layered-tarot-card__breath, .layered-tarot-card__prop, .layered-tarot-card__float, .layered-tarot-card__band { position: absolute; inset: 0; width: 100%; height: 100%; }
+.layered-tarot-card__background { z-index: 1; }
+.layered-tarot-card__between { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.layered-tarot-card__main { z-index: 3; transform-origin: 50% 85%; }
+.layered-tarot-card__breath { transform-origin: bottom center; }
+.layered-tarot-card__drag { transition: transform 180ms cubic-bezier(.22,1,.36,1); }
+.layered-tarot-card__prop { z-index: 4; transform-origin: center; }
+.layered-tarot-card__background > img, .layered-tarot-card__band > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; user-select: none; }
+.layered-tarot-card__frame { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+.layered-tarot-card__frame > svg { width: 100%; height: 100%; display: block; }
+/* Temporary square SVG fallback, normalized to scene height so morphs match. */
+.layered-tarot-card.is-placeholder .card-layer-media > img { inset: 0; left: 0; width: 100%; height: 100%; transform: scale(.78); object-fit: contain; }
+@media (max-width: 800px) { .layered-tarot-card.is-placeholder .card-layer-media > img { transform: scale(.6); } }
+@media (prefers-reduced-motion: reduce) { .layered-tarot-card__drag { transition: none; } }
+/* Keep the reusable component independent of cardSelect.css. */
+.layered-tarot-card .card-layer-media { position: absolute; inset: 0; width: 100%; height: 100%; }
+.layered-tarot-card .card-layer-media > img, .layered-tarot-card .card-layer-media > video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; pointer-events: none; user-select: none; }
+/* The placeholder override above remains a uniform transform, not a crop. */

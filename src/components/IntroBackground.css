@@ -1,0 +1,36 @@
+.intro-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.intro-background * { pointer-events: none; }
+/* Shared cover geometry for the rear scenery and front foreground plane. */
+.intro-background--foreground { z-index: 6; }
+.intro-background__stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, calc(100vh * 16 / 9));
+  height: max(100vh, calc(100vw * 9 / 16));
+  transform: translate(-50%, -50%);
+}
+@supports (height: 100svh) {
+  .intro-background__stage {
+    width: max(100vw, calc(100svh * 16 / 9));
+    height: max(100svh, calc(100vw * 9 / 16));
+  }
+}
+.intro-background__layer, .intro-background__motion, .intro-background__motion > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.intro-background__motion > img {
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+}

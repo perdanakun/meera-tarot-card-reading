@@ -5,6 +5,8 @@ import { cards, cardIndexFromQuery, preloadCard } from "../data/cards.config";
 import CardStage, { cardTheme } from "./card-select/CardStage";
 import CardThumbStrip from "./card-select/CardThumbStrip";
 import BackButton from "./card-select/BackButton";
+import PurrButton from "./ui/PurrButton/PurrButton";
+import CardInfoDialog from "./card-select/CardInfoDialog";
 import { MOTION } from "./card-select/motion";
 import "./cardSelect.css";
 
@@ -31,6 +33,9 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
   const [view, setView] = useState(null);
   const [loading, setLoading] = useState(true);
   const [leaving, setLeaving] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const closeInfo = useCallback(() => setInfoOpen(false), []);
+  useEffect(() => { if (!active) setInfoOpen(false); }, [active]);
   const [visible, setVisible] = useState(!document.hidden && active);
   const [layout, setLayout] = useState({ mobile: window.innerWidth <= 800, revision: 0 });
   const reduced = useReducedMotion();
@@ -62,12 +67,15 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
     stopLoops(); isAnimating.current = false;
   }, [stopLoops]);
 
+  const openInfo = useCallback(() => { finishCurrent(); setInfoOpen(true); }, [finishCurrent]);
+
   const select = useCallback((index) => {
     if (leavingRef.current || !activeRef.current || index < 0 || index >= cards.length || desired.current === index) return;
     generation.current += 1;
     pending.current = index;
     desired.current = index;
     finishCurrent();
+    setInfoOpen(false);
     setRequest((previous) => ({ index, serial: previous.serial + 1 }));
     setParams((previous) => {
       const next = new URLSearchParams(previous);
@@ -158,25 +166,26 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
       const abilities = inside("[data-ability]");
       const stats = inside("[data-stat]");
       const fills = inside("[data-stat-fill]");
-      const description = inside("[data-description]");
       const badge = inside("[data-badge]");
       const x = reduced ? 0 : view.direction * MOTION.distance.direction;
       gsap.set(incoming, { opacity: 1 });
       gsap.set(wash, { opacity: 0 });
       gsap.set(bg, { opacity: 0, scale: reduced ? 1 : 1.08 });
       gsap.set(names, { opacity: 0, yPercent: reduced ? 0 : MOTION.distance.name });
-      gsap.set(main, { opacity: 0, x, y: reduced ? 0 : MOTION.distance.main });
-      gsap.set(bands, { opacity: 0, scale: reduced || card.motion?.propsFrom === "fade" ? 1 : .92, y: reduced || card.motion?.propsFrom === "fade" ? 0 : MOTION.distance.props });
+      const style = card.motion?.mainFrom || "summon";
+      const travel = (root.current.clientHeight + incoming.querySelector("[data-canvas]").clientHeight) * .65 * (style === "drop" ? -1 : 1);
+      // Main remains solid. Visibility is switched on only when it is offscreen.
+      gsap.set(main, { opacity: reduced ? 0 : 1, visibility: reduced ? "visible" : "hidden", x, y: reduced ? 0 : travel, rotation: style === "drop" && !reduced ? MOTION.character.tilt : 0, transformOrigin: "50% 85%" });
+      if (bands.length) gsap.set(bands, { opacity: 0, scale: reduced || card.motion?.propsFrom === "fade" ? 1 : .92, y: reduced || card.motion?.propsFrom === "fade" ? 0 : MOTION.distance.props });
       gsap.set(abilities, { opacity: 0, x: reduced ? 0 : -MOTION.distance.ui });
       gsap.set(stats, { opacity: 0, x: reduced ? 0 : MOTION.distance.ui });
       gsap.set(fills, { scaleX: reduced ? (i, element) => Number(element.dataset.value) : 0, transformOrigin: "left center" });
-      gsap.set(description, { opacity: 0, y: reduced ? 0 : 10 });
       gsap.set(badge, { opacity: 0, scale: reduced ? 1 : .8 });
       if (outgoing) {
         // Reconstruct a fully settled outgoing card after a previous context
         // revert. This also makes rapid interrupts deterministic.
         gsap.set(outgoing, { opacity: 1 });
-        gsap.set(outgoing.querySelectorAll("[data-wash], [data-bg], [data-main], [data-name-word], [data-prop-band], [data-ability], [data-stat], [data-description], [data-badge]"), { opacity: 1, x: 0, y: 0, yPercent: 0, scale: 1 });
+        gsap.set(outgoing.querySelectorAll("[data-wash], [data-bg], [data-main], [data-name-word], [data-prop-band], [data-ability], [data-stat], [data-description], [data-badge]"), { opacity: 1, x: 0, y: 0, yPercent: 0, scale: 1, rotation: 0, visibility: "visible" });
         gsap.set(outgoing.querySelectorAll("[data-breath], [data-float]"), { y: 0, scale: 1 });
         gsap.set(outgoing.querySelectorAll("[data-stat-fill]"), { scaleX: (i, element) => Number(element.dataset.value) });
       }
@@ -188,20 +197,34 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
       master.current = tl;
       if (outgoing) {
         tl.to(outgoing.querySelectorAll("[data-ability], [data-stat], [data-description], [data-badge]"), { opacity: 0, duration: reduced ? MOTION.reduced.exit : MOTION.exit.ui, ease: MOTION.ease.exit }, 0);
-        tl.to(outgoing.querySelectorAll("[data-prop]"), { opacity: 0, scale: reduced ? 1 : .94, x: -x, duration: reduced ? MOTION.reduced.exit : MOTION.exit.props, ease: MOTION.ease.exit }, 0);
+        if (outgoing.querySelector("[data-prop]")) tl.to(outgoing.querySelectorAll("[data-prop]"), { opacity: 0, scale: reduced ? 1 : .94, x: -x, duration: reduced ? MOTION.reduced.exit : MOTION.exit.props, ease: MOTION.ease.exit }, 0);
         tl.to(outgoing.querySelectorAll("[data-main]"), { opacity: 0, x: -x, y: reduced ? 0 : MOTION.distance.exitMain, duration: reduced ? MOTION.reduced.exit : MOTION.exit.main, ease: MOTION.ease.exit }, MOTION.exit.mainAt);
         tl.to(outgoing.querySelectorAll("[data-name-word]"), { opacity: 0, duration: reduced ? MOTION.reduced.exit : MOTION.exit.name, ease: MOTION.ease.exit }, MOTION.exit.nameAt);
         tl.to(outgoing, { opacity: 0, duration: reduced ? MOTION.reduced.exit : MOTION.exit.bg, ease: MOTION.ease.exit }, reduced ? 0 : MOTION.exit.fadeAt);
       }
       const start = outgoing && !reduced ? MOTION.exit.overlap : 0;
       if (reduced) {
-        tl.to([...wash, ...bg, ...main, ...names, ...bands, ...abilities, ...stats, ...description, ...badge], { opacity: 1, duration: MOTION.reduced.entrance, ease: "sine.out" }, start);
+        tl.to([...wash, ...bg, ...main, ...names, ...bands, ...abilities, ...stats, ...badge], { opacity: 1, duration: MOTION.reduced.entrance, ease: "sine.out" }, start);
       } else {
         const e = MOTION.entrance;
         tl.to(wash, { opacity: 1, duration: e.bg, ease: MOTION.ease.bg }, start)
           .to(bg, { opacity: 1, scale: 1, duration: e.bg, ease: MOTION.ease.bg }, start)
-          .to(names, { opacity: 1, yPercent: 0, duration: e.name, stagger: e.nameStagger, ease: MOTION.ease.text }, start + e.nameAt)
-          .to(main, { opacity: 1, x: 0, y: 0, duration: e.main, ease: MOTION.ease.main }, start + e.mainAt);
+          .to(names, { opacity: 1, yPercent: 0, duration: e.name, stagger: e.nameStagger, ease: MOTION.ease.text }, start + e.nameAt);
+        const c = MOTION.character;
+        const at = start + c.mainAt;
+        tl.set(main, { visibility: "visible" }, at);
+        if (style === "drop") {
+          tl.to(main, { x: 0, y: 0, rotation: 1.5, duration: c.drop, ease: "power3.in" }, at)
+            .to(main, { scaleX: 1.025, scaleY: .975, rotation: 0, duration: c.squash, ease: "sine.out" })
+            .to(main, { y: c.reboundY, scaleX: .992, scaleY: 1.008, duration: c.rebound, ease: "power2.out" })
+            .to(main, { y: 0, scaleX: 1.008, scaleY: .992, duration: c.land, ease: "power2.in" })
+            .to(main, { scaleX: 1, scaleY: 1, duration: c.settle, ease: "sine.inOut" });
+        } else if (style === "levitate") {
+          tl.to(main, { x: 0, y: 0, duration: c.priestess, ease: "power3.out" }, at);
+        } else {
+          tl.to(main, { x: 0, y: 0, duration: c.summon, ease: "back.out(1.18)" }, at)
+            .to(main, { rotation: 0, scaleX: 1, scaleY: 1, duration: c.summonSettle, ease: "sine.inOut" });
+        }
         Array.from(props).forEach((prop, index) => {
           const propStart = start + e.propsAt + index * e.propStagger;
           tl.to(prop.querySelectorAll("[data-prop-band]"), { opacity: 1, scale: 1, y: 0, duration: e.props, stagger: layout.mobile ? e.bandStagger * .7 : e.bandStagger, ease: card.motion?.propsFrom === "fade" ? MOTION.ease.text : MOTION.ease.props }, propStart);
@@ -209,7 +232,6 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
         tl.to(abilities, { opacity: 1, x: 0, duration: e.ui, stagger: e.uiStagger, ease: MOTION.ease.ui }, start + e.uiAt)
           .to(stats, { opacity: 1, x: 0, duration: e.ui, stagger: e.uiStagger, ease: MOTION.ease.ui }, start + e.uiAt)
           .to(fills, { scaleX: (i, element) => Number(element.dataset.value), duration: e.bars, stagger: e.uiStagger, ease: MOTION.ease.ui }, start + e.barsAt)
-          .to(description, { opacity: 1, y: 0, duration: e.description, ease: MOTION.ease.ui }, start + e.descriptionAt)
           .to(badge, { opacity: 1, scale: 1, duration: e.badge, ease: MOTION.ease.props }, start + e.badgeAt);
         tl.call(() => {
           if (generation.current !== view.token || leavingRef.current) return;
@@ -225,7 +247,8 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
           if (!visibleRef.current) loops.current.forEach((loop) => loop.pause());
         });
       }
-      if (!visibleRef.current) tl.pause();
+      if (infoOpen) { tl.progress(1, true); isAnimating.current = false; }
+      else if (!visibleRef.current) tl.pause();
     }, root);
     context.current = ctx;
     return () => { master.current?.kill(); stopLoops(); ctx.revert(); };
@@ -233,12 +256,12 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
 
   useEffect(() => {
     let intersecting = true;
-    const update = () => setVisible(active && intersecting && !document.hidden);
+    const update = () => setVisible(active && !infoOpen && intersecting && !document.hidden);
     const observer = new IntersectionObserver(([entry]) => { intersecting = entry.isIntersecting; update(); });
     if (root.current) observer.observe(root.current);
     document.addEventListener("visibilitychange", update); update();
     return () => { observer.disconnect(); document.removeEventListener("visibilitychange", update); };
-  }, [active]);
+  }, [active, infoOpen]);
   useEffect(() => {
     if (leavingRef.current) return;
     if (visible) { master.current?.resume(); loops.current.forEach((loop) => loop.resume()); }
@@ -264,24 +287,26 @@ export default function CardSelectPage({ active = true, showFrame = false, rende
   }, [finishCurrent]);
   useEffect(() => {
     const key = (event) => {
-      if (!active || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+      if (infoOpen || !active || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
       if (event.key === "Escape") { event.preventDefault(); back(); }
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); step(event.key === "ArrowRight" ? 1 : -1); }
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [active, back, step]);
+  }, [active, back, step, infoOpen]);
 
   const target = cards[request.index];
   const displayed = view ? cards[view.incoming] : target;
   return <section ref={root} className="card-select-page" style={cardTheme(displayed)} aria-label="Purranormal card gallery" aria-busy={loading}>
-    <header className="card-select__header"><BackButton onBack={back} disabled={leaving} /><h1>CHOOSE YOUR CARD</h1><span className="card-select__edition">PURRANORMAL / ARCANA</span></header>
+    <header className="card-select__header"><BackButton onBack={back} disabled={leaving} /><h1 className="card-select__sr">Purranormal tarot cards</h1></header>
     {view && <div className="card-select__scenes" key={view.token}>
       {view.outgoing != null && <CardStage card={cards[view.outgoing]} phase="outgoing" active={false} visible={false} reducedMotion={reduced} />}
-      <CardStage card={cards[view.incoming]} phase="incoming" active={active && !leaving} visible={visible} reducedMotion={reduced}
+      <CardStage card={cards[view.incoming]} phase="incoming" active={active && !leaving && !infoOpen} visible={visible} reducedMotion={reduced}
         onSwipe={step} onBoundary={boundary} showFrame={showFrame} renderFrame={renderFrame} />
     </div>}
     {loading && <p className={`card-select__loading ${view ? "is-switching" : ""}`} role="status">Preparing your card…</p>}
+    <div className="card-select__read-more"><PurrButton onClick={openInfo} disabled={loading || leaving || !active} aria-haspopup="dialog">Read more <span aria-hidden="true">↗</span></PurrButton></div>
+    <CardInfoDialog card={displayed} open={infoOpen} onClose={closeInfo} reducedMotion={reduced} active={active} />
     <CardThumbStrip cards={cards} selectedIndex={request.index} onSelect={select} onStep={step} onBoundary={boundary} disabled={leaving || !active} reducedMotion={reduced} />
     <p className="card-select__sr" aria-live="polite" aria-atomic="true">{!loading && view ? `${displayed.number} ${displayed.title} selected` : ""}</p>
   </section>;

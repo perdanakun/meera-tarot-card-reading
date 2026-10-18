@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
+import LayeredTarotCard from "../ui/LayeredTarotCard/LayeredTarotCard";
+import PurrButton from "../ui/PurrButton/PurrButton";
 
 export default function CardThumbStrip({ cards, selectedIndex, onSelect, onStep, onBoundary, disabled = false, reducedMotion }) {
   const strip = useRef(null);
@@ -41,11 +43,11 @@ export default function CardThumbStrip({ cards, selectedIndex, onSelect, onStep,
     else onStep(delta);
   };
   return <div className="card-thumb-nav" data-thumb-nav>
-    {[-1, 1].map((delta) => <button key={delta} type="button"
+    {[-1, 1].map((delta) => <PurrButton key={delta}
       className={`card-thumb-arrow card-thumb-arrow--${delta < 0 ? "prev" : "next"}`}
       aria-label={delta < 0 ? "Previous card" : "Next card"}
       aria-disabled={disabled || (delta < 0 ? selectedIndex === 0 : selectedIndex === cards.length - 1)}
-      onClick={(event) => step(delta, event)}>{delta < 0 ? "←" : "→"}</button>)}
+      onClick={(event) => step(delta, event)}>{delta < 0 ? "←" : "→"}</PurrButton>)}
     <div className="card-thumb-strip" ref={strip} role="listbox" aria-label="Choose your tarot card" aria-orientation="horizontal"
       onKeyDown={(event) => {
         if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
@@ -81,8 +83,7 @@ export default function CardThumbStrip({ cards, selectedIndex, onSelect, onStep,
           onSelect(index);
         }}>
         <span className="card-thumb__glow" aria-hidden="true" />
-        {/* TAROT FRAME SLOT: replace the plain surface below with your frame later. */}
-        <span className="card-thumb__surface"><img src={card.media.main} decoding="async" alt="" draggable={false} /><span>{card.number}</span></span>
+        <span className="card-thumb__surface"><LayeredTarotCard card={card} decorative selected={index === selectedIndex} reducedMotion={reducedMotion} /><span>{card.number}</span></span>
       </button>)}
     </div>
   </div>;
